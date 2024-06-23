@@ -1,10 +1,7 @@
 import pygame
-from menu.menu import Menu
 from menu.mainmenu import MainMenu
-from menu.menu import MenuSubOptions
 from menu.optionsmenu import OptionsMenu
 from menu.creditmenu import CreditMenu
-
 
 class Game():
     def __init__(self):
@@ -18,12 +15,13 @@ class Game():
         self.running = True
         self.playing = False
 
+        # Menus
         self.main_menu = MainMenu(self)
         self.options_menu = OptionsMenu(self, previous_state=("Main", self.main_menu))
         self.credit_menu = CreditMenu(self, previous_state=("Main", self.main_menu))
         self.current_menu = self.main_menu
 
-        # keys
+        # Events
         self.UP_KEY, self.DOWN_KEY, self.ENTER_KEY, self.ESC_KEY = False, False, False, False
         self.MOUSE_EVENTS = []
 
@@ -34,10 +32,10 @@ class Game():
             events = pygame.event.get()
 
             self.screen.fill((0, 0, 0))
+            self.check_events(events)
 
             if self.playing:
                 # Game
-                self.check_events(events)
                 if (self.ESC_KEY):
                     self.playing = False
                 pygame.draw.circle(self.screen, "red", self.player_pos, 40)
@@ -55,18 +53,9 @@ class Game():
                 self.dt = self.clock.tick(60) / 1000
             else:
                 # Menus
-                text_surface, text_rect = self.current_menu.get_display()
-                self.screen.blit(text_surface, text_rect)
+                self.current_menu.sprites.update(self.MOUSE_EVENTS)
+                self.current_menu.sprites.draw(self.screen)
 
-                self.check_events(events)
-
-                if (isinstance(self.current_menu, MenuSubOptions)):
-                    if (self.UP_KEY):
-                        self.current_menu.move_cursor("UP")
-                    if (self.DOWN_KEY):
-                        self.current_menu.move_cursor("DOWN")
-                    if (self.ENTER_KEY):
-                        self.current_menu.validate()
                 if (self.ESC_KEY):
                     self.current_menu.back()
 
@@ -98,7 +87,7 @@ class Game():
                     self.ESC_KEY = True
 
             if event.type == pygame.MOUSEBUTTONUP:
-                self.mouse_events.append(event)
+                self.MOUSE_EVENTS.append(event)
 
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.ENTER_KEY, self.ESC_KEY = False, False, False, False
