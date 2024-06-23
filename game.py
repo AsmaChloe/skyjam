@@ -1,4 +1,5 @@
 import pygame
+from menu.menu import Menu
 from menu.mainmenu import MainMenu
 from menu.menu import MenuSubOptions
 from menu.optionsmenu import OptionsMenu
@@ -24,16 +25,19 @@ class Game():
 
         # keys
         self.UP_KEY, self.DOWN_KEY, self.ENTER_KEY, self.ESC_KEY = False, False, False, False
+        self.MOUSE_EVENTS = []
 
         self.player_pos = pygame.Vector2(self.WIDTH / 2, self.HEIGHT / 2)
 
     def game_loop(self):
         while self.running:
+            events = pygame.event.get()
+
             self.screen.fill((0, 0, 0))
 
             if self.playing:
                 # Game
-                self.check_events()
+                self.check_events(events)
                 if (self.ESC_KEY):
                     self.playing = False
                 pygame.draw.circle(self.screen, "red", self.player_pos, 40)
@@ -54,7 +58,7 @@ class Game():
                 text_surface, text_rect = self.current_menu.get_display()
                 self.screen.blit(text_surface, text_rect)
 
-                self.check_events()
+                self.check_events(events)
 
                 if (isinstance(self.current_menu, MenuSubOptions)):
                     if (self.UP_KEY):
@@ -73,8 +77,8 @@ class Game():
 
             self.reset_keys()
 
-    def check_events(self):
-        for event in pygame.event.get():
+    def check_events(self, events):
+        for event in events:
             if event.type == pygame.QUIT:
                 self.running = False
 
@@ -93,8 +97,12 @@ class Game():
                 if event.key == pygame.K_ESCAPE:
                     self.ESC_KEY = True
 
+            if event.type == pygame.MOUSEBUTTONUP:
+                self.mouse_events.append(event)
+
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.ENTER_KEY, self.ESC_KEY = False, False, False, False
+        self.MOUSE_EVENTS = []
 
     def quit(self):
         pygame.quit()
