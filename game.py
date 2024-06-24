@@ -2,6 +2,7 @@ import pygame
 from menu.mainmenu import MainMenu
 from menu.optionsmenu import OptionsMenu
 from menu.creditmenu import CreditMenu
+from entity.Entity import Entity
 
 class Game():
     def __init__(self):
@@ -25,7 +26,7 @@ class Game():
         self.UP_KEY, self.DOWN_KEY, self.ENTER_KEY, self.ESC_KEY = False, False, False, False
         self.MOUSE_EVENTS = []
 
-        self.player_pos = pygame.Vector2(self.WIDTH / 2, self.HEIGHT / 2)
+        self.player = Entity("player", pygame.Vector2(self.WIDTH / 2, self.HEIGHT / 2))
 
     def game_loop(self):
         while self.running:
@@ -38,17 +39,18 @@ class Game():
                 # Game
                 if (self.ESC_KEY):
                     self.playing = False
-                pygame.draw.circle(self.screen, "red", self.player_pos, 40)
+                # pygame.draw.circle(self.screen, "red", self.player.position, 40)
+                self.screen.blit(self.player.image, self.player.position)
 
                 keys = pygame.key.get_pressed()
                 if keys[pygame.K_z]:
-                    self.player_pos.y -= 300 * self.dt
+                    self.player.move("up", self.dt, self.clock)
                 if keys[pygame.K_s]:
-                    self.player_pos.y += 300 * self.dt
+                    self.player.move("down", self.dt, self.clock)
                 if keys[pygame.K_q]:
-                    self.player_pos.x -= 300 * self.dt
+                    self.player.move("left", self.dt, self.clock)
                 if keys[pygame.K_d]:
-                    self.player_pos.x += 300 * self.dt
+                    self.player.move("right", self.dt, self.clock)
 
                 self.dt = self.clock.tick(60) / 1000
             else:
