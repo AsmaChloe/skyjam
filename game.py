@@ -4,12 +4,15 @@ from menu.mainmenu import MainMenu
 from menu.optionsmenu import OptionsMenu
 from menu.creditmenu import CreditMenu
 from entity.Entity import Entity
+from entity.background import Background
 
 class Game():
     def __init__(self):
         pygame.init()
         self.WIDTH, self.HEIGHT = 1920, 1080
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+        self.bgSprite = Background()
+        self.bg = pygame.sprite.GroupSingle(self.bgSprite)
 
         self.clock = pygame.time.Clock()
         self.dt = 0
@@ -27,33 +30,30 @@ class Game():
         self.UP_KEY, self.DOWN_KEY, self.ENTER_KEY, self.ESC_KEY = False, False, False, False
         self.MOUSE_EVENTS = []
 
-        self.player = Entity("player", pygame.Vector2(self.WIDTH / 2, self.HEIGHT / 2))
+        self.player = Entity("player", pygame.Vector2(1920/2, 200))
+        self.playerGS = pygame.sprite.GroupSingle(self.player)
 
     def game_loop(self):
         while self.running:
+
             events = pygame.event.get()
 
             self.screen.fill((0, 0, 0))
+
+            
             self.check_events(events)
 
             if self.playing:
+                self.bg.draw(self.screen)
+                self.playerGS.draw(self.screen)
                 # Game
                 if (self.ESC_KEY):
                     self.playing = False
                 # pygame.draw.circle(self.screen, "red", self.player.position, 40)
-                self.screen.blit(self.player.image, self.player.position)
+                
 
-                keys = pygame.key.get_pressed()
-                if keys[pygame.K_z]:
-                    self.player.move("up", self.dt, self.clock)
-                if keys[pygame.K_s]:
-                    self.player.move("down", self.dt, self.clock)
-                if keys[pygame.K_q]:
-                    self.player.move("left", self.dt, self.clock)
-                if keys[pygame.K_d]:
-                    self.player.move("right", self.dt, self.clock)
-
-                self.dt = self.clock.tick(60) / 1000
+                self.bg.update()
+                self.playerGS.update()
             else:
                 # Menus
                 self.current_menu.sprites.update(self.MOUSE_EVENTS)

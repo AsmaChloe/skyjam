@@ -1,11 +1,13 @@
 import pygame
-from utils.CustomSprite import CustomSprite
 
 
-class Entity(CustomSprite):
+class Entity(pygame.sprite.Sprite):
     def __init__(self, name, position):
+        super().__init__()
         self.name = name
         self.position = position
+        self.lastTickTime = 0
+        self.tickFrame = 0
 
         self.image_direction = {
             "up": [pygame.image.load("img/carrotFace.png").convert_alpha()],
@@ -13,21 +15,33 @@ class Entity(CustomSprite):
             "left": [pygame.image.load("img/carrotWalkLeft.png").convert_alpha(), pygame.image.load("img/carrotWalkLeft2.png").convert_alpha()],
             "right": [pygame.image.load("img/carrotWalkRight1.png").convert_alpha(), pygame.image.load("img/carrotWalkRight2.png").convert_alpha()]
         }
-        image = self.image_direction["up"][0]
-        CustomSprite.__init__(self,image, name)
+        self.image = self.image_direction["up"][0]
+        self.rect = self.image.get_rect(center = (self.position.x, self.position.y))
 
-    def move(self, direction, dt, clock):
-        img_nb = 0
-        if direction == "up":
-            self.position.y -= 300 * dt
-        if direction == "down":
-            self.position.y += 300 * dt
-        if direction == "left":
-            self.position.x -= 300 * dt
-            img_nb = (int)(self.position.x % 2)
-        if direction == "right":
-            self.position.x += 300 * dt
-            img_nb = (int)(self.position.x % 2)
-
-
-        self.image = self.image_direction[direction][img_nb]
+        
+    def update(self):
+        keys = pygame.key.get_pressed()
+        
+        if keys[pygame.K_q]:
+            left = self.image_direction["left"]
+            if self.lastTickTime == 0:
+                self.lastTickTime = pygame.time.get_ticks()
+            elif pygame.time.get_ticks() - self.lastTickTime >= 350:
+                self.tickFrame = not self.tickFrame
+                self.lastTickTime = pygame.time.get_ticks()
+            
+            self.image = left[self.tickFrame]
+                
+            self.rect.left -= 5
+                
+        if keys[pygame.K_d]:
+            right = self.image_direction["right"]
+            if self.lastTickTime == 0:
+                self.lastTickTime = pygame.time.get_ticks()
+            elif pygame.time.get_ticks() - self.lastTickTime >= 350:
+                self.tickFrame = not self.tickFrame
+                self.lastTickTime = pygame.time.get_ticks()
+            
+            self.image = right[self.tickFrame]
+            self.rect.right += 5
+        
