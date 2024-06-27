@@ -1,4 +1,5 @@
 import pygame
+from sys import exit
 from menu.mainmenu import MainMenu
 from menu.optionsmenu import OptionsMenu
 from menu.creditmenu import CreditMenu
@@ -97,3 +98,4 @@ class Game():
 
     def quit(self):
         pygame.quit()
+        exit()
