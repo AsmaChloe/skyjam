@@ -7,7 +7,7 @@ from entity.Entity import Entity
 class Game():
     def __init__(self):
         pygame.init()
-        self.WIDTH, self.HEIGHT = 1280, 720
+        self.WIDTH, self.HEIGHT = 1920, 1080
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
 
         self.clock = pygame.time.Clock()
