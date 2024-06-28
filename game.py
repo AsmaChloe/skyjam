@@ -1,6 +1,6 @@
 import pygame
 from sys import exit
-from random import randint, choice
+from random import randint, choices
 
 from entity.Obstacle import Obstacle, ObstacleType
 from menu.mainmenu import MainMenu
@@ -15,17 +15,20 @@ from entity.pickaxe import Pickaxe
 class Game():
     def __init__(self):
         pygame.init()
-        self.WIDTH, self.HEIGHT = 1920, 1080 #1280 , 720
+        self.WIDTH, self.HEIGHT = 1280, 720  # 1920, 1080 #
+        self.LEFT_BORDER, self.RIGHT_BORDER = 0, self.WIDTH
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
 
         # Background
         self.bgSprite = Background()
         self.bg = pygame.sprite.GroupSingle(self.bgSprite)
+
+        # Pickaxe
         self.pickaxe = pygame.sprite.GroupSingle()
         self.pickaxeClass = None
 
         # Music
-        self.musics_filenames_dict = { 'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3'}
+        self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3'}
         self.music_player = MusicPlayer(self.musics_filenames_dict, "menu")
         self.music_player.load_and_play("menu", {"loops": -1})
 
@@ -46,13 +49,12 @@ class Game():
         self.MOUSE_EVENTS = []
 
         # Player
-        self.player = Entity("player", pygame.Vector2(1920/2, 200))
+        self.player = Entity("player", pygame.Vector2(1920 / 2, 200))
         self.playerGS = pygame.sprite.GroupSingle(self.player)
 
-        #Obstacles
-        self.obstacle_frequency = 1000
+        # Obstacles
+        self.obstacle_frequency = 500
         self.obstacles = pygame.sprite.Group()
-        self.obstacles.add(self.generate_obstacle(ObstacleType.WHOLE_BEAM))
         self.latest_obstacle = pygame.time.get_ticks()
 
     def game_loop(self):
@@ -73,7 +75,7 @@ class Game():
                 current_time = pygame.time.get_ticks()
                 if current_time - self.latest_obstacle > self.obstacle_frequency:
                     self.latest_obstacle = current_time
-                    obstacle_type = ObstacleType(choice(list(ObstacleType)))
+                    obstacle_type = ObstacleType(choices(list(ObstacleType), weights=[ type.value[2] for type in ObstacleType], k=1)[0])
                     self.obstacles.add(self.generate_obstacle(obstacle_type))
 
                 self.bg.draw(self.screen)
@@ -137,7 +139,6 @@ class Game():
                 else:
                     self.MOUSE_EVENTS.append(event)
 
-
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.ENTER_KEY, self.ESC_KEY = False, False, False, False
         self.MOUSE_EVENTS = []
@@ -147,9 +148,19 @@ class Game():
         exit()
 
     def generate_obstacle(self, obstacle_type):
-        x = randint(0, self.WIDTH)
-        y = self.HEIGHT
+        """
+        Generates an obstacle based on the type
+        :param obstacle_type:
+        :return:
+        """
+        if (obstacle_type == ObstacleType.WHOLE_BEAM):
+            x_top_mid = randint(obstacle_type.value[1].get_width() // 2,
+                                self.WIDTH - obstacle_type.value[1].get_width() // 2)
+        elif (obstacle_type == ObstacleType.LEFT_SMALL_BEAM):
+            x_top_mid = self.LEFT_BORDER + obstacle_type.value[1].get_width() // 2
+        elif (obstacle_type == ObstacleType.RIGHT_SMALL_BEAM):
+            x_top_mid = self.RIGHT_BORDER - obstacle_type.value[1].get_width() // 2
 
-        obstacle = Obstacle(pygame.Vector2(x, y), 5, obstacle_type)
+        y_top_mid = self.HEIGHT
 
-        return obstacle
+        return Obstacle(pygame.Vector2(x_top_mid, y_top_mid), 15, obstacle_type)
