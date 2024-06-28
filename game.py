@@ -11,7 +11,7 @@ from utils.MusicPlayer import MusicPlayer
 class Game():
     def __init__(self):
         pygame.init()
-        self.WIDTH, self.HEIGHT = 1280 , 720
+        self.WIDTH, self.HEIGHT = 1920, 1080 #1280 , 720
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         self.bgSprite = Background()
         self.bg = pygame.sprite.GroupSingle(self.bgSprite)
