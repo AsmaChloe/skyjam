@@ -33,11 +33,13 @@ class Pickaxe(pygame.sprite.Sprite):
         self.rect.bottom += 20 * self.mvtDir                         #vitese de déplacement vertical * le mvtDir
         
         if self.mvtDir == 1:
+            #formule vitesse x => Vy * (dx/dy) => Vy fixe, dx distance entre xDestination et xDépart, dy la hauteur de travel (fixe, limite-centreDuPersonnage)
             xSpeedThrow = ((self.destX - self.initX)*20)/740
             print(xSpeedThrow)
             self.rect.centerx += xSpeedThrow
         else:
             if self.playerX < self.rect.centerx:
+                #effet progressif du changement de vitesse pour faire faire des petites courbes à la pioche (bien plus beau)
                 if self.xSpeed != -20:
                     self.xSpeed -= 2
 
@@ -51,6 +53,7 @@ class Pickaxe(pygame.sprite.Sprite):
         if self.rect.centery <= self.initY:
             self.rect.centery = self.initY
             if self.rect.centerx < self.playerX + 20 and self.rect.centerx > self.playerX - 20:
+                #kill() permet de supprimer le sprite de tous les groupes dans lequel il est présent
                 self.kill()
 
     def updatePlayerPos(self, positionJoueur):
