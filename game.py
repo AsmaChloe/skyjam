@@ -17,6 +17,7 @@ class Game():
         self.bgSprite = Background()
         self.bg = pygame.sprite.GroupSingle(self.bgSprite)
         self.pickaxe = pygame.sprite.GroupSingle()
+        self.pickaxeClass = None
 
         # Music
         self.musics_filenames_dict = { 'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3'}
@@ -58,11 +59,16 @@ class Game():
 
                 # Game
                 self.bg.draw(self.screen)
-                self.playerGS.draw(self.screen)
                 self.pickaxe.draw(self.screen)
+                self.playerGS.draw(self.screen)
+
 
                 self.bg.update()
                 self.playerGS.update()
+                
+                if self.pickaxeClass is not None:
+                    self.pickaxeClass.updatePlayerPos(self.player.rect.center)
+                    
                 self.pickaxe.update()
 
                 if (self.ESC_KEY):
@@ -104,12 +110,16 @@ class Game():
                 # Back
                 if event.key == pygame.K_ESCAPE:
                     self.ESC_KEY = True
-                
-                if event.key == pygame.K_SPACE:
-                    self.pickaxe.add(Pickaxe(self.player.rect.midbottom))
-
+            
             if event.type == pygame.MOUSEBUTTONUP:
-                self.MOUSE_EVENTS.append(event)
+                if self.playing:
+                    self.pickaxeClass = Pickaxe(self.player.rect.midbottom, event.pos)
+                    self.pickaxe.add(self.pickaxeClass)
+                    self.player.throw()
+                else:
+                    self.MOUSE_EVENTS.append(event)
+            
+            
 
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.ENTER_KEY, self.ESC_KEY = False, False, False, False
