@@ -6,6 +6,7 @@ from menu.creditmenu import CreditMenu
 from entity.Entity import Entity
 from entity.background import Background
 from utils.MusicPlayer import MusicPlayer
+from entity.pickaxe import Pickaxe
 
 
 class Game():
@@ -15,6 +16,7 @@ class Game():
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         self.bgSprite = Background()
         self.bg = pygame.sprite.GroupSingle(self.bgSprite)
+        self.pickaxe = pygame.sprite.GroupSingle()
 
         # Music
         self.musics_filenames_dict = { 'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3'}
@@ -57,9 +59,11 @@ class Game():
                 # Game
                 self.bg.draw(self.screen)
                 self.playerGS.draw(self.screen)
+                self.pickaxe.draw(self.screen)
 
                 self.bg.update()
                 self.playerGS.update()
+                self.pickaxe.update()
 
                 if (self.ESC_KEY):
                     self.playing = False
@@ -100,6 +104,9 @@ class Game():
                 # Back
                 if event.key == pygame.K_ESCAPE:
                     self.ESC_KEY = True
+                
+                if event.key == pygame.K_SPACE:
+                    self.pickaxe.add(Pickaxe(self.player.rect.midbottom))
 
             if event.type == pygame.MOUSEBUTTONUP:
                 self.MOUSE_EVENTS.append(event)
