@@ -57,19 +57,17 @@ class Game():
 
     def game_loop(self):
         while self.running:
-
             events = pygame.event.get()
 
             self.screen.fill((0, 0, 0))
             self.check_events(events)
 
             if self.playing:
+
                 # Music
                 if not self.music_player.current_key == "game":
                     self.music_player.stop()
                     self.music_player.load_and_play("game", {"loops": -1})
-
-
 
                 # Generate obstacles
                 current_time = pygame.time.get_ticks()
@@ -77,30 +75,22 @@ class Game():
                     self.latest_obstacle = current_time
                     obstacle_type = ObstacleType(choice(list(ObstacleType)))
                     self.obstacles.add(self.generate_obstacle(obstacle_type))
-                # Game
+
                 self.bg.draw(self.screen)
                 self.pickaxe.draw(self.screen)
                 self.playerGS.draw(self.screen)
                 self.obstacles.draw(self.screen)
 
-                # Game
-
-
-                self.bg.update()
-                self.playerGS.update()
-
                 if self.pickaxeClass is not None:
                     self.pickaxeClass.updatePlayerPos(self.player.rect.center)
 
                 self.pickaxe.update()
-
-                if (self.ESC_KEY):
-                    self.playing = False
-                # pygame.draw.circle(self.screen, "red", self.player.position, 40)
-
                 self.bg.update()
                 self.playerGS.update()
                 self.obstacles.update(events)
+
+                if (self.ESC_KEY):
+                    self.playing = False
             else:
                 # Music
                 if not self.music_player.current_key == "menu":
@@ -146,7 +136,6 @@ class Game():
                     self.player.throw()
                 else:
                     self.MOUSE_EVENTS.append(event)
-
 
 
     def reset_keys(self):
