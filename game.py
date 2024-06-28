@@ -5,14 +5,21 @@ from menu.optionsmenu import OptionsMenu
 from menu.creditmenu import CreditMenu
 from entity.Entity import Entity
 from entity.background import Background
+from utils.MusicPlayer import MusicPlayer
+
 
 class Game():
     def __init__(self):
         pygame.init()
-        self.WIDTH, self.HEIGHT = 1920, 1080
+        self.WIDTH, self.HEIGHT = 1920, 1080 #1280 , 720
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         self.bgSprite = Background()
         self.bg = pygame.sprite.GroupSingle(self.bgSprite)
+
+        # Music
+        self.musics_filenames_dict = { 'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3'}
+        self.music_player = MusicPlayer(self.musics_filenames_dict, "menu")
+        self.music_player.load_and_play("menu", {"loops": -1})
 
         self.clock = pygame.time.Clock()
         self.dt = 0
@@ -39,30 +46,35 @@ class Game():
             events = pygame.event.get()
 
             self.screen.fill((0, 0, 0))
-
-            
             self.check_events(events)
 
             if self.playing:
+                # Music
+                if not self.music_player.current_key == "game":
+                    self.music_player.stop()
+                    self.music_player.load_and_play("game", {"loops": -1})
+
+                # Game
                 self.bg.draw(self.screen)
                 self.playerGS.draw(self.screen)
-                # Game
-                if (self.ESC_KEY):
-                    self.playing = False
-                # pygame.draw.circle(self.screen, "red", self.player.position, 40)
-                
 
                 self.bg.update()
                 self.playerGS.update()
+
+                if (self.ESC_KEY):
+                    self.playing = False
             else:
-                # Menus
+                # Music
+                if not self.music_player.current_key == "menu":
+                    self.music_player.stop()
+                    self.music_player.load_and_play("menu", {"loops": -1})
+
                 self.current_menu.sprites.update(self.MOUSE_EVENTS)
                 self.current_menu.sprites.draw(self.screen)
 
                 if (self.ESC_KEY):
                     self.current_menu.back()
 
-            # flip() the display to put your work on screen
             pygame.display.flip()
 
             self.clock.tick(60)  # limits FPS to 60
