@@ -6,42 +6,64 @@ class Entity(pygame.sprite.Sprite):
         super().__init__()
         self.name = name
         self.position = position
-        self.lastTickTime = 0
+        self.side = True
         self.tickFrame = 0
-
-        self.image_direction = {
-            "up": [pygame.image.load("img/carrotFace.png").convert_alpha()],
-            "down": [pygame.image.load("img/carrotFace.png").convert_alpha()],
-            "left": [pygame.image.load("img/carrotWalkLeft.png").convert_alpha(), pygame.image.load("img/carrotWalkLeft2.png").convert_alpha()],
-            "right": [pygame.image.load("img/carrotWalkRight1.png").convert_alpha(), pygame.image.load("img/carrotWalkRight2.png").convert_alpha()]
-        }
-        self.image = self.image_direction["up"][0]
+        self.throwTickFrame = 0
+        self.isThrowing = False
+        
+        self.imageCollection = []
+        self.imageCollectionThrowing = []
+        
+        #collection image pour animation idle
+        for i in range(1, 19):
+            self.imageCollection.append(pygame.image.load(f"graphics/character/animation chute{i}.png").convert_alpha())
+        
+        #collection image pour animation lancé
+        for i in range(1, 5):
+            self.imageCollectionThrowing.append(pygame.image.load(f"graphics/character/hit/Lancé_pioche_animation{i}.png").convert_alpha())
+        
+        self.image = self.imageCollection[0]
         self.rect = self.image.get_rect(center = (self.position.x, self.position.y))
 
+    def animate(self):
+        #animation lancé
+        if self.isThrowing:
+            self.throwTickFrame = (self.throwTickFrame + 0.2)
+            self.image = self.imageCollectionThrowing[int(self.throwTickFrame)]
+            
+            #4 frames sur l'animation donc on limite l'index à 3
+            if int(self.throwTickFrame) == 3:
+                self.throwTickFrame = 0
+                self.isThrowing = False
+        else:
+            #animation IDLE
+            self.tickFrame = (self.tickFrame + 0.2) % 18
+            self.image = self.imageCollection[int(self.tickFrame)]
         
+    def flipAnimation(self, leftRight):
+        #fonction qui flip tous les sprites sur l'axe x quand on appuie sur le bouton de coté opposé
+        if self.side is not leftRight:
+            for i, img in enumerate(self.imageCollection):
+                self.imageCollection[i] = pygame.transform.flip(img, True, False)
+                
+            for i, img in enumerate(self.imageCollectionThrowing):
+                self.imageCollectionThrowing[i] = pygame.transform.flip(img, True, False)
+        self.side = leftRight
+    
+    def throw(self):
+        self.throwTickFrame = 0
+        self.isThrowing = True
+    
     def update(self):
         keys = pygame.key.get_pressed()
         
         if keys[pygame.K_q]:
-            left = self.image_direction["left"]
-            if self.lastTickTime == 0:
-                self.lastTickTime = pygame.time.get_ticks()
-            elif pygame.time.get_ticks() - self.lastTickTime >= 350:
-                self.tickFrame = not self.tickFrame
-                self.lastTickTime = pygame.time.get_ticks()
-            
-            self.image = left[self.tickFrame]
-                
-            self.rect.left -= 5
+            self.flipAnimation(True)
+            self.rect.left -= 10
                 
         if keys[pygame.K_d]:
-            right = self.image_direction["right"]
-            if self.lastTickTime == 0:
-                self.lastTickTime = pygame.time.get_ticks()
-            elif pygame.time.get_ticks() - self.lastTickTime >= 350:
-                self.tickFrame = not self.tickFrame
-                self.lastTickTime = pygame.time.get_ticks()
+            self.flipAnimation(False)
+            self.rect.right += 10
             
-            self.image = right[self.tickFrame]
-            self.rect.right += 5
+        self.animate()
         
