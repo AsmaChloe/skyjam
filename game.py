@@ -15,8 +15,8 @@ from entity.pickaxe import Pickaxe
 class Game():
     def __init__(self):
         pygame.init()
-        self.WIDTH, self.HEIGHT = 1280, 720  # 1920, 1080 #
-        self.LEFT_BORDER, self.RIGHT_BORDER = 0, self.WIDTH
+        self.WIDTH, self.HEIGHT =  1920, 1080 #1280, 720
+        self.LEFT_BORDER, self.RIGHT_BORDER = 414, 1506
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
 
         # Background
@@ -169,12 +169,12 @@ class Game():
         :return:
         """
         if (obstacle_type == ObstacleType.WHOLE_BEAM):
-            x_top_mid = randint(obstacle_type.value[1].get_width() // 2,
-                                self.WIDTH - obstacle_type.value[1].get_width() // 2)
+            x_top_mid = randint(self.LEFT_BORDER + obstacle_type.value[1].get_width() // 2,
+                                self.RIGHT_BORDER - obstacle_type.value[1].get_width() // 2)
         elif (obstacle_type == ObstacleType.LEFT_SMALL_BEAM):
-            x_top_mid = self.LEFT_BORDER + obstacle_type.value[1].get_width() // 2
+            x_top_mid = self.LEFT_BORDER + obstacle_type.value[1].get_width() // 2 - 100
         elif (obstacle_type == ObstacleType.RIGHT_SMALL_BEAM):
-            x_top_mid = self.RIGHT_BORDER - obstacle_type.value[1].get_width() // 2
+            x_top_mid = self.RIGHT_BORDER - obstacle_type.value[1].get_width() // 2 + 100
 
         y_top_mid = self.HEIGHT
 
