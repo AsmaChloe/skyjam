@@ -57,7 +57,7 @@ class MenuSubOptions(Menu):
     def __init__(self, game, state, main_text, menu_texts, previous_state=(None, None)):
         self.main_text = main_text
         self.menu_texts = menu_texts
-
+        self.validate_button_sound = pygame.mixer.Sound("sound/Boutons_Menu.wav")
         Menu.__init__(self, game, state, previous_state)
 
     def create_sprites(self):

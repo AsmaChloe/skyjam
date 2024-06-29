@@ -7,7 +7,7 @@ class CreditMenu(Menu):
     def __init__(self, game, state="Credits", previous_state=None):
         self.main_text = "Credits"
         self.sub_text = "By Les apéricubes"
-
+        
         Menu.__init__(self, game, state, previous_state)
 
     def create_sprites(self):

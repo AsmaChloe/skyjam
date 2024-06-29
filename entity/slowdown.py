@@ -14,6 +14,9 @@ class Bat(CustomSprite):
             self.imageCollection.append(pygame.image.load(f'graphics/chauve_souris/animation_chauve_souris{i}.png').convert_alpha())
         
         CustomSprite.__init__(self, self.imageCollection[0], "chauve_souris")
+
+        self.free_bat_sound = pygame.mixer.Sound("sound/Chauve_souris_Libre.wav")
+        self.free_bat_sound.play()
         
     def animate(self):
         self.tickFrame = (self.tickFrame + 0.2) % 12

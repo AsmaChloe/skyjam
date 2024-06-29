@@ -1,3 +1,5 @@
+import random
+
 import pygame
 from sys import exit
 from random import choices
@@ -125,6 +127,7 @@ class Game():
                     self.XPGS.draw(self.screen)
 
 
+                    # Pickaxe
                     if self.pickaxeClass is not None and len(self.pickaxe):
                         self.pickaxeClass.updatePlayerPos(pygame.Vector2(self.player.rect.center))
 
@@ -139,14 +142,20 @@ class Game():
                                 self.player.XP += collided_ore.ore_type.XP
                                 self.XP_sprite.image = pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(f"{self.player.XP} XP", True, (255, 255, 255))
                                 # Remove ore
+                                collided_ore.broken_sound.play()
                                 collided_ore.kill()
+                                del collided_ore
+                            if(collided_obstacle) :
+                                self.pickaxeClass.hitting_metal_sound.play()
 
 
-                    # # Collision player / obstacles
-
+                    # Collision player / obstacles
                     if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
+
+                        # If the player has a bat
                         if self.player.isWithBat:
                             self.player.touchBat(False)
+                            self.player.caughtBatSound.stop()
                             self.scrollSpeed = 10
                             self.bgSprite.setScrollSpeed(self.scrollSpeed)
                             if self.newBg is not None:
@@ -156,12 +165,14 @@ class Game():
                             self.invicibilityBegin = pygame.time.get_ticks()
                         elif not self.player.isInvincible:
                             self.gameOver = True
+                            self.player.hurt_sounds[random.randint(0,2)].play()
                     
                     collidedBuff = pygame.sprite.spritecollideany(self.player, self.buffs)
                     
                     if collidedBuff is not None:
                         if isinstance(collidedBuff, Bat):
                             self.player.touchBat(True)
+                            self.player.caughtBatSound.play()
                             self.buff_begin = pygame.time.get_ticks()
                             collidedBuff.kill()
                             self.scrollSpeed = 5
@@ -172,6 +183,7 @@ class Game():
                             
                     if pygame.time.get_ticks() - self.buff_begin >= 10000:
                         self.player.touchBat(False)
+                        self.player.caughtBatSound.stop()
                         self.scrollSpeed = 10
                         self.bgSprite.setScrollSpeed(self.scrollSpeed)
                         if self.newBg is not None:

@@ -53,6 +53,8 @@ class Ore(CustomSprite):
 
         self.mask = pygame.mask.from_surface(self.image)
 
+        self.broken_sound = pygame.mixer.Sound("sound/Minerai.wav")
+
     def update(self, events, scrollSpeed):
         self.rect.midtop = self.mid_top_position
         self.speed = scrollSpeed
