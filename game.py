@@ -3,6 +3,7 @@ from sys import exit
 from random import randint, choices
 
 from entity.Obstacle import Obstacle, ObstacleType
+from entity.Ore import OreType, Ore
 from menu.mainmenu import MainMenu
 from menu.optionsmenu import OptionsMenu
 from menu.creditmenu import CreditMenu
@@ -60,6 +61,11 @@ class Game():
         self.obstacles = pygame.sprite.Group()
         self.latest_obstacle = pygame.time.get_ticks()
 
+        # Ores
+        self.ore_frequency = 2000
+        self.ores = pygame.sprite.Group()
+        self.latest_ore = pygame.time.get_ticks()
+
     def game_loop(self):
         while self.running:
             events = pygame.event.get()
@@ -80,10 +86,17 @@ class Game():
                     obstacle_type = ObstacleType(choices(list(ObstacleType), weights=[ type.value[2] for type in ObstacleType], k=1)[0])
                     self.obstacles.add(self.generate_obstacle(obstacle_type))
 
+                # Generate ores
+                if current_time - self.latest_ore > self.ore_frequency:
+                    self.latest_ore = current_time
+                    ore_type = choices(list(OreType), weights=[ type.value[3] for type in OreType], k=1)[0]
+                    self.ores.add(self.generate_ore(ore_type))
+
                 self.bg.draw(self.screen)
                 self.pickaxe.draw(self.screen)
                 self.playerGS.draw(self.screen)
-                self.obstacles.draw(self.screen)
+                # self.obstacles.draw(self.screen)
+                self.ores.draw(self.screen)
 
                 if self.pickaxeClass is not None:
                     self.pickaxeClass.updatePlayerPos(self.player.rect.center)
@@ -97,7 +110,8 @@ class Game():
                 self.pickaxe.update()
                 self.bg.update()
                 self.playerGS.update()
-                self.obstacles.update(events)
+                # self.obstacles.update(events)
+                self.ores.update(events)
 
                 if (self.ESC_KEY):
                     self.playing = False
@@ -161,6 +175,10 @@ class Game():
         self.obstacles.empty()
         self.latest_obstacle = pygame.time.get_ticks()
 
+        #Ores reset
+        self.ores.empty()
+        self.latest_ore = pygame.time.get_ticks()
+
     def quit(self):
         pygame.quit()
         exit()
@@ -182,3 +200,17 @@ class Game():
         y_top_mid = self.HEIGHT
 
         return Obstacle(pygame.Vector2(x_top_mid, y_top_mid), self.scrollSpeed, obstacle_type)
+
+    def generate_ore(self, ore_type):
+        """
+        Generates an ore based on the type
+        :param ore_type:
+        :return:
+        """
+        if(ore_type.value[1] == "left"):
+            x_top_mid = self.LEFT_BORDER + ore_type.value[2].get_width() // 2 - 50
+        elif(ore_type.value[1] == "right"):
+            x_top_mid = self.RIGHT_BORDER - ore_type.value[2].get_width() // 2 + 50
+        y_top_mid = self.HEIGHT
+
+        return Ore(pygame.Vector2(x_top_mid, y_top_mid), self.scrollSpeed, ore_type)
