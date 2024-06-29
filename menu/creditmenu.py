@@ -4,9 +4,9 @@ from utils.CustomSprite import CustomSprite
 
 
 class CreditMenu(Menu):
-    def __init__(self, game, state="Credits", previous_state=None):
-        self.main_text = "Credits"
-        self.sub_text = "By Les apéricubes"
+    def __init__(self, game, state="Crédits", previous_state=None):
+        self.main_text = "Crédits"
+        self.sub_text = "par Les apéricubes"
         
         Menu.__init__(self, game, state, previous_state)
 
