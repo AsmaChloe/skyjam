@@ -26,8 +26,9 @@ class Game():
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         
         # Background
-        self.bgSprite = Background(self.scrollSpeed)
-        self.bg = pygame.sprite.GroupSingle(self.bgSprite)
+        self.bgSprite = Background(self.scrollSpeed, (1920/2, 0))
+        self.bg = pygame.sprite.Group(self.bgSprite)
+        self.newBg = None
 
         # Pickaxe
         self.pickaxe = pygame.sprite.GroupSingle()
@@ -110,6 +111,7 @@ class Game():
 
                     # Generate environment : obstacles and ores
                     self.generate_environment()
+                    self.manage_background()
 
                     self.bg.draw(self.screen)
                     self.pickaxe.draw(self.screen)
@@ -147,6 +149,8 @@ class Game():
                             self.player.touchBat(False)
                             self.scrollSpeed = 10
                             self.bgSprite.setScrollSpeed(self.scrollSpeed)
+                            if self.newBg is not None:
+                                self.newBg.setScrollSpeed(self.scrollSpeed)
                             self.update_frequencies()
                             self.player.isInvincible = True
                             self.invicibilityBegin = pygame.time.get_ticks()
@@ -162,6 +166,8 @@ class Game():
                             collidedBuff.kill()
                             self.scrollSpeed = 5
                             self.bgSprite.setScrollSpeed(self.scrollSpeed)
+                            if self.newBg is not None:
+                                self.newBg.setScrollSpeed(self.scrollSpeed)
                             self.update_frequencies()
                             
                     if pygame.time.get_ticks() - self.buff_begin >= 10000:
@@ -336,5 +342,17 @@ class Game():
             else:
                 new_buff.kill()
                 del new_buff
+                
+    def manage_background(self):
+        if self.bgSprite.rect.top <= 1080 and self.newBg is None:
+            self.newBg = Background(self.scrollSpeed, (1920/2, self.bgSprite.rect.bottom))
+            self.bg.add(self.newBg)
+        
+        if self.bgSprite.rect.bottom <= 0:
+            self.bgSprite.kill()
+            del self.bgSprite
+            self.bgSprite = self.newBg
+            self.newBg = None
+            
             
             
