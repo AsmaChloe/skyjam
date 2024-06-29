@@ -3,9 +3,12 @@ from sys import exit
 from random import randint, choices
 
 from entity.Obstacle import Obstacle, ObstacleType
+
 from menu.mainmenu import MainMenu
 from menu.optionsmenu import OptionsMenu
 from menu.creditmenu import CreditMenu
+from menu.gameover import GameOver
+
 from entity.Entity import Entity
 from entity.background import Background
 from utils.MusicPlayer import MusicPlayer
@@ -22,7 +25,6 @@ class Game():
         
         # Background
         self.bgSprite = Background(self.scrollSpeed)
-        
         self.bg = pygame.sprite.GroupSingle(self.bgSprite)
 
         # Pickaxe
@@ -31,7 +33,7 @@ class Game():
 
 
         # Music
-        self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3'}
+        self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3', 'gameover' : ''}
         self.music_player = MusicPlayer(self.musics_filenames_dict, "menu")
         self.music_player.load_and_play("menu", {"loops": -1})
 
@@ -40,11 +42,13 @@ class Game():
 
         self.running = True
         self.playing = False
+        self.gameOver = False
 
         # Menus
         self.main_menu = MainMenu(self)
         self.options_menu = OptionsMenu(self, previous_state=("Main", self.main_menu))
         self.credit_menu = CreditMenu(self, previous_state=("Main", self.main_menu))
+        self.gameover_menu = GameOver(self)
         self.current_menu = self.main_menu
 
         # Events
@@ -68,42 +72,56 @@ class Game():
             self.check_events(events)
 
             if self.playing:
+                if not self.gameOver:
                 # Music
-                if not self.music_player.current_key == "game":
+                    if not self.music_player.current_key == "game":
+                        self.music_player.stop()
+                        self.music_player.load_and_play("game", {"loops": -1})
+
+                    # Generate obstacles
+                    current_time = pygame.time.get_ticks()
+                    if current_time - self.latest_obstacle > self.obstacle_frequency:
+                        self.latest_obstacle = current_time
+                        obstacle_type = ObstacleType(choices(list(ObstacleType), weights=[ type.value[2] for type in ObstacleType], k=1)[0])
+                        self.obstacles.add(self.generate_obstacle(obstacle_type))
+
+                    self.bg.draw(self.screen)
+                    self.pickaxe.draw(self.screen)
+                    self.playerGS.draw(self.screen)
+                    self.obstacles.draw(self.screen)
+
+                    if self.pickaxeClass is not None:
+                        self.pickaxeClass.updatePlayerPos(self.player.rect.center)
+
+                    # Collision player / obstacles
+                    if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
+                        print("Collision")
+                        self.gameOver = True
+                        #self.reset_game()
+
+                    self.pickaxe.update()
+                    self.bg.update()
+                    self.playerGS.update()
+                    self.obstacles.update(events)
+                    
+
+
+                    if (self.ESC_KEY):
+                        self.playing = False
+                        self.reset_game()
+                else:
+                    pygame.surface.Surface.fill(self.screen, (0,0,0))
+                    self.music_player.current_key = "gameover"
                     self.music_player.stop()
-                    self.music_player.load_and_play("game", {"loops": -1})
-
-                # Generate obstacles
-                current_time = pygame.time.get_ticks()
-                if current_time - self.latest_obstacle > self.obstacle_frequency:
-                    self.latest_obstacle = current_time
-                    obstacle_type = ObstacleType(choices(list(ObstacleType), weights=[ type.value[2] for type in ObstacleType], k=1)[0])
-                    self.obstacles.add(self.generate_obstacle(obstacle_type))
-
-                self.bg.draw(self.screen)
-                self.pickaxe.draw(self.screen)
-                self.playerGS.draw(self.screen)
-                self.obstacles.draw(self.screen)
-
-                if self.pickaxeClass is not None:
-                    self.pickaxeClass.updatePlayerPos(self.player.rect.center)
-
-                # Collision player / obstacles
-                if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
-                    print("Collision")
-                    self.playing = False
-                    self.reset_game()
-
-                self.pickaxe.update()
-                self.bg.update()
-                self.playerGS.update()
-                self.obstacles.update(events)
-
-                if (self.ESC_KEY):
-                    self.playing = False
-                    self.reset_game()
+                    self.current_menu = self.gameover_menu
+                    
+                    self.current_menu.sprites.update(self.MOUSE_EVENTS)
+                    self.current_menu.sprites.draw(self.screen)
+                    
             else:
                 # Music
+                self.current_menu = self.main_menu
+                
                 if not self.music_player.current_key == "menu":
                     self.music_player.stop()
                     self.music_player.load_and_play("menu", {"loops": -1})
@@ -125,34 +143,46 @@ class Game():
             if event.type == pygame.QUIT:
                 self.running = False
 
-            if event.type == pygame.KEYDOWN:
-                # Arrow keys
-                if event.key == pygame.K_UP:
-                    self.UP_KEY = True
-                if event.key == pygame.K_DOWN:
-                    self.DOWN_KEY = True
-
-                # Validate
-                if event.key == pygame.K_RETURN:
-                    self.ENTER_KEY = True
-
-                # Back
-                if event.key == pygame.K_ESCAPE:
-                    self.ESC_KEY = True
-
-            if event.type == pygame.MOUSEBUTTONUP:
-                if self.playing:
-                    self.pickaxeClass = Pickaxe(self.player.rect.midbottom, event.pos)
-                    self.pickaxe.add(self.pickaxeClass)
-                    self.player.throw()
-                else:
+            if self.gameOver:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.reset_game()
+                
+                if event.type == pygame.MOUSEBUTTONUP:
                     self.MOUSE_EVENTS.append(event)
+                    
+            else:
+                if event.type == pygame.KEYDOWN:
+                    # Arrow keys
+                    if event.key == pygame.K_UP:
+                        self.UP_KEY = True
+                    if event.key == pygame.K_DOWN:
+                        self.DOWN_KEY = True
+
+                    # Validate
+                    if event.key == pygame.K_RETURN:
+                        self.ENTER_KEY = True
+
+                    # Back
+                    if event.key == pygame.K_ESCAPE:
+                        self.ESC_KEY = True
+
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if self.playing:
+                        self.pickaxeClass = Pickaxe(self.player.rect.midbottom, event.pos)
+                        self.pickaxe.add(self.pickaxeClass)
+                        self.player.throw()
+                    else:
+                        self.MOUSE_EVENTS.append(event)
 
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.ENTER_KEY, self.ESC_KEY = False, False, False, False
         self.MOUSE_EVENTS = []
 
     def reset_game(self):
+        #screenreset
+        self.screen.fill((0, 0, 0))
+        
         #Player reset
         self.player.position = pygame.Vector2(self.WIDTH / 2, 200)
         self.player.rect.center = self.player.position
@@ -160,6 +190,9 @@ class Game():
         #Obstacles reset
         self.obstacles.empty()
         self.latest_obstacle = pygame.time.get_ticks()
+        
+        #flag reset
+        self.gameOver = False
 
     def quit(self):
         pygame.quit()
