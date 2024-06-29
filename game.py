@@ -14,6 +14,7 @@ class Game():
         pygame.init()
         self.scrollSpeed = 15
         self.WIDTH, self.HEIGHT = 1920, 1080 #1280 , 720
+        self.LEFT_BORDER, self.RIGHT_BORDER = 414, 1506
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         self.bgSprite = Background(self.scrollSpeed)
         self.bg = pygame.sprite.GroupSingle(self.bgSprite)
