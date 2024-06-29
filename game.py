@@ -179,7 +179,7 @@ class Game():
         if current_time - self.latest_obstacle > self.obstacle_frequency:
             self.latest_obstacle = current_time
             obstacle_type = ObstacleType(
-                choices(list(ObstacleType), weights=[type.value[2] for type in ObstacleType], k=1)[0])
+                choices(list(ObstacleType), weights=[type.value[3] for type in ObstacleType], k=1)[0])
             self.obstacles.add(generate_obstacle(self, obstacle_type))
 
         # Generate ores
