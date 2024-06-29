@@ -1,4 +1,4 @@
-/!\ Please note that the first launch may take some time, as the script installs and/or updates what's needed to ensure a smooth game launch. /!\
+/!\ Please note that the first launch may take some time, as the script installs and/or updates what's needed to keep the game running correctly. /!\
 
 If you are on Windows :
  - Go to the Windows launch folder, located here: /run/windows 
