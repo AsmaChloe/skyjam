@@ -1,9 +1,9 @@
 import pygame
 from sys import exit
-from random import randint, choices
+from random import choices
 
-from entity.Obstacle import Obstacle, ObstacleType
-from entity.Ore import OreType, Ore
+from entity.Obstacle import Obstacle, ObstacleType, generate_obstacle
+from entity.Ore import OreType, Ore, generate_ore
 from menu.mainmenu import MainMenu
 from menu.optionsmenu import OptionsMenu
 from menu.creditmenu import CreditMenu
@@ -79,23 +79,13 @@ class Game():
                     self.music_player.stop()
                     self.music_player.load_and_play("game", {"loops": -1})
 
-                # Generate obstacles
-                current_time = pygame.time.get_ticks()
-                if current_time - self.latest_obstacle > self.obstacle_frequency:
-                    self.latest_obstacle = current_time
-                    obstacle_type = ObstacleType(choices(list(ObstacleType), weights=[ type.value[2] for type in ObstacleType], k=1)[0])
-                    self.obstacles.add(self.generate_obstacle(obstacle_type))
-
-                # Generate ores
-                if current_time - self.latest_ore > self.ore_frequency:
-                    self.latest_ore = current_time
-                    ore_type = choices(list(OreType), weights=[ type.value[3] for type in OreType], k=1)[0]
-                    self.ores.add(self.generate_ore(ore_type))
+                # Generate environment : obstacles and ores
+                self.generate_environment()
 
                 self.bg.draw(self.screen)
                 self.pickaxe.draw(self.screen)
                 self.playerGS.draw(self.screen)
-                # self.obstacles.draw(self.screen)
+                self.obstacles.draw(self.screen)
                 self.ores.draw(self.screen)
 
                 if self.pickaxeClass is not None:
@@ -110,7 +100,7 @@ class Game():
                 self.pickaxe.update()
                 self.bg.update()
                 self.playerGS.update()
-                # self.obstacles.update(events)
+                self.obstacles.update(events)
                 self.ores.update(events)
 
                 if (self.ESC_KEY):
@@ -183,34 +173,17 @@ class Game():
         pygame.quit()
         exit()
 
-    def generate_obstacle(self, obstacle_type):
-        """
-        Generates an obstacle based on the type
-        :param obstacle_type:
-        :return:
-        """
-        if (obstacle_type == ObstacleType.WHOLE_BEAM):
-            x_top_mid = randint(self.LEFT_BORDER + obstacle_type.value[1].get_width() // 2,
-                                self.RIGHT_BORDER - obstacle_type.value[1].get_width() // 2)
-        elif (obstacle_type == ObstacleType.LEFT_SMALL_BEAM):
-            x_top_mid = self.LEFT_BORDER + obstacle_type.value[1].get_width() // 2 - 100
-        elif (obstacle_type == ObstacleType.RIGHT_SMALL_BEAM):
-            x_top_mid = self.RIGHT_BORDER - obstacle_type.value[1].get_width() // 2 + 100
+    def generate_environment(self) :
+        # Generate obstacles
+        current_time = pygame.time.get_ticks()
+        if current_time - self.latest_obstacle > self.obstacle_frequency:
+            self.latest_obstacle = current_time
+            obstacle_type = ObstacleType(
+                choices(list(ObstacleType), weights=[type.value[2] for type in ObstacleType], k=1)[0])
+            self.obstacles.add(generate_obstacle(self, obstacle_type))
 
-        y_top_mid = self.HEIGHT
-
-        return Obstacle(pygame.Vector2(x_top_mid, y_top_mid), self.scrollSpeed, obstacle_type)
-
-    def generate_ore(self, ore_type):
-        """
-        Generates an ore based on the type
-        :param ore_type:
-        :return:
-        """
-        if(ore_type.value[1] == "left"):
-            x_top_mid = self.LEFT_BORDER + ore_type.value[2].get_width() // 2 - 50
-        elif(ore_type.value[1] == "right"):
-            x_top_mid = self.RIGHT_BORDER - ore_type.value[2].get_width() // 2 + 50
-        y_top_mid = self.HEIGHT
-
-        return Ore(pygame.Vector2(x_top_mid, y_top_mid), self.scrollSpeed, ore_type)
+        # Generate ores
+        if current_time - self.latest_ore > self.ore_frequency:
+            self.latest_ore = current_time
+            ore_type = choices(list(OreType), weights=[type.value[3] for type in OreType], k=1)[0]
+            self.ores.add(generate_ore(self, ore_type))

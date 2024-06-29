@@ -40,3 +40,17 @@ class Ore(CustomSprite):
 
         if self.rect.bottom < 0:
             self.kill()
+
+def generate_ore(game, ore_type : OreType):
+    """
+    Generates an ore based on the type
+    :param ore_type:
+    :return:
+    """
+    if(ore_type.value[1] == "left"):
+        x_top_mid = game.LEFT_BORDER + ore_type.value[2].get_width() // 2 - 50
+    elif(ore_type.value[1] == "right"):
+        x_top_mid = game.RIGHT_BORDER - ore_type.value[2].get_width() // 2 + 50
+    y_top_mid = game.HEIGHT
+
+    return Ore(pygame.Vector2(x_top_mid, y_top_mid), game.scrollSpeed, ore_type)

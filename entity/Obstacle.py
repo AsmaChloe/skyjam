@@ -1,3 +1,4 @@
+from random import randint
 from typing import override
 
 import pygame
@@ -47,3 +48,20 @@ class Obstacle(CustomSprite):
         # if out of screen kill
         if self.rect.bottom < 0:
             self.kill()
+def generate_obstacle(game, obstacle_type : ObstacleType):
+    """
+    Generates an obstacle based on the type
+    :param obstacle_type:
+    :return:
+    """
+    if (obstacle_type == ObstacleType.WHOLE_BEAM):
+        x_top_mid = randint(game.LEFT_BORDER + obstacle_type.value[1].get_width() // 2,
+                            game.RIGHT_BORDER - obstacle_type.value[1].get_width() // 2)
+    elif (obstacle_type == ObstacleType.LEFT_SMALL_BEAM):
+        x_top_mid = game.LEFT_BORDER + obstacle_type.value[1].get_width() // 2 - 100
+    elif (obstacle_type == ObstacleType.RIGHT_SMALL_BEAM):
+        x_top_mid = game.RIGHT_BORDER - obstacle_type.value[1].get_width() // 2 + 100
+
+    y_top_mid = game.HEIGHT
+
+    return Obstacle(pygame.Vector2(x_top_mid, y_top_mid), game.scrollSpeed, obstacle_type)
