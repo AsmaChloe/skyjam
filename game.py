@@ -12,12 +12,14 @@ from entity.pickaxe import Pickaxe
 class Game():
     def __init__(self):
         pygame.init()
+        self.scrollSpeed = 15
         self.WIDTH, self.HEIGHT = 1920, 1080 #1280 , 720
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
-        self.bgSprite = Background()
+        self.bgSprite = Background(self.scrollSpeed)
         self.bg = pygame.sprite.GroupSingle(self.bgSprite)
         self.pickaxe = pygame.sprite.GroupSingle()
         self.pickaxeClass = None
+
 
         # Music
         self.musics_filenames_dict = { 'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3'}
