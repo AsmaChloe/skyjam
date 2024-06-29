@@ -9,13 +9,26 @@ from enum import Enum
 
 class ObstacleType(Enum):
     """
-    Enum class for the different types of obstacles
-    Contains the name of the obstacle, the image and the probability of the obstacle to appear
+    Enum class for the different types of obstacles.
+    Contains the obstacle name, the image, and the probability of the obstacle to appear.
     """
-    WHOLE_BEAM = ("whole_beam", "center", pygame.image.load("img/obstacles/300x/Poutre_Metal-export.png"), 0.6)
-    LEFT_SMALL_BEAM = ("left_small_beam", "left", pygame.image.load("img/obstacles/300x/Poutre_Metal_Incrustee_L.png"), 0.1)
-    RIGHT_SMALL_BEAM = ("right_small_beam", "right", pygame.image.load("img/obstacles/300x/Poutre_Metal_Incrustee_R-export.png"), 0.1)
-    LEFT_SPIKE = ("left_spike", "left", pygame.image.load("img/obstacles/300x/Pics_Pierres_L.png"), 0.2)
+
+    def __new__(cls, *args, **kwds):
+        value = len(cls.__members__) + 1
+        obj = object.__new__(cls)
+        obj._value_ = value
+        return obj
+
+    def __init__(self, obstacle_name, direction, image_path, probability):
+        self.obstacle_name = obstacle_name
+        self.direction = direction
+        self.image = pygame.image.load(image_path)
+        self.probability = probability
+
+    WHOLE_BEAM = ("whole_beam", "center", "img/obstacles/300x/Poutre_Metal-export.png", 0.6)
+    LEFT_SMALL_BEAM = ("left_small_beam", "left", "img/obstacles/300x/Poutre_Metal_Incrustee_L.png", 0.1)
+    RIGHT_SMALL_BEAM = ("right_small_beam", "right", "img/obstacles/300x/Poutre_Metal_Incrustee_R-export.png", 0.1)
+    LEFT_SPIKE = ("left_spike", "left", "img/obstacles/300x/Pics_Pierres_L.png", 0.2)
 
 class Obstacle(CustomSprite):
     """
@@ -30,8 +43,8 @@ class Obstacle(CustomSprite):
         :param obstacle_type: type of the obstacle
         """
         self.obs_type = obstacle_type
-        image = self.obs_type.value[2]
-        name = self.obs_type.value[0]
+        image = self.obs_type.image
+        name = self.obs_type.obstacle_name
         CustomSprite.__init__(self, image, name)
 
         self.mid_top_position = mid_top_position
@@ -55,16 +68,16 @@ def generate_obstacle(game, obstacle_type : ObstacleType):
     :return:
     """
     offset = 100
-    if(obstacle_type.value[0] == "left_spike"):
+    if(obstacle_type.obstacle_name == "left_spike"):
         offset = 0
 
-    if (obstacle_type.value[1] == "left"):
-        x_top_mid = game.LEFT_BORDER + obstacle_type.value[2].get_width() // 2 - offset
-    elif (obstacle_type.value[1] == "right"):
-        x_top_mid = game.RIGHT_BORDER - obstacle_type.value[2].get_width() // 2 + offset
-    elif (obstacle_type.value[1] == "center"):
-        x_top_mid = randint(game.LEFT_BORDER + obstacle_type.value[2].get_width() // 2,
-                            game.RIGHT_BORDER - obstacle_type.value[2].get_width() // 2)
+    if (obstacle_type.direction == "left"):
+        x_top_mid = game.LEFT_BORDER + obstacle_type.image.get_width() // 2 - offset
+    elif (obstacle_type.direction == "right"):
+        x_top_mid = game.RIGHT_BORDER - obstacle_type.image.get_width() // 2 + offset
+    elif (obstacle_type.direction == "center"):
+        x_top_mid = randint(game.LEFT_BORDER + obstacle_type.image.get_width() // 2,
+                            game.RIGHT_BORDER - obstacle_type.image.get_width() // 2)
 
     y_top_mid = game.HEIGHT
 

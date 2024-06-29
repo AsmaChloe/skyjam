@@ -4,21 +4,35 @@ import pygame
 
 from utils.CustomSprite import CustomSprite
 
-
 class OreType(Enum):
     """
-    Enum class for the different types of ores
-    Contains the name of the ore, the image, the rarity, and the probability of the ore to appear
+    Enum class for the different types of ores.
+    Contains the name of the ore, the direction, the image, the rarity, and the probability of the ore to appear.
     """
-    #0.5
-    IRON_LEFT = ("iron", "left", pygame.image.load("img/ore/iron/Minerai_Fer_L.png"), 0.25)
-    IRON_RIGHT = ("iron", "right", pygame.image.load("img/ore/iron/Minerai_Fer_R.png"), 0.25)
-    #0.3
-    GOLD_LEFT = ("gold", "left", pygame.image.load("img/ore/gold/Minerai_Or_L.png"), 0.15)
-    GOLD_RIGHT = ("gold", "right", pygame.image.load("img/ore/gold/Minerai_Or_R.png"), 0.15)
-    #0.2
-    DIAMOND_LEFT = ("diamond", "left", pygame.image.load("img/ore/diamond/Minerai_Diamant_L.png"), 0.1)
-    DIAMOND_RIGHT = ("diamond", "right", pygame.image.load("img/ore/diamond/Minerai_Diamant_R.png"), 0.1)
+
+    def __new__(cls, *args, **kwds):
+        value = len(cls.__members__) + 1
+        obj = object.__new__(cls)
+        obj._value_ = value
+        return obj
+
+    def __init__(self, ore_name, direction, image_path, rarity, probability):
+        self.ore_name = ore_name
+        self.direction = direction
+        self.image = pygame.image.load(image_path)
+        self.rarity = rarity
+        self.probability = probability
+
+    # 0.5
+    IRON_LEFT = ("iron", "left", "img/ore/iron/Minerai_Fer_L.png", 0.25, 2)
+    IRON_RIGHT = ("iron", "right", "img/ore/iron/Minerai_Fer_R.png", 0.25, 2)
+    # 0.3
+    GOLD_LEFT = ("gold", "left", "img/ore/gold/Minerai_Or_L.png", 0.15, 4)
+    GOLD_RIGHT = ("gold", "right", "img/ore/gold/Minerai_Or_R.png", 0.15, 4)
+    # 0.2
+    DIAMOND_LEFT = ("diamond", "left", "img/ore/diamond/Minerai_Diamant_L.png", 0.1, 6)
+    DIAMOND_RIGHT = ("diamond", "right", "img/ore/diamond/Minerai_Diamant_R.png", 0.1, 6)
+
 
 class Ore(CustomSprite):
     def __init__(self, mid_top_position, scroll_speed, ore_type: OreType):
@@ -28,9 +42,9 @@ class Ore(CustomSprite):
         :param scroll_speed:
         :param ore_type:
         """
-        self.obs_type = ore_type
-        image = self.obs_type.value[2]
-        name = self.obs_type.value[0]
+        self.ore_type = ore_type
+        image = self.ore_type.image
+        name = self.ore_type.ore_name
         CustomSprite.__init__(self, image, name)
 
         self.mid_top_position = mid_top_position
@@ -52,10 +66,10 @@ def generate_ore(game, ore_type : OreType):
     :param ore_type:
     :return:
     """
-    if(ore_type.value[1] == "left"):
-        x_top_mid = game.LEFT_BORDER + ore_type.value[2].get_width() // 2 - 70
-    elif(ore_type.value[1] == "right"):
-        x_top_mid = game.RIGHT_BORDER - ore_type.value[2].get_width() // 2 + 70
+    if(ore_type.direction == "left"):
+        x_top_mid = game.LEFT_BORDER + ore_type.image.get_width() // 2 - 70
+    elif(ore_type.direction == "right"):
+        x_top_mid = game.RIGHT_BORDER - ore_type.image.get_width() // 2 + 70
     y_top_mid = game.HEIGHT
 
     return Ore(pygame.Vector2(x_top_mid, y_top_mid), game.scrollSpeed, ore_type)

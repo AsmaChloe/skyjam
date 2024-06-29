@@ -223,13 +223,13 @@ class Game():
         if current_time - self.latest_obstacle > self.obstacle_frequency:
             self.latest_obstacle = current_time
             obstacle_type = ObstacleType(
-                choices(list(ObstacleType), weights=[type.value[3] for type in ObstacleType], k=1)[0])
+                choices(list(ObstacleType), weights=[type.probability for type in ObstacleType], k=1)[0])
             self.obstacles.add(generate_obstacle(self, obstacle_type))
 
         # Generate ores
         if current_time - self.latest_ore > self.ore_frequency:
             self.latest_ore = current_time
-            ore_type = choices(list(OreType), weights=[type.value[3] for type in OreType], k=1)[0]
+            ore_type = choices(list(OreType), weights=[type.rarity for type in OreType], k=1)[0]
             new_ore = generate_ore(self, ore_type)
             #Check if the ore is not colliding with an obstacle
             if not pygame.sprite.spritecollide(new_ore, self.obstacles, False, None):
