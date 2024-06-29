@@ -17,9 +17,9 @@ from entity.pickaxe import Pickaxe
 class Game():
     def __init__(self):
         pygame.init()
-        self.scrollSpeed = 10
+        self.scrollSpeed = 15
         self.WIDTH, self.HEIGHT = 1920, 1080 #1280 , 720
-        self.LEFT_BORDER, self.RIGHT_BORDER = 414, 1506
+        self.LEFT_BORDER, self.RIGHT_BORDER = 414, 1454
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         
         # Background
