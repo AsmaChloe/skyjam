@@ -71,7 +71,7 @@ class Entity(pygame.sprite.Sprite):
             else:
                 return True
         else:
-            if self.rect.right + self.xSpeed >= 1506:
+            if self.rect.right + self.xSpeed >= 1454:
                 return False
             else:
                 return True

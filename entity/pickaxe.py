@@ -58,7 +58,7 @@ class Pickaxe(pygame.sprite.Sprite):
                 self.kill()
 
     def checkBound(self, xSpeedThrow):
-        if self.rect.left - xSpeedThrow <= 414 or self.rect.right + xSpeedThrow >= 1506:
+        if self.rect.left - xSpeedThrow <= 414 or self.rect.right + xSpeedThrow >= 1454:
             self.switchDir()
             return False
         return True
