@@ -91,11 +91,11 @@ class Game():
                 if self.pickaxeClass is not None:
                     self.pickaxeClass.updatePlayerPos(self.player.rect.center)
 
-                # Collision player / obstacles
-                if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
-                    print("Collision")
-                    self.playing = False
-                    self.reset_game()
+                # # Collision player / obstacles
+                # if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
+                #     print("Collision")
+                #     self.playing = False
+                #     self.reset_game()
 
                 self.pickaxe.update()
                 self.bg.update()
@@ -186,4 +186,10 @@ class Game():
         if current_time - self.latest_ore > self.ore_frequency:
             self.latest_ore = current_time
             ore_type = choices(list(OreType), weights=[type.value[3] for type in OreType], k=1)[0]
-            self.ores.add(generate_ore(self, ore_type))
+            new_ore = generate_ore(self, ore_type)
+            #Check if the ore is not colliding with an obstacle
+            if not pygame.sprite.spritecollide(new_ore, self.obstacles, False, None):
+                self.ores.add(new_ore)
+            else:
+                new_ore.kill()
+                del new_ore
