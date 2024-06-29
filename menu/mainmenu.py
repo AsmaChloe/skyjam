@@ -1,11 +1,8 @@
 from menu.menu import MenuSubOptions
 
-import sys
-import pygame
-
 class MainMenu(MenuSubOptions):
     def __init__(self, game, state="Main"):
-        MenuSubOptions.__init__(self, game, state, "Main Menu", ["Start Game", "Options", "Credits", "Exit"])
+        MenuSubOptions.__init__(self, game, state, "Apericube's Game", ["Start Game", "Options", "Credits", "Exit"])
 
     def validate(self, text):
         '''

@@ -1,4 +1,6 @@
 import pygame
+import os
+import json
 from sys import exit
 from random import choices
 
@@ -34,6 +36,8 @@ class Game():
         self.pickaxeClass = None
 
         # Music
+        self.load_and_apply_volume()
+
         self.MUSIC_ON = True
         self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3', 'gameover': 'music/son_fin_placeholder.wav'}
         self.music_player = MusicPlayer(self.musics_filenames_dict, "menu")
@@ -337,4 +341,20 @@ class Game():
                 new_buff.kill()
                 del new_buff
             
-            
+    def load_and_apply_volume(self):
+        config_file = os.path.join(os.path.dirname(__file__), '..', 'options', 'option.json')
+        try:
+            with open(config_file, 'r') as f:
+                config = json.load(f)
+                self.MUSIC_VOLUME = config.get('volume', 1.0)
+        except FileNotFoundError:
+            print(f"Le fichier de configuration {config_file} n'a pas été trouvé. Création avec le volume par défaut.")
+            self.MUSIC_VOLUME = 1.0
+            os.makedirs(os.path.dirname(config_file), exist_ok=True)
+            with open(config_file, 'w') as f:
+                json.dump({"volume": self.MUSIC_VOLUME}, f)
+        except json.JSONDecodeError:
+            print(f"Erreur lors de la lecture du fichier {config_file}. Utilisation du volume par défaut.")
+            self.MUSIC_VOLUME = 1.0
+
+        pygame.mixer.music.set_volume(self.MUSIC_VOLUME)

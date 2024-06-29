@@ -10,10 +10,10 @@ class GameOver(MenuSubOptions):
         Validate the current option selected in the menu
         :return:
         '''
-        if text == "Rejouer":
+        if text == "Restart":
             self.game.reset_game()
             self.game.playing = True
-        elif text == "Menu principal":
+        elif text == "Main menu":
             self.game.reset_game()
             self.game.playing = False
         self.game.current_menu = self.game.main_menu
