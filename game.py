@@ -125,8 +125,6 @@ class Game():
 
             else:
                 # Music
-                self.current_menu = self.main_menu
-
                 if not self.music_player.current_key == "menu":
                     self.music_player.stop()
                     self.music_player.load_and_play("menu", {"loops": -1})
