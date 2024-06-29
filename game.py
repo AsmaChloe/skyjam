@@ -33,7 +33,7 @@ class Game():
 
 
         # Music
-        self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3', 'gameover': 'music/son_fin_placeholder.mp3'}
+        self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3', 'gameover': 'music/son_fin_placeholder.wav'}
         self.music_player = MusicPlayer(self.musics_filenames_dict, "menu")
         self.music_player.load_and_play("menu", {"loops": -1})
 
@@ -193,6 +193,9 @@ class Game():
         #Obstacles reset
         self.obstacles.empty()
         self.latest_obstacle = pygame.time.get_ticks()
+        
+        #pickaxe reset
+        self.pickaxeClass.kill()
         
         #flag reset
         self.gameOver = False
