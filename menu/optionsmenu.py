@@ -44,7 +44,7 @@ class OptionsMenu(Menu):
         self.sub_text = f"Music - {'On' if self.game.MUSIC_ON else 'Off'}"
         self.sub_title_sprite.image = self.menu_fonts.render(self.sub_text, True, (255, 255, 255))
 
-        if self.game.music_player.is_on() and not self.game.MUSIC_ON :
-            self.game.music_player.stop()
-        elif not self.game.music_player.is_on() and self.game.MUSIC_ON:
-            self.game.music_player.load_and_play("menu", {"loops": -1}, self.game.MUSIC_ON)
+        if self.game.sound_player.is_on() and not self.game.MUSIC_ON :
+            self.game.sound_player.stop()
+        elif not self.game.sound_player.is_on() and self.game.MUSIC_ON:
+            self.game.sound_player.load_and_play("menu", {"loops": -1}, self.game.MUSIC_ON)

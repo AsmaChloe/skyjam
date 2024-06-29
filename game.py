@@ -14,7 +14,7 @@ from menu.gameover import GameOver
 from entity.Entity import Entity
 from entity.background import Background
 from utils.CustomSprite import CustomSprite
-from utils.MusicPlayer import MusicPlayer
+from utils.SoundPlayer import SoundPlayer
 from entity.pickaxe import Pickaxe
 from entity.slowdown import Bat
 
@@ -38,8 +38,8 @@ class Game():
         # Music
         self.MUSIC_ON = True
         self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3', 'gameover': 'music/son_fin_placeholder.wav'}
-        self.music_player = MusicPlayer(self.musics_filenames_dict, "menu")
-        self.music_player.load_and_play("menu", {"loops": -1}, self.MUSIC_ON)
+        self.sound_player = SoundPlayer(self.musics_filenames_dict, "menu")
+        self.sound_player.load_and_play("menu", {"loops": -1}, self.MUSIC_ON)
 
         self.clock = pygame.time.Clock()
         self.dt = 0
@@ -60,7 +60,7 @@ class Game():
         self.MOUSE_EVENTS = []
 
         # Player
-        self.player = Entity("player", pygame.Vector2(self.WIDTH / 2, 200))
+        self.player = Entity(self,"player", pygame.Vector2(self.WIDTH / 2, 200))
         self.playerGS = pygame.sprite.GroupSingle(self.player)
 
         #XP rectangle
@@ -106,9 +106,9 @@ class Game():
             if self.playing:
                 if not self.gameOver:
                     # Music
-                    if not self.music_player.current_key == "game":
-                        self.music_player.stop()
-                        self.music_player.load_and_play("game", {"loops": -1}, self.MUSIC_ON)
+                    if not self.sound_player.current_key == "game":
+                        self.sound_player.stop()
+                        self.sound_player.load_and_play("game", {"loops": -1}, self.MUSIC_ON)
 
                     # Generate environment : obstacles and ores
                     self.generate_environment()
@@ -140,11 +140,11 @@ class Game():
                                 self.player.XP += collided_ore.ore_type.XP
                                 self.XP_sprite.image = pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(f"{self.player.XP} XP", True, (255, 255, 255))
                                 # Remove ore
-                                collided_ore.broken_sound.play()
+                                self.sound_player.ore_channel.play(collided_ore.broken_sound)
                                 collided_ore.kill()
                                 del collided_ore
                             if(collided_obstacle) :
-                                self.pickaxeClass.hitting_metal_sound.play()
+                                self.sound_player.pickaxe_channel.play(self.pickaxeClass.hitting_metal_sound)
 
 
                     # Collision player / obstacles
@@ -153,7 +153,7 @@ class Game():
                         # If the player has a bat
                         if self.player.isWithBat:
                             self.player.touchBat(False)
-                            self.player.caughtBatSound.stop()
+                            self.sound_player.bat_channel.stop()
                             self.scrollSpeed = 10
                             self.bgSprite.setScrollSpeed(self.scrollSpeed)
                             self.update_frequencies()
@@ -161,14 +161,15 @@ class Game():
                             self.invicibilityBegin = pygame.time.get_ticks()
                         elif not self.player.isInvincible:
                             self.gameOver = True
-                            self.player.hurt_sounds[random.randint(0,2)].play()
+                            self.sound_player.player_channel.play(self.player.hurt_sounds[random.randint(0, 2)])
+                            self.sound_player.stop_sounds_at_game_over()
                     
                     collidedBuff = pygame.sprite.spritecollideany(self.player, self.buffs)
                     
                     if collidedBuff is not None:
                         if isinstance(collidedBuff, Bat):
                             self.player.touchBat(True)
-                            self.player.caughtBatSound.play()
+                            self.sound_player.bat_channel.play(self.player.caughtBatSound)
                             self.buff_begin = pygame.time.get_ticks()
                             collidedBuff.kill()
                             self.scrollSpeed = 5
@@ -177,7 +178,7 @@ class Game():
                             
                     if pygame.time.get_ticks() - self.buff_begin >= 10000:
                         self.player.touchBat(False)
-                        self.player.caughtBatSound.stop()
+                        self.sound_player.bat_channel.stop()
                         self.scrollSpeed = 10
                         self.bgSprite.setScrollSpeed(self.scrollSpeed)
                         self.update_frequencies()
@@ -201,9 +202,9 @@ class Game():
                 else:
                     pygame.surface.Surface.fill(self.screen, (0,0,0))
 
-                    if not self.music_player.current_key == "gameover":
-                        self.music_player.stop()
-                        self.music_player.load_and_play("gameover", {"loops": 0}, self.MUSIC_ON)
+                    if not self.sound_player.current_key == "gameover":
+                        self.sound_player.stop()
+                        self.sound_player.load_and_play("gameover", {"loops": 0}, self.MUSIC_ON)
 
                     self.current_menu = self.gameover_menu
 
@@ -212,10 +213,9 @@ class Game():
 
             else:
                 # Music
-
-                if not self.music_player.current_key == "menu":
-                    self.music_player.stop()
-                    self.music_player.load_and_play("menu", {"loops": -1}, self.MUSIC_ON)
+                if not self.sound_player.current_key == "menu":
+                    self.sound_player.stop()
+                    self.sound_player.load_and_play("menu", {"loops": -1}, self.MUSIC_ON)
 
                 self.current_menu.sprites.update(self.MOUSE_EVENTS)
                 self.current_menu.sprites.draw(self.screen)
@@ -294,7 +294,7 @@ class Game():
         #Player reset
 
         self.player.kill()
-        self.player = Entity("player", pygame.Vector2(self.WIDTH / 2, 200))
+        self.player = Entity(self,"player", pygame.Vector2(self.WIDTH / 2, 200))
         self.playerGS.add(self.player)
 
         self.player.XP = 0
@@ -342,7 +342,7 @@ class Game():
         # Generate Buffs
         if current_time - self.latest_buff > self.buff_frequency:
             self.latest_buff = current_time
-            new_buff = Bat(self.scrollSpeed).generate_buff(self)
+            new_buff = Bat(self.sound_player, self.scrollSpeed).generate_buff(self)
             if not pygame.sprite.spritecollide(new_buff, self.buffs, False, None):
                 self.buffs.add(new_buff)
             else:

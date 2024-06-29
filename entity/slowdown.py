@@ -4,8 +4,8 @@ import pygame
 from utils.CustomSprite import CustomSprite
 
 class Bat(CustomSprite):
-    def __init__(self, scroll_speed):
-        
+    def __init__(self, music_player, scroll_speed):
+        self.music_player = music_player
         self.scroll_speed = scroll_speed
         self.imageCollection = []
         self.tickFrame = 0
@@ -16,7 +16,7 @@ class Bat(CustomSprite):
         CustomSprite.__init__(self, self.imageCollection[0], "chauve_souris")
 
         self.free_bat_sound = pygame.mixer.Sound("sound/Chauve_souris_Libre.wav")
-        self.free_bat_sound.play()
+        self.music_player.bat_channel.play(self.free_bat_sound)
         
     def animate(self):
         self.tickFrame = (self.tickFrame + 0.2) % 12
