@@ -94,11 +94,11 @@ class Game():
                     if self.pickaxeClass is not None:
                         self.pickaxeClass.updatePlayerPos(self.player.rect.center)
 
-                    # Collision player / obstacles
-                    if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
-                        print("Collision")
-                        self.gameOver = True
-                        #self.reset_game()
+                    # # Collision player / obstacles
+                    # if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
+                    #     print("Collision")
+                    #     self.gameOver = True
+                    #     #self.reset_game()
 
                     self.pickaxe.update()
                     self.bg.update()

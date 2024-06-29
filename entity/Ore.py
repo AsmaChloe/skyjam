@@ -10,11 +10,15 @@ class OreType(Enum):
     Enum class for the different types of ores
     Contains the name of the ore, the image, the rarity, and the probability of the ore to appear
     """
+    #0.5
     IRON_LEFT = ("iron", "left", pygame.image.load("img/ore/iron/Minerai_Fer_L.png"), 0.25)
     IRON_RIGHT = ("iron", "right", pygame.image.load("img/ore/iron/Minerai_Fer_R.png"), 0.25)
-    # COPPER = ("copper", pygame.image.load("img/ore/copper.png"), 0.3)
-    GOLD_LEFT = ("gold", "left", pygame.image.load("img/ore/gold/Minerai_Or_L.png"), 0.1)
-    GOLD_RIGHT = ("gold", "right", pygame.image.load("img/ore/gold/Minerai_Or_R.png"), 0.1)
+    #0.3
+    GOLD_LEFT = ("gold", "left", pygame.image.load("img/ore/gold/Minerai_Or_L.png"), 0.15)
+    GOLD_RIGHT = ("gold", "right", pygame.image.load("img/ore/gold/Minerai_Or_R.png"), 0.15)
+    #0.2
+    DIAMOND_LEFT = ("diamond", "left", pygame.image.load("img/ore/diamond/Minerai_Diamant_L.png"), 0.1)
+    DIAMOND_RIGHT = ("diamond", "right", pygame.image.load("img/ore/diamond/Minerai_Diamant_R.png"), 0.1)
 
 class Ore(CustomSprite):
     def __init__(self, mid_top_position, scroll_speed, ore_type: OreType):
