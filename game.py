@@ -31,11 +31,11 @@ class Game():
         self.pickaxe = pygame.sprite.GroupSingle()
         self.pickaxeClass = None
 
-
         # Music
+        self.MUSIC_ON = True
         self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3', 'gameover': 'music/son_fin_placeholder.wav'}
         self.music_player = MusicPlayer(self.musics_filenames_dict, "menu")
-        self.music_player.load_and_play("menu", {"loops": -1})
+        self.music_player.load_and_play("menu", {"loops": -1}, self.MUSIC_ON)
 
         self.clock = pygame.time.Clock()
         self.dt = 0
@@ -86,7 +86,7 @@ class Game():
                 # Music
                     if not self.music_player.current_key == "game":
                         self.music_player.stop()
-                        self.music_player.load_and_play("game", {"loops": -1})
+                        self.music_player.load_and_play("game", {"loops": -1}, self.MUSIC_ON)
 
                     # Generate environment : obstacles and ores
                     self.generate_environment()
@@ -121,7 +121,7 @@ class Game():
 
                     if not self.music_player.current_key == "gameover":
                         self.music_player.stop()
-                        self.music_player.load_and_play("gameover", {"loops": 0})
+                        self.music_player.load_and_play("gameover", {"loops": 0}, self.MUSIC_ON)
 
                     self.current_menu = self.gameover_menu
 
@@ -133,7 +133,7 @@ class Game():
 
                 if not self.music_player.current_key == "menu":
                     self.music_player.stop()
-                    self.music_player.load_and_play("menu", {"loops": -1})
+                    self.music_player.load_and_play("menu", {"loops": -1}, self.MUSIC_ON)
 
                 self.current_menu.sprites.update(self.MOUSE_EVENTS)
                 self.current_menu.sprites.draw(self.screen)

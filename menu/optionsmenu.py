@@ -6,8 +6,10 @@ class OptionsMenu(Menu):
     def __init__(self, game, state="Options", previous_state=(None, None)):
 
         self.main_text = "Options"
-        self.sub_text = "Music volume"
+        self.sub_text = f"Music - {'On' if game.MUSIC_ON else 'Off'}"
 
+        self.title_sprite = None
+        self.sub_title_sprite = None
         Menu.__init__(self, game, state, previous_state)
 
     def create_sprites(self):
@@ -16,17 +18,31 @@ class OptionsMenu(Menu):
         :return:
         """
         # Title
-        title_sprite = CustomSprite(
+        self.title_sprite = CustomSprite(
             self.title_font.render(self.main_text, True, (255, 255, 255)),
             None
         )
-        self.sprites.add(title_sprite)
+        self.sprites.add(self.title_sprite)
 
         # Sub title
-        sub_title_sprite = CustomSprite(
+        self.sub_title_sprite = CustomSprite(
             self.menu_fonts.render(self.sub_text, True, (255, 255, 255)),
-            None
+            name = self.sub_text,
+            clickable=True,
+            callback=self.toggle_music
         )
-        self.sprites.add(sub_title_sprite)
+        self.sprites.add(self.sub_title_sprite)
 
         self.position_sprites()
+
+    def toggle_music(self, name):
+        """
+        Toggle the music on/off
+        :return:
+        """
+        self.game.MUSIC_ON = not self.game.MUSIC_ON
+        self.sub_text = f"Music - {'On' if self.game.MUSIC_ON else 'Off'}"
+        self.sub_title_sprite.image = self.menu_fonts.render(self.sub_text, True, (255, 255, 255))
+
+        if self.game.music_player.is_on():
+            self.game.music_player.stop()
