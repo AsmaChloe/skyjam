@@ -23,7 +23,10 @@ class ObstacleType(Enum):
     def __init__(self, obstacle_name, direction, image_path, probability):
         self.obstacle_name = obstacle_name
         self.direction = direction
-        self.image = pygame.image.load(image_path)
+        if obstacle_name == "whole_beam":
+           self.image = pygame.transform.rotozoom(pygame.image.load(image_path), 0, 0.5)
+        else:
+            self.image = pygame.image.load(image_path)
         self.probability = probability
 
     WHOLE_BEAM = ("whole_beam", "center", "img/obstacles/300x/Poutre_Metal-export.png", 0.6)
@@ -57,9 +60,9 @@ class Obstacle(CustomSprite):
 
     @override
     def update(self, events, scrollSpeed):
-        self.mid_top_position.y -= self.speed
         self.rect.midtop = self.mid_top_position
         self.speed = scrollSpeed
+        self.mid_top_position.y -= self.speed
 
         # if out of screen kill
         if self.rect.bottom < 0:
@@ -71,7 +74,7 @@ def generate_obstacle(game, obstacle_type : ObstacleType):
     :return:
     """
     offset = 100
-    if(obstacle_type.value[0] == "left_spike"):
+    if(obstacle_type.obstacle_name == "left_spike"):
         offset = 75
 
     if (obstacle_type.direction == "left"):

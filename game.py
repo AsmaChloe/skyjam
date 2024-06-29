@@ -181,8 +181,8 @@ class Game():
                     self.buffs.update(self.scrollSpeed)
                     
 
-                    self.obstacles.update(events)
-                    self.ores.update(events)
+                    self.obstacles.update(events, self.scrollSpeed)
+                    self.ores.update(events, self.scrollSpeed)
                     self.XPGS.update(events)
 
 
