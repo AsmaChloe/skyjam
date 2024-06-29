@@ -10,8 +10,9 @@ class OreType(Enum):
     Enum class for the different types of ores
     Contains the name of the ore, the image, the rarity, and the probability of the ore to appear
     """
-    # COPPER = ("copper", pygame.image.load("img/ore/copper.png"), 0.5)
-    # SILVER = ("silver", pygame.image.load("img/ore/silver.png"), 0.3)
+    IRON_LEFT = ("iron", "left", pygame.image.load("img/ore/iron/Minerai_Fer_L.png"), 0.25)
+    IRON_RIGHT = ("iron", "right", pygame.image.load("img/ore/iron/Minerai_Fer_R.png"), 0.25)
+    # COPPER = ("copper", pygame.image.load("img/ore/copper.png"), 0.3)
     GOLD_LEFT = ("gold", "left", pygame.image.load("img/ore/gold/Minerai_Or_L.png"), 0.1)
     GOLD_RIGHT = ("gold", "right", pygame.image.load("img/ore/gold/Minerai_Or_R.png"), 0.1)
 
@@ -48,9 +49,9 @@ def generate_ore(game, ore_type : OreType):
     :return:
     """
     if(ore_type.value[1] == "left"):
-        x_top_mid = game.LEFT_BORDER + ore_type.value[2].get_width() // 2 - 50
+        x_top_mid = game.LEFT_BORDER + ore_type.value[2].get_width() // 2 - 70
     elif(ore_type.value[1] == "right"):
-        x_top_mid = game.RIGHT_BORDER - ore_type.value[2].get_width() // 2 + 50
+        x_top_mid = game.RIGHT_BORDER - ore_type.value[2].get_width() // 2 + 70
     y_top_mid = game.HEIGHT
 
     return Ore(pygame.Vector2(x_top_mid, y_top_mid), game.scrollSpeed, ore_type)
