@@ -11,6 +11,7 @@ from menu.creditmenu import CreditMenu
 from menu.gameover import GameOver
 from entity.Entity import Entity
 from entity.background import Background
+from utils.CustomSprite import CustomSprite
 from utils.MusicPlayer import MusicPlayer
 from entity.pickaxe import Pickaxe
 
@@ -59,6 +60,15 @@ class Game():
         self.player = Entity("player", pygame.Vector2(self.WIDTH / 2, 200))
         self.playerGS = pygame.sprite.GroupSingle(self.player)
 
+        #XP rectangle
+        text = f"{self.player.XP} XP"
+        self.XP_sprite = CustomSprite(
+            pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(text, True, (255, 255, 255)),
+            "XP"
+        )
+        self.XP_sprite.rect.topleft = (20, 20)
+        self.XPGS = pygame.sprite.GroupSingle(self.XP_sprite)
+
         # Cursor
         pygame.mouse.set_visible(False)
         self.cursor = Cursor(pygame.mouse.get_pos())
@@ -83,7 +93,7 @@ class Game():
 
             if self.playing:
                 if not self.gameOver:
-                # Music
+                    # Music
                     if not self.music_player.current_key == "game":
                         self.music_player.stop()
                         self.music_player.load_and_play("game", {"loops": -1}, self.MUSIC_ON)
@@ -96,6 +106,7 @@ class Game():
                     self.playerGS.draw(self.screen)
                     self.obstacles.draw(self.screen)
                     self.ores.draw(self.screen)
+                    self.XPGS.draw(self.screen)
 
                     if self.pickaxeClass is not None:
                         self.pickaxeClass.updatePlayerPos(pygame.Vector2(self.player.rect.center))
@@ -104,6 +115,7 @@ class Game():
                         collided_ores = pygame.sprite.spritecollide(self.pickaxeClass, self.ores, True, pygame.sprite.collide_mask)
                         for ore in collided_ores:
                             self.player.XP += ore.ore_type.XP
+                            self.XP_sprite.image = pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(f"{self.player.XP} XP", True, (255, 255, 255))
 
 
                     # # Collision player / obstacles
@@ -116,8 +128,7 @@ class Game():
                     self.playerGS.update()
                     self.obstacles.update(events)
                     self.ores.update(events)
-
-
+                    self.XPGS.update(events)
 
                     if (self.ESC_KEY):
                         self.playing = False
@@ -203,7 +214,9 @@ class Game():
         self.screen.fill((0, 0, 0))
 
         #Player reset
-        self.XP = 0
+        self.player.XP = 0
+        self.XP_sprite.image = pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(f"{self.player.XP} XP", True, (255, 255, 255))
+
         self.player.position = pygame.Vector2(self.WIDTH / 2, 200)
         self.player.rect.center = self.player.position
 
