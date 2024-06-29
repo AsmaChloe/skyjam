@@ -1,14 +1,13 @@
 import pygame
 from sys import exit
-from random import randint, choices
+from random import choices
 
-from entity.Obstacle import Obstacle, ObstacleType
-
+from entity.Obstacle import ObstacleType, generate_obstacle
+from entity.Ore import OreType, generate_ore
 from menu.mainmenu import MainMenu
 from menu.optionsmenu import OptionsMenu
 from menu.creditmenu import CreditMenu
 from menu.gameover import GameOver
-
 from entity.Entity import Entity
 from entity.background import Background
 from utils.MusicPlayer import MusicPlayer
@@ -64,6 +63,11 @@ class Game():
         self.obstacles = pygame.sprite.Group()
         self.latest_obstacle = pygame.time.get_ticks()
 
+        # Ores
+        self.ore_frequency = 2000
+        self.ores = pygame.sprite.Group()
+        self.latest_ore = pygame.time.get_ticks()
+
     def game_loop(self):
         while self.running:
             events = pygame.event.get()
@@ -78,32 +82,30 @@ class Game():
                         self.music_player.stop()
                         self.music_player.load_and_play("game", {"loops": -1})
 
-                    # Generate obstacles
-                    current_time = pygame.time.get_ticks()
-                    if current_time - self.latest_obstacle > self.obstacle_frequency:
-                        self.latest_obstacle = current_time
-                        obstacle_type = ObstacleType(choices(list(ObstacleType), weights=[ type.value[2] for type in ObstacleType], k=1)[0])
-                        self.obstacles.add(self.generate_obstacle(obstacle_type))
+                    # Generate environment : obstacles and ores
+                    self.generate_environment()
 
                     self.bg.draw(self.screen)
                     self.pickaxe.draw(self.screen)
                     self.playerGS.draw(self.screen)
                     self.obstacles.draw(self.screen)
+                    self.ores.draw(self.screen)
 
                     if self.pickaxeClass is not None:
                         self.pickaxeClass.updatePlayerPos(pygame.Vector2(self.player.rect.center))
 
-                    # Collision player / obstacles
-                    if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
-                        print("Collision")
-                        self.gameOver = True
-                        #self.reset_game()
+                    # # Collision player / obstacles
+                    # if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
+                    #     print("Collision")
+                    #     self.gameOver = True
+                    #     #self.reset_game()
 
                     self.pickaxe.update()
                     self.bg.update()
                     self.playerGS.update()
                     self.obstacles.update(events)
-                    
+                    self.ores.update(events)
+
 
 
                     if (self.ESC_KEY):
@@ -111,20 +113,20 @@ class Game():
                         self.reset_game()
                 else:
                     pygame.surface.Surface.fill(self.screen, (0,0,0))
-                    
+
                     if not self.music_player.current_key == "gameover":
                         self.music_player.stop()
                         self.music_player.load_and_play("gameover", {"loops": 0})
-                        
+
                     self.current_menu = self.gameover_menu
-                    
+
                     self.current_menu.sprites.update(self.MOUSE_EVENTS)
                     self.current_menu.sprites.draw(self.screen)
-                    
+
             else:
                 # Music
                 self.current_menu = self.main_menu
-                
+
                 if not self.music_player.current_key == "menu":
                     self.music_player.stop()
                     self.music_player.load_and_play("menu", {"loops": -1})
@@ -150,10 +152,10 @@ class Game():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.reset_game()
-                
+
                 if event.type == pygame.MOUSEBUTTONUP:
                     self.MOUSE_EVENTS.append(event)
-                    
+
             else:
                 if event.type == pygame.KEYDOWN:
                     # Arrow keys
@@ -186,7 +188,7 @@ class Game():
     def reset_game(self):
         #screenreset
         self.screen.fill((0, 0, 0))
-        
+
         #Player reset
         self.player.position = pygame.Vector2(self.WIDTH / 2, 200)
         self.player.rect.center = self.player.position
@@ -194,10 +196,12 @@ class Game():
         #Obstacles reset
         self.obstacles.empty()
         self.latest_obstacle = pygame.time.get_ticks()
-        
+
         #pickaxe reset
         self.pickaxeClass.kill()
-        
+        #Ores reset
+        self.ores.empty()
+        self.latest_ore = pygame.time.get_ticks()
         #flag reset
         self.gameOver = False
 
@@ -205,20 +209,23 @@ class Game():
         pygame.quit()
         exit()
 
-    def generate_obstacle(self, obstacle_type):
-        """
-        Generates an obstacle based on the type
-        :param obstacle_type:
-        :return:
-        """
-        if (obstacle_type == ObstacleType.WHOLE_BEAM):
-            x_top_mid = randint(self.LEFT_BORDER + obstacle_type.value[1].get_width() // 2,
-                                self.RIGHT_BORDER - obstacle_type.value[1].get_width() // 2)
-        elif (obstacle_type == ObstacleType.LEFT_SMALL_BEAM):
-            x_top_mid = self.LEFT_BORDER + obstacle_type.value[1].get_width() // 2 - 100
-        elif (obstacle_type == ObstacleType.RIGHT_SMALL_BEAM):
-            x_top_mid = self.RIGHT_BORDER - obstacle_type.value[1].get_width() // 2 + 100
+    def generate_environment(self) :
+        # Generate obstacles
+        current_time = pygame.time.get_ticks()
+        if current_time - self.latest_obstacle > self.obstacle_frequency:
+            self.latest_obstacle = current_time
+            obstacle_type = ObstacleType(
+                choices(list(ObstacleType), weights=[type.value[3] for type in ObstacleType], k=1)[0])
+            self.obstacles.add(generate_obstacle(self, obstacle_type))
 
-        y_top_mid = self.HEIGHT
-
-        return Obstacle(pygame.Vector2(x_top_mid, y_top_mid), 15, obstacle_type)
+        # Generate ores
+        if current_time - self.latest_ore > self.ore_frequency:
+            self.latest_ore = current_time
+            ore_type = choices(list(OreType), weights=[type.value[3] for type in OreType], k=1)[0]
+            new_ore = generate_ore(self, ore_type)
+            #Check if the ore is not colliding with an obstacle
+            if not pygame.sprite.spritecollide(new_ore, self.obstacles, False, None):
+                self.ores.add(new_ore)
+            else:
+                new_ore.kill()
+                del new_ore
