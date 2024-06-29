@@ -198,7 +198,8 @@ class Game():
         self.latest_obstacle = pygame.time.get_ticks()
 
         #pickaxe reset
-        self.pickaxeClass.kill()
+        if self.pickaxeClass is not None:
+            self.pickaxeClass.kill()
         #Ores reset
         self.ores.empty()
         self.latest_ore = pygame.time.get_ticks()

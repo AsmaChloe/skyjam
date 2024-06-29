@@ -38,8 +38,6 @@ class Pickaxe(pygame.sprite.Sprite):
         #self.rect.bottom += 20 * self.mvtDir                         #vitese de déplacement vertical * le mvtDir
         
         if self.mvtDir == 1:
-            #formule vitesse x => Vy * (dx/dy) => Vy fixe, dx distance entre xDestination et xDépart, dy la hauteur de travel (fixe, limite-centreDuPersonnage)
-            #xSpeedThrow = ((self.destX - self.initX)*20)/740
             
             self.rect.centery += self.xMaxSpeed * self.directionVector.y
             if self.checkBound(self.directionVector.x):
@@ -48,12 +46,10 @@ class Pickaxe(pygame.sprite.Sprite):
             self.rect.centerx += self.xMaxSpeed * self.returnVector.x
             self.rect.centery += self.xMaxSpeed * self.returnVector.y
   
-                
-            self.rect.centerx += self.xSpeed
         
-        if self.rect.centery <= self.topLimit:
+        if self.rect.centery - 10 <= self.topLimit:
             self.rect.centery = self.topLimit
-            if self.rect.centerx < self.playerPosVector.x + 20 and self.rect.centerx > self.playerPosVector.x - 20:
+            if self.rect.centerx < self.playerPosVector.x + 30 and self.rect.centerx > self.playerPosVector.x - 30:
                 #kill() permet de supprimer le sprite de tous les groupes dans lequel il est présent
                 self.kill()
 
