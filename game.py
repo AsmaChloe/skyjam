@@ -181,4 +181,4 @@ class Game():
 
         y_top_mid = self.HEIGHT
 
-        return Obstacle(pygame.Vector2(x_top_mid, y_top_mid), 15, obstacle_type)
+        return Obstacle(pygame.Vector2(x_top_mid, y_top_mid), self.scrollSpeed, obstacle_type)
