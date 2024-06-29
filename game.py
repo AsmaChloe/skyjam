@@ -17,7 +17,7 @@ from entity.pickaxe import Pickaxe
 class Game():
     def __init__(self):
         pygame.init()
-        self.scrollSpeed = 15
+        self.scrollSpeed = 10
         self.WIDTH, self.HEIGHT = 1920, 1080 #1280 , 720
         self.LEFT_BORDER, self.RIGHT_BORDER = 414, 1506
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
@@ -95,10 +95,9 @@ class Game():
                         self.pickaxeClass.updatePlayerPos(pygame.Vector2(self.player.rect.center))
 
                     # # Collision player / obstacles
-                    # if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
-                    #     print("Collision")
-                    #     self.gameOver = True
-                    #     #self.reset_game()
+                    if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
+                        self.gameOver = True
+
 
                     self.pickaxe.update()
                     self.bg.update()
@@ -175,7 +174,7 @@ class Game():
                 if event.type == pygame.MOUSEBUTTONUP:
                     if self.playing:
                         if not self.pickaxe.sprites():    #renvoie une liste des sprites. "not liste" fonctionne car une liste vide est implicitement un "False" en python
-                            self.pickaxeClass = Pickaxe(pygame.Vector2(self.player.rect.midbottom), pygame.Vector2(event.pos), 20)
+                            self.pickaxeClass = Pickaxe(pygame.Vector2(self.player.rect.midbottom), pygame.Vector2(event.pos), 25)
                             self.pickaxe.add(self.pickaxeClass)
                             self.player.throw()
                     else:
