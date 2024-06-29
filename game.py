@@ -12,14 +12,15 @@ from entity.Entity import Entity
 from entity.background import Background
 from utils.MusicPlayer import MusicPlayer
 from entity.pickaxe import Pickaxe
+from entity.slowdown import Bat
 
 
 class Game():
     def __init__(self):
         pygame.init()
-        self.scrollSpeed = 15
+        self.scrollSpeed = 10
         self.WIDTH, self.HEIGHT = 1920, 1080 #1280 , 720
-        self.LEFT_BORDER, self.RIGHT_BORDER = 414, 1454
+        self.LEFT_BORDER, self.RIGHT_BORDER = 445, 1480
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         
         # Background
@@ -59,14 +60,23 @@ class Game():
         self.playerGS = pygame.sprite.GroupSingle(self.player)
 
         # Obstacles
-        self.obstacle_frequency = 500
+        self.obstacle_frequency = 500 * (10/self.scrollSpeed)
         self.obstacles = pygame.sprite.Group()
         self.latest_obstacle = pygame.time.get_ticks()
 
         # Ores
-        self.ore_frequency = 2000
+        self.ore_frequency = 2000 * (10/self.scrollSpeed)
         self.ores = pygame.sprite.Group()
         self.latest_ore = pygame.time.get_ticks()
+        
+        #Buffs
+        self.buff_frequency = 5000 * (10/self.scrollSpeed)
+        self.buffs = pygame.sprite.Group()
+        self.latest_buff = pygame.time.get_ticks()
+        
+        #Buff timer
+        self.buff_begin = pygame.time.get_ticks()
+        self.invicibilityBegin = pygame.time.get_ticks()
 
     def game_loop(self):
         while self.running:
@@ -90,21 +100,49 @@ class Game():
                     self.playerGS.draw(self.screen)
                     self.obstacles.draw(self.screen)
                     self.ores.draw(self.screen)
+                    self.buffs.draw(self.screen)
+                    self.manageInvicibility()
 
                     if self.pickaxeClass is not None:
                         self.pickaxeClass.updatePlayerPos(pygame.Vector2(self.player.rect.center))
 
                     # # Collision player / obstacles
                     if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
-                        self.gameOver = True
+                        if self.player.isWithBat:
+                            self.player.touchBat(False)
+                            self.scrollSpeed = 10
+                            self.bgSprite.setScrollSpeed(self.scrollSpeed)
+                            self.update_frequencies()
+                            self.player.isInvincible = True
+                            self.invicibilityBegin = pygame.time.get_ticks()
+                        elif not self.player.isInvincible:
+                            self.gameOver = True
+                    
+                    collidedBuff = pygame.sprite.spritecollideany(self.player, self.buffs)
+                    
+                    if collidedBuff is not None:
+                        if isinstance(collidedBuff, Bat):
+                            self.player.touchBat(True)
+                            self.buff_begin = pygame.time.get_ticks()
+                            collidedBuff.kill()
+                            self.scrollSpeed = 5
+                            self.bgSprite.setScrollSpeed(self.scrollSpeed)
+                            self.update_frequencies()
+                            
+                    if pygame.time.get_ticks() - self.buff_begin >= 10000:
+                        self.player.touchBat(False)
+                        self.scrollSpeed = 10
+                        self.bgSprite.setScrollSpeed(self.scrollSpeed)
+                        self.update_frequencies()
 
 
                     self.pickaxe.update()
                     self.bg.update()
                     self.playerGS.update()
-                    self.obstacles.update(events)
-                    self.ores.update(events)
-
+                    self.obstacles.update(events, self.scrollSpeed)
+                    self.ores.update(events, self.scrollSpeed)
+                    self.buffs.update(self.scrollSpeed)
+                    
 
 
                     if (self.ESC_KEY):
@@ -183,14 +221,28 @@ class Game():
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.ENTER_KEY, self.ESC_KEY = False, False, False, False
         self.MOUSE_EVENTS = []
-
+    
+    def update_frequencies(self):
+        self.obstacle_frequency = 500 * (10/self.scrollSpeed)
+        # Ores
+        self.ore_frequency = 2000 * (10/self.scrollSpeed)
+        
+        #Buffs
+        self.buff_frequency = 5000 * (10/self.scrollSpeed)
+        
+    def manageInvicibility(self):
+        if self.player.isInvincible:
+            if pygame.time.get_ticks() - self.invicibilityBegin >= 1000:
+                self.player.isInvincible = False
+    
     def reset_game(self):
         #screenreset
         self.screen.fill((0, 0, 0))
 
         #Player reset
-        self.player.position = pygame.Vector2(self.WIDTH / 2, 200)
-        self.player.rect.center = self.player.position
+        self.player.kill()
+        self.player = Entity("player", pygame.Vector2(self.WIDTH / 2, 200))
+        self.playerGS.add(self.player)
 
         #Obstacles reset
         self.obstacles.empty()
@@ -229,3 +281,15 @@ class Game():
             else:
                 new_ore.kill()
                 del new_ore
+        
+        # Generate Buffs
+        if current_time - self.latest_buff > self.buff_frequency:
+            self.latest_buff = current_time
+            new_buff = Bat(self.scrollSpeed).generate_buff(self)
+            if not pygame.sprite.spritecollide(new_buff, self.buffs, False, None):
+                self.buffs.add(new_buff)
+            else:
+                new_buff.kill()
+                del new_buff
+            
+            

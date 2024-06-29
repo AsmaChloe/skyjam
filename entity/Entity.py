@@ -7,15 +7,27 @@ class Entity(pygame.sprite.Sprite):
         self.name = name
         self.position = position
         self.side = True
+        
         self.tickFrame = 0
         self.throwTickFrame = 0
+        self.batTickFame = 0
+        
         self.isThrowing = False
         self.xSpeed = 10
+        self.isWithBat = False
+        self.isInvincible = False
         
         self.imageCollection = []
         self.maskCollection = []
+        
         self.imageCollectionThrowing = []
         self.maskCollectionThrowing = []
+        
+        self.imageCollectionBat = []
+        self.maskCollectionBat = []
+        
+        self.imageCollectionBatThrowing = []
+        self.maskCollectionBatThrowing = []
         
         #collection image pour animation idle
         for i in range(1, 19):
@@ -27,26 +39,51 @@ class Entity(pygame.sprite.Sprite):
             self.imageCollectionThrowing.append(pygame.image.load(f"graphics/character/hit/Lancé_pioche_animation{i}.png").convert_alpha())
             self.maskCollectionThrowing.append(pygame.mask.from_surface(self.imageCollectionThrowing[-1]))
         
+        for i in range(1, 13):
+            self.imageCollectionBat.append(pygame.image.load(f"graphics/character/avec_chauve_souris/Chauve souris qui se débat{i}.png").convert_alpha())
+            self.maskCollectionBat.append(pygame.mask.from_surface(self.imageCollectionBat[-1]))
+            
+        for i in range(1, 3):
+            self.imageCollectionBatThrowing.append(pygame.image.load(f"graphics/character/avec_chauve_souris/hit/Chauve souris qui se débat{i}.png").convert_alpha())
+            self.maskCollectionBatThrowing.append(pygame.mask.from_surface(self.imageCollectionBatThrowing[-1]))
+        
         self.image = self.imageCollection[0]
         self.mask = self.maskCollection[0]
         self.rect = self.image.get_rect(center = (self.position.x, self.position.y))
 
     def animate(self):
-        #animation lancé
-        if self.isThrowing:
-            self.throwTickFrame = (self.throwTickFrame + 0.2)
-            self.image = self.imageCollectionThrowing[int(self.throwTickFrame)]
-            self.mask = self.maskCollectionThrowing[int(self.throwTickFrame)]
-            
-            #4 frames sur l'animation donc on limite l'index à 3
-            if int(self.throwTickFrame) == 3:
-                self.throwTickFrame = 0
-                self.isThrowing = False
+        if not self.isWithBat:
+            #animation lancé
+            if self.isThrowing:
+                self.throwTickFrame = (self.throwTickFrame + 0.2)
+                self.image = self.imageCollectionThrowing[int(self.throwTickFrame)]
+                self.mask = self.maskCollectionThrowing[int(self.throwTickFrame)]
+                
+                #4 frames sur l'animation donc on limite l'index à 3
+                if int(self.throwTickFrame) == 3:
+                    self.throwTickFrame = 0
+                    self.isThrowing = False
+            else:
+                #animation IDLE
+                self.tickFrame = (self.tickFrame + 0.2) % 18
+                self.image = self.imageCollection[int(self.tickFrame)]
+                self.mask = self.maskCollection[int(self.tickFrame)]
         else:
-            #animation IDLE
-            self.tickFrame = (self.tickFrame + 0.2) % 18
-            self.image = self.imageCollection[int(self.tickFrame)]
-            self.mask = self.maskCollection[int(self.tickFrame)]
+            if self.isThrowing:
+                self.throwTickFrame = (self.throwTickFrame + 0.5)
+                self.batTickFame = (self.batTickFame + 0.2) % 12
+                self.image = self.imageCollectionBatThrowing[int(self.batTickFame)%2]
+                self.mask = self.maskCollectionBatThrowing[int(self.batTickFame)%2]
+                if int(self.throwTickFrame) == 3:
+                    self.throwTickFrame = 0
+                    self.isThrowing = False
+            else:
+                self.batTickFame = (self.batTickFame + 0.2) % 12
+                self.image = self.imageCollectionBat[int(self.batTickFame)]
+                self.mask = self.maskCollectionBat[int(self.batTickFame)]
+        
+    def touchBat(self, isBatTouched):
+        self.isWithBat = isBatTouched
         
     def flipAnimation(self, leftRight):
         #fonction qui flip tous les sprites sur l'axe x quand on appuie sur le bouton de coté opposé
@@ -56,6 +93,13 @@ class Entity(pygame.sprite.Sprite):
                 
             for i, img in enumerate(self.imageCollectionThrowing):
                 self.imageCollectionThrowing[i] = pygame.transform.flip(img, True, False)
+            
+            for i, img in enumerate(self.imageCollectionBat):
+                self.imageCollectionBat[i] = pygame.transform.flip(img, True, False)
+            
+            for i, img in enumerate(self.imageCollectionBatThrowing):
+                self.imageCollectionBatThrowing[i] = pygame.transform.flip(img, True, False)
+                
         self.side = leftRight
     
     def throw(self):
@@ -64,12 +108,12 @@ class Entity(pygame.sprite.Sprite):
     
     def checkBound(self, leftRight):
         if leftRight:
-            if self.rect.left - self.xSpeed <= 414:
+            if self.rect.left - self.xSpeed <= 445:
                 return False
             else:
                 return True
         else:
-            if self.rect.right + self.xSpeed >= 1454:
+            if self.rect.right + self.xSpeed >= 1480:
                 return False
             else:
                 return True

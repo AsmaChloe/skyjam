@@ -39,9 +39,11 @@ class Ore(CustomSprite):
 
         self.mask = pygame.mask.from_surface(self.image)
 
-    def update(self, events):
+    def update(self, events, scrollSpeed):
         self.mid_top_position.y -= self.speed
         self.rect.midtop = self.mid_top_position
+        self.speed = scrollSpeed
+        
 
         if self.rect.bottom < 0:
             self.kill()

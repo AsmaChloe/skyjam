@@ -29,7 +29,6 @@ class Pickaxe(pygame.sprite.Sprite):
         self.mvtDir = -1
     
     def animate(self):
-        #durée de l'animation avec une vitesse de 20 pixels par frame : 65 frames (un peu plus d'une seconde)
         self.tickFrame = (self.tickFrame + 0.5) % 8
         self.image = self.imageCollection[int(self.tickFrame)]
         if self.rect.bottom > 1000:                                  #inversion du mvtDir quand on a atteind la portée maximale de la pioche
@@ -54,7 +53,7 @@ class Pickaxe(pygame.sprite.Sprite):
                 self.kill()
 
     def checkBound(self, xSpeedThrow):
-        if self.rect.left - xSpeedThrow <= 414 or self.rect.right + xSpeedThrow >= 1454:
+        if self.rect.left - xSpeedThrow <= 445 or self.rect.right + xSpeedThrow >= 1480:
             self.switchDir()
             return False
         return True
