@@ -180,9 +180,6 @@ class Game():
                     self.ores.update(events, self.scrollSpeed)
                     self.buffs.update(self.scrollSpeed)
                     
-
-                    self.obstacles.update(events, self.scrollSpeed)
-                    self.ores.update(events, self.scrollSpeed)
                     self.XPGS.update(events)
 
 
