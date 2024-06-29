@@ -1,16 +1,32 @@
-from menu.menu import MenuSubOptions
+from menu.menu import Menu
+from utils.CustomSprite import CustomSprite
 
 
-class OptionsMenu(MenuSubOptions):
+class OptionsMenu(Menu):
     def __init__(self, game, state="Options", previous_state=(None, None)):
-        MenuSubOptions.__init__(self, game, state, "Options", ["Sound", "Controls"], previous_state=previous_state)
 
-    def validate(self, text):
-        '''
-        Validate the current option selected in the menu
+        self.main_text = "Options"
+        self.sub_text = "Music volume"
+
+        Menu.__init__(self, game, state, previous_state)
+
+    def create_sprites(self):
+        """
+        Create the sprites for the menu
         :return:
-        '''
-        if text == "Sound":
-            print("Sound")
-        elif text == "Controls":
-            print("Controls")
+        """
+        # Title
+        title_sprite = CustomSprite(
+            self.title_font.render(self.main_text, True, (255, 255, 255)),
+            None
+        )
+        self.sprites.add(title_sprite)
+
+        # Sub title
+        sub_title_sprite = CustomSprite(
+            self.menu_fonts.render(self.sub_text, True, (255, 255, 255)),
+            None
+        )
+        self.sprites.add(sub_title_sprite)
+
+        self.position_sprites()

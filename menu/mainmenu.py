@@ -21,5 +21,4 @@ class MainMenu(MenuSubOptions):
             self.game.current_menu = self.game.credit_menu
             self.game.current_menu.state = "Credits"
         elif text == "Exit":
-            pygame.quit()
-            sys.exit()
+            self.game.quit()
