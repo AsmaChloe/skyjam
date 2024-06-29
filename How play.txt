@@ -1,0 +1,5 @@
+/!\ Please note that the first launch may take some time, as the script installs and/or updates what's needed to ensure a smooth game launch. /!\
+
+If you are on Windows :
+ - Go to the Windows launch folder, located here: /run/windows 
+ - Launch the "play.bat" file by double-clicking on it (DON'T LAUNCH IN ADMINISTRATOR)
