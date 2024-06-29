@@ -10,6 +10,7 @@ class Entity(pygame.sprite.Sprite):
         self.tickFrame = 0
         self.throwTickFrame = 0
         self.isThrowing = False
+        self.xSpeed = 10
         
         self.imageCollection = []
         self.imageCollectionThrowing = []
@@ -54,16 +55,28 @@ class Entity(pygame.sprite.Sprite):
         self.throwTickFrame = 0
         self.isThrowing = True
     
+    def checkBound(self, leftRight):
+        if leftRight:
+            if self.rect.left - self.xSpeed <= 414:
+                return False
+            else:
+                return True
+        else:
+            if self.rect.right + self.xSpeed >= 1506:
+                return False
+            else:
+                return True
+    
     def update(self):
         keys = pygame.key.get_pressed()
         
-        if keys[pygame.K_q]:
+        if keys[pygame.K_q] and self.checkBound(True):
             self.flipAnimation(True)
-            self.rect.left -= 10
+            self.rect.left -= self.xSpeed
                 
-        if keys[pygame.K_d]:
+        if keys[pygame.K_d] and self.checkBound(False):
             self.flipAnimation(False)
-            self.rect.right += 10
+            self.rect.right += self.xSpeed
             
         self.animate()
         
