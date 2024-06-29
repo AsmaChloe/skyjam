@@ -51,6 +51,8 @@ class Entity(pygame.sprite.Sprite):
         self.mask = self.maskCollection[0]
         self.rect = self.image.get_rect(center = (self.position.x, self.position.y))
 
+        self.XP = 0
+
     def animate(self):
         if not self.isWithBat:
             #animation lancé
