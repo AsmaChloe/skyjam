@@ -2,6 +2,7 @@ import pygame
 from sys import exit
 from random import choices
 
+from entity.Cursor import Cursor
 from entity.Obstacle import ObstacleType, generate_obstacle
 from entity.Ore import OreType, generate_ore
 from menu.mainmenu import MainMenu
@@ -57,6 +58,11 @@ class Game():
         # Player
         self.player = Entity("player", pygame.Vector2(self.WIDTH / 2, 200))
         self.playerGS = pygame.sprite.GroupSingle(self.player)
+
+        # Cursor
+        pygame.mouse.set_visible(False)
+        self.cursor = Cursor(pygame.mouse.get_pos())
+        self.cursorGS = pygame.sprite.GroupSingle(self.cursor)
 
         # Obstacles
         self.obstacle_frequency = 500
@@ -134,6 +140,9 @@ class Game():
 
                 if (self.ESC_KEY):
                     self.current_menu.back()
+
+            self.cursorGS.draw(self.screen)
+            self.cursorGS.update()
 
             pygame.display.flip()
 
