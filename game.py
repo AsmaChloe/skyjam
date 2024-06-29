@@ -91,7 +91,7 @@ class Game():
                     self.obstacles.draw(self.screen)
 
                     if self.pickaxeClass is not None:
-                        self.pickaxeClass.updatePlayerPos(self.player.rect.center)
+                        self.pickaxeClass.updatePlayerPos(pygame.Vector2(self.player.rect.center))
 
                     # Collision player / obstacles
                     if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
@@ -172,9 +172,10 @@ class Game():
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     if self.playing:
-                        self.pickaxeClass = Pickaxe(self.player.rect.midbottom, event.pos)
-                        self.pickaxe.add(self.pickaxeClass)
-                        self.player.throw()
+                        if not self.pickaxe.sprites():    #renvoie une liste des sprites. "not liste" fonctionne car une liste vide est implicitement un "False" en python
+                            self.pickaxeClass = Pickaxe(pygame.Vector2(self.player.rect.midbottom), pygame.Vector2(event.pos), 20)
+                            self.pickaxe.add(self.pickaxeClass)
+                            self.player.throw()
                     else:
                         self.MOUSE_EVENTS.append(event)
 
