@@ -140,9 +140,8 @@ class Game():
                                 self.player.XP += collided_ore.ore_type.XP
                                 self.XP_sprite.image = pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(f"{self.player.XP} XP", True, (255, 255, 255))
                                 # Remove ore
+                                collided_ore.broken = True
                                 collided_ore.broken_sound.play()
-                                collided_ore.kill()
-                                del collided_ore
                             if(collided_obstacle) :
                                 self.pickaxeClass.hitting_metal_sound.play()
 
