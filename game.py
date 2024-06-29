@@ -33,7 +33,7 @@ class Game():
 
 
         # Music
-        self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3', 'gameover' : ''}
+        self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3', 'gameover': 'music/son_fin_placeholder.mp3'}
         self.music_player = MusicPlayer(self.musics_filenames_dict, "menu")
         self.music_player.load_and_play("menu", {"loops": -1})
 
@@ -111,8 +111,11 @@ class Game():
                         self.reset_game()
                 else:
                     pygame.surface.Surface.fill(self.screen, (0,0,0))
-                    self.music_player.current_key = "gameover"
-                    self.music_player.stop()
+                    
+                    if not self.music_player.current_key == "gameover":
+                        self.music_player.stop()
+                        self.music_player.load_and_play("gameover", {"loops": 0})
+                        
                     self.current_menu = self.gameover_menu
                     
                     self.current_menu.sprites.update(self.MOUSE_EVENTS)
