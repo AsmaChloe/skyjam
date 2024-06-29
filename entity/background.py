@@ -60,9 +60,11 @@ class Background(pygame.sprite.Sprite):
         for j in range(4):
             #mur de gauche
 
-            self.image.blit(self.randomWall("left"), (0, 525 * j))
+            lWall = self.randomWall("left")
+            self.image.blit(lWall, lWall.get_rect(topleft = (10, 525 * j)))
             #mur de droite
-            self.image.blit(self.randomWall("right"), (1715, 525 * j))
+            rWall = self.randomWall("right")
+            self.image.blit(rWall, rWall.get_rect(topleft = (1715, 525 * j)))
 
     
     def setScrollSpeed(self, scrollSpeed):

@@ -174,6 +174,8 @@ class Game():
                         self.player.touchBat(False)
                         self.scrollSpeed = 10
                         self.bgSprite.setScrollSpeed(self.scrollSpeed)
+                        if self.newBg is not None:
+                            self.newBg.setScrollSpeed(self.scrollSpeed)
                         self.update_frequencies()
 
 
