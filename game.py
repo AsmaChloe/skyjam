@@ -100,7 +100,7 @@ class Game():
                     if self.pickaxeClass is not None:
                         self.pickaxeClass.updatePlayerPos(pygame.Vector2(self.player.rect.center))
 
-                    # # Collision player / obstacles
+                    # Collision player / obstacles
                     if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
                         self.gameOver = True
 
@@ -197,6 +197,7 @@ class Game():
         self.screen.fill((0, 0, 0))
 
         #Player reset
+        self.XP = 0
         self.player.position = pygame.Vector2(self.WIDTH / 2, 200)
         self.player.rect.center = self.player.position
 

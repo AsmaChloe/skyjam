@@ -16,12 +16,12 @@ class OreType(Enum):
         obj._value_ = value
         return obj
 
-    def __init__(self, ore_name, direction, image_path, rarity, probability):
+    def __init__(self, ore_name, direction, image_path, rarity, XP):
         self.ore_name = ore_name
         self.direction = direction
         self.image = pygame.image.load(image_path)
         self.rarity = rarity
-        self.probability = probability
+        self.XP = XP
 
     # 0.5
     IRON_LEFT = ("iron", "left", "img/ore/iron/Minerai_Fer_L.png", 0.25, 2)
