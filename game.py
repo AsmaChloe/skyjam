@@ -17,6 +17,7 @@ from utils.CustomSprite import CustomSprite
 from utils.MusicPlayer import MusicPlayer
 from entity.pickaxe import Pickaxe
 from entity.slowdown import Bat
+from entity.protection import Protection
 
 
 class Game():
@@ -38,7 +39,7 @@ class Game():
 
         # Music
         self.MUSIC_ON = True
-        self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3', 'gameover': 'music/son_fin_placeholder.wav'}
+        self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/game_theme.mp3', 'gameover': 'music/son_fin_placeholder.wav'}
         self.music_player = MusicPlayer(self.musics_filenames_dict, "menu")
         self.music_player.load_and_play("menu", {"loops": -1}, self.MUSIC_ON)
 
@@ -163,9 +164,14 @@ class Game():
                             self.update_frequencies()
                             self.player.isInvincible = True
                             self.invicibilityBegin = pygame.time.get_ticks()
+                        elif self.player.isProtected:
+                            self.player.protect(False)
+                            self.player.isInvincible = True
+                            self.invicibilityBegin = pygame.time.get_ticks()
                         elif not self.player.isInvincible:
                             self.gameOver = True
                             self.player.hurt_sounds[random.randint(0,2)].play()
+                        
                     
                     collidedBuff = pygame.sprite.spritecollideany(self.player, self.buffs)
                     
@@ -180,6 +186,12 @@ class Game():
                             if self.newBg is not None:
                                 self.newBg.setScrollSpeed(self.scrollSpeed)
                             self.update_frequencies()
+                        
+                        if isinstance(collidedBuff, Protection):
+                            self.player.protect(True)
+                            self.player.caughtShieldSound.play()
+                            collidedBuff.kill()
+                            
                             
                     if pygame.time.get_ticks() - self.buff_begin >= 10000:
                         self.player.touchBat(False)
@@ -350,7 +362,12 @@ class Game():
         # Generate Buffs
         if current_time - self.latest_buff > self.buff_frequency:
             self.latest_buff = current_time
-            new_buff = Bat(self.scrollSpeed).generate_buff(self)
+            
+            if random.choice(["Bat", "Protection"]) == "Bat":
+                new_buff = Bat(self.scrollSpeed).generate_buff(self)
+            else:
+                new_buff = Protection(self.scrollSpeed).generate_buff(self)
+                
             if not pygame.sprite.spritecollide(new_buff, self.buffs, False, None):
                 self.buffs.add(new_buff)
             else:
@@ -358,7 +375,7 @@ class Game():
                 del new_buff
                 
     def manage_background(self):
-        if self.bgSprite.rect.top <= 1080 and self.newBg is None:
+        if self.bgSprite.rect.top <= 0 and self.newBg is None:
             self.newBg = Background(self.scrollSpeed, (1920/2, self.bgSprite.rect.bottom))
             self.bg.add(self.newBg)
         

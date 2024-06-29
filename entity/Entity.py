@@ -16,7 +16,9 @@ class Entity(pygame.sprite.Sprite):
         self.xSpeed = 10
         self.isWithBat = False
         self.caughtBatSound = pygame.mixer.Sound("sound/Chauve_souris.wav")
+        self.caughtShieldSound = pygame.mixer.Sound("sound/Bouclier.wav")
         self.isInvincible = False
+        self.isProtected = False
         
         self.imageCollection = []
         self.maskCollection = []
@@ -29,6 +31,9 @@ class Entity(pygame.sprite.Sprite):
         
         self.imageCollectionBatThrowing = []
         self.maskCollectionBatThrowing = []
+        
+        self.imageCollectionProtected = []
+        self.maskCollectionProtected = []
         
         #collection image pour animation idle
         for i in range(1, 19):
@@ -48,6 +53,10 @@ class Entity(pygame.sprite.Sprite):
             self.imageCollectionBatThrowing.append(pygame.image.load(f"graphics/character/avec_chauve_souris/hit/Chauve souris qui se débat{i}.png").convert_alpha())
             self.maskCollectionBatThrowing.append(pygame.mask.from_surface(self.imageCollectionBatThrowing[-1]))
         
+        for i in range(1, 19):
+            self.imageCollectionProtected.append(pygame.image.load(f'graphics/character/protected/animation_chute_bouclier{i}.png'))
+            self.maskCollectionProtected.append(pygame.mask.from_surface(self.imageCollectionProtected[-1]))
+        
         self.image = self.imageCollection[0]
         self.mask = self.maskCollection[0]
         self.rect = self.image.get_rect(center = (self.position.x, self.position.y))
@@ -58,35 +67,40 @@ class Entity(pygame.sprite.Sprite):
         self.hurt_sounds = [pygame.mixer.Sound("sound/Aie_1.wav"), pygame.mixer.Sound("sound/Aie_2.wav"), pygame.mixer.Sound("sound/Aie_3.wav")]
 
     def animate(self):
-        if not self.isWithBat:
-            #animation lancé
-            if self.isThrowing:
-                self.throwTickFrame = (self.throwTickFrame + 0.2)
-                self.image = self.imageCollectionThrowing[int(self.throwTickFrame)]
-                self.mask = self.maskCollectionThrowing[int(self.throwTickFrame)]
-                
-                #4 frames sur l'animation donc on limite l'index à 3
-                if int(self.throwTickFrame) == 3:
-                    self.throwTickFrame = 0
-                    self.isThrowing = False
-            else:
-                #animation IDLE
-                self.tickFrame = (self.tickFrame + 0.2) % 18
-                self.image = self.imageCollection[int(self.tickFrame)]
-                self.mask = self.maskCollection[int(self.tickFrame)]
+        if self.isProtected:
+            self.tickFrame = (self.tickFrame + 0.2) % 18
+            self.image = self.imageCollectionProtected[int(self.tickFrame)]
+            self.mask = self.maskCollectionProtected[int(self.tickFrame)]
         else:
-            if self.isThrowing:
-                self.throwTickFrame = (self.throwTickFrame + 0.5)
-                self.batTickFame = (self.batTickFame + 0.2) % 12
-                self.image = self.imageCollectionBatThrowing[int(self.batTickFame)%2]
-                self.mask = self.maskCollectionBatThrowing[int(self.batTickFame)%2]
-                if int(self.throwTickFrame) == 3:
-                    self.throwTickFrame = 0
-                    self.isThrowing = False
+            if not self.isWithBat:
+                #animation lancé
+                if self.isThrowing:
+                    self.throwTickFrame = (self.throwTickFrame + 0.2)
+                    self.image = self.imageCollectionThrowing[int(self.throwTickFrame)]
+                    self.mask = self.maskCollectionThrowing[int(self.throwTickFrame)]
+                    
+                    #4 frames sur l'animation donc on limite l'index à 3
+                    if int(self.throwTickFrame) == 3:
+                        self.throwTickFrame = 0
+                        self.isThrowing = False
+                else:
+                    #animation IDLE
+                    self.tickFrame = (self.tickFrame + 0.2) % 18
+                    self.image = self.imageCollection[int(self.tickFrame)]
+                    self.mask = self.maskCollection[int(self.tickFrame)]
             else:
-                self.batTickFame = (self.batTickFame + 0.2) % 12
-                self.image = self.imageCollectionBat[int(self.batTickFame)]
-                self.mask = self.maskCollectionBat[int(self.batTickFame)]
+                if self.isThrowing:
+                    self.throwTickFrame = (self.throwTickFrame + 0.5)
+                    self.batTickFame = (self.batTickFame + 0.2) % 12
+                    self.image = self.imageCollectionBatThrowing[int(self.batTickFame)%2]
+                    self.mask = self.maskCollectionBatThrowing[int(self.batTickFame)%2]
+                    if int(self.throwTickFrame) == 3:
+                        self.throwTickFrame = 0
+                        self.isThrowing = False
+                else:
+                    self.batTickFame = (self.batTickFame + 0.2) % 12
+                    self.image = self.imageCollectionBat[int(self.batTickFame)]
+                    self.mask = self.maskCollectionBat[int(self.batTickFame)]
         
     def touchBat(self, isBatTouched):
         self.isWithBat = isBatTouched
@@ -149,3 +163,6 @@ class Entity(pygame.sprite.Sprite):
             return True
 
         return False
+
+    def protect(self, newState):
+        self.isProtected = newState
