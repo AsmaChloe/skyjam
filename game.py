@@ -100,9 +100,15 @@ class Game():
                     if self.pickaxeClass is not None:
                         self.pickaxeClass.updatePlayerPos(pygame.Vector2(self.player.rect.center))
 
-                    # Collision player / obstacles
-                    if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
-                        self.gameOver = True
+                        #Collision pickaxe / ores
+                        collided_ores = pygame.sprite.spritecollide(self.pickaxeClass, self.ores, True, pygame.sprite.collide_mask)
+                        for ore in collided_ores:
+                            self.player.XP += ore.ore_type.XP
+
+
+                    # # Collision player / obstacles
+                    # if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
+                    #     self.gameOver = True
 
 
                     self.pickaxe.update()
@@ -208,6 +214,7 @@ class Game():
         #pickaxe reset
         if self.pickaxeClass is not None:
             self.pickaxeClass.kill()
+
         #Ores reset
         self.ores.empty()
         self.latest_ore = pygame.time.get_ticks()

@@ -7,6 +7,7 @@ class Pickaxe(pygame.sprite.Sprite):
         self.tickFrame = 0
         self.mvtDir = 1
         self.imageCollection = []
+        self.maskCollection = []
         self.playerPosVector = initPos
         self.xMaxSpeed = speed
         self.xSpeed = 0
@@ -19,8 +20,10 @@ class Pickaxe(pygame.sprite.Sprite):
         
         for i in range(1, 9):
             self.imageCollection.append(pygame.image.load(f"graphics/wood_pickaxe/Animation_bois{i}.png").convert_alpha())
+            self.maskCollection.append(pygame.mask.from_surface(self.imageCollection[-1]))
             
         self.image = self.imageCollection[0]
+        self.mask = self.maskCollection[0]
         self.rect = self.image.get_rect(midtop = initPos)
         
         self.returnVector = pygame.Vector2(initPos - pygame.Vector2(self.rect.center))
@@ -32,6 +35,7 @@ class Pickaxe(pygame.sprite.Sprite):
         #durée de l'animation avec une vitesse de 20 pixels par frame : 65 frames (un peu plus d'une seconde)
         self.tickFrame = (self.tickFrame + 0.5) % 8
         self.image = self.imageCollection[int(self.tickFrame)]
+        self.mask = self.maskCollection[int(self.tickFrame)]
         if self.rect.bottom > 1000:                                  #inversion du mvtDir quand on a atteind la portée maximale de la pioche
             self.switchDir()
             
@@ -66,3 +70,15 @@ class Pickaxe(pygame.sprite.Sprite):
     
     def update(self):
         self.animate()
+
+    def overlap(self, object_mask, object_rect):
+        """
+        Check if the pickaxe is overlapping with another object
+        :param object_mask:
+        :param object_rect:
+        :return:
+        """
+
+        if self.mask.overlap(object_mask, (object_rect.x - self.rect.x, object_rect.y - self.rect.y)):
+            return True
+        return False
