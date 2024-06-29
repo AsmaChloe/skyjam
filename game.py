@@ -17,7 +17,7 @@ from entity.pickaxe import Pickaxe
 class Game():
     def __init__(self):
         pygame.init()
-        self.scrollSpeed = 15
+        self.scrollSpeed = 10
         self.WIDTH, self.HEIGHT = 1920, 1080 #1280 , 720
         self.LEFT_BORDER, self.RIGHT_BORDER = 414, 1506
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
@@ -32,7 +32,7 @@ class Game():
 
 
         # Music
-        self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3', 'gameover': 'music/son_fin_placeholder.mp3'}
+        self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3', 'gameover': 'music/son_fin_placeholder.wav'}
         self.music_player = MusicPlayer(self.musics_filenames_dict, "menu")
         self.music_player.load_and_play("menu", {"loops": -1})
 
@@ -92,13 +92,12 @@ class Game():
                     self.ores.draw(self.screen)
 
                     if self.pickaxeClass is not None:
-                        self.pickaxeClass.updatePlayerPos(self.player.rect.center)
+                        self.pickaxeClass.updatePlayerPos(pygame.Vector2(self.player.rect.center))
 
-                    # Collision player / obstacles
+                    # # Collision player / obstacles
                     if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
-                        print("Collision")
                         self.gameOver = True
-                        #self.reset_game()
+
 
                     self.pickaxe.update()
                     self.bg.update()
@@ -173,9 +172,10 @@ class Game():
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     if self.playing:
-                        self.pickaxeClass = Pickaxe(self.player.rect.midbottom, event.pos)
-                        self.pickaxe.add(self.pickaxeClass)
-                        self.player.throw()
+                        if not self.pickaxe.sprites():    #renvoie une liste des sprites. "not liste" fonctionne car une liste vide est implicitement un "False" en python
+                            self.pickaxeClass = Pickaxe(pygame.Vector2(self.player.rect.midbottom), pygame.Vector2(event.pos), 25)
+                            self.pickaxe.add(self.pickaxeClass)
+                            self.player.throw()
                     else:
                         self.MOUSE_EVENTS.append(event)
 
@@ -195,10 +195,12 @@ class Game():
         self.obstacles.empty()
         self.latest_obstacle = pygame.time.get_ticks()
 
+        #pickaxe reset
+        if self.pickaxeClass is not None:
+            self.pickaxeClass.kill()
         #Ores reset
         self.ores.empty()
         self.latest_ore = pygame.time.get_ticks()
-
         #flag reset
         self.gameOver = False
 
