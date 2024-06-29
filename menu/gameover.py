@@ -10,6 +10,7 @@ class GameOver(MenuSubOptions):
         Validate the current option selected in the menu
         :return:
         '''
+        self.validate_button_sound.play()
         if text == "Rejouer":
             self.game.reset_game()
             self.game.playing = True

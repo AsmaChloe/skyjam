@@ -12,6 +12,7 @@ class MainMenu(MenuSubOptions):
         Validate the current option selected in the menu
         :return:
         '''
+        self.validate_button_sound.play()
         if text == "Start Game":
             self.game.playing = True
         elif text == "Options":

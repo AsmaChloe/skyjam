@@ -15,6 +15,7 @@ class Entity(pygame.sprite.Sprite):
         self.isThrowing = False
         self.xSpeed = 10
         self.isWithBat = False
+        self.caughtBatSound = pygame.mixer.Sound("sound/Chauve_souris.wav")
         self.isInvincible = False
         
         self.imageCollection = []
@@ -52,6 +53,9 @@ class Entity(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center = (self.position.x, self.position.y))
 
         self.XP = 0
+
+        self.throw_sound = pygame.mixer.Sound("sound/Lancer.wav")
+        self.hurt_sounds = [pygame.mixer.Sound("sound/Aie_1.wav"), pygame.mixer.Sound("sound/Aie_2.wav"), pygame.mixer.Sound("sound/Aie_3.wav")]
 
     def animate(self):
         if not self.isWithBat:
@@ -107,6 +111,7 @@ class Entity(pygame.sprite.Sprite):
     def throw(self):
         self.throwTickFrame = 0
         self.isThrowing = True
+        self.throw_sound.play()
     
     def checkBound(self, leftRight):
         if leftRight:
