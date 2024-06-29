@@ -108,7 +108,7 @@ class Game():
                     self.ores.draw(self.screen)
                     self.XPGS.draw(self.screen)
 
-                    if self.pickaxeClass is not None:
+                    if self.pickaxeClass is not None and len(self.pickaxe):
                         self.pickaxeClass.updatePlayerPos(pygame.Vector2(self.player.rect.center))
 
                         #Collision pickaxe w/ anything
