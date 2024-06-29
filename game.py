@@ -49,7 +49,7 @@ class Game():
         self.MOUSE_EVENTS = []
 
         # Player
-        self.player = Entity("player", pygame.Vector2(1920 / 2, 200))
+        self.player = Entity("player", pygame.Vector2(self.WIDTH / 2, 200))
         self.playerGS = pygame.sprite.GroupSingle(self.player)
 
         # Obstacles
@@ -65,7 +65,6 @@ class Game():
             self.check_events(events)
 
             if self.playing:
-
                 # Music
                 if not self.music_player.current_key == "game":
                     self.music_player.stop()
@@ -86,6 +85,12 @@ class Game():
                 if self.pickaxeClass is not None:
                     self.pickaxeClass.updatePlayerPos(self.player.rect.center)
 
+                # Collision player / obstacles
+                if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
+                    print("Collision")
+                    self.playing = False
+                    self.reset_game()
+
                 self.pickaxe.update()
                 self.bg.update()
                 self.playerGS.update()
@@ -93,6 +98,7 @@ class Game():
 
                 if (self.ESC_KEY):
                     self.playing = False
+                    self.reset_game()
             else:
                 # Music
                 if not self.music_player.current_key == "menu":
@@ -142,6 +148,15 @@ class Game():
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.ENTER_KEY, self.ESC_KEY = False, False, False, False
         self.MOUSE_EVENTS = []
+
+    def reset_game(self):
+        #Player reset
+        self.player.position = pygame.Vector2(self.WIDTH / 2, 200)
+        self.player.rect.center = self.player.position
+
+        #Obstacles reset
+        self.obstacles.empty()
+        self.latest_obstacle = pygame.time.get_ticks()
 
     def quit(self):
         pygame.quit()

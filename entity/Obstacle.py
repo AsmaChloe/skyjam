@@ -37,6 +37,8 @@ class Obstacle(CustomSprite):
         self.speed = scroll_speed
         self.rect.midtop = self.mid_top_position
 
+        self.mask = pygame.mask.from_surface(self.image)
+
     @override
     def update(self, events):
         self.mid_top_position.y -= self.speed
