@@ -20,6 +20,7 @@ build_exe_options = {
         *get_files_in_directory("img"),
         *get_files_in_directory("music"),
         *get_files_in_directory("util"),
+        *get_files_in_directory("sound")
     ],
     "excludes": ["tkinter"],
     "build_exe": "skyjam_apericube"
