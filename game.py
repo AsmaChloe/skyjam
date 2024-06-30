@@ -19,6 +19,7 @@ from utils.SoundPlayer import SoundPlayer
 from entity.pickaxe import Pickaxe, PickaxeType
 from entity.slowdown import Bat
 from entity.protection import Protection
+from entity.boom import Dynamite
 
 
 class Game():
@@ -97,6 +98,12 @@ class Game():
         self.buffs = pygame.sprite.Group()
         self.latest_buff = pygame.time.get_ticks()
         
+        #BigBuffs = Dynamite, canari
+        self.big_buff_frequency = 5000 * (10/self.scrollSpeed)
+        self.big_buffs = pygame.sprite.Group()
+        self.latest_big_buff = pygame.time.get_ticks()
+        self.dynamite_buff_timer = pygame.time.get_ticks()
+        
         #Buff timer
         self.buff_begin = pygame.time.get_ticks()
         self.invicibilityBegin = pygame.time.get_ticks()
@@ -131,6 +138,7 @@ class Game():
                     self.pickaxe_Hitting_Animation.draw(self.screen)
                     self.buffs.draw(self.screen)
                     self.xp_barGS.draw(self.screen)
+                    self.big_buffs.draw(self.screen)
 
                     self.manageInvicibility()
 
@@ -171,9 +179,7 @@ class Game():
                             self.player.touchBat(False)
                             self.sound_player.bat_channel.stop()
                             self.scrollSpeed = 10
-                            self.bgSprite.setScrollSpeed(self.scrollSpeed)
-                            if self.newBg is not None:
-                                self.newBg.setScrollSpeed(self.scrollSpeed)
+                            self.updateBackgroundScrollSpeed()
                             self.update_frequencies()
                             self.player.isInvincible = True
                             self.invicibilityBegin = pygame.time.get_ticks()
@@ -196,24 +202,41 @@ class Game():
                             self.buff_begin = pygame.time.get_ticks()
                             collidedBuff.kill()
                             self.scrollSpeed = 5
-                            self.bgSprite.setScrollSpeed(self.scrollSpeed)
-                            if self.newBg is not None:
-                                self.newBg.setScrollSpeed(self.scrollSpeed)
+                            self.updateBackgroundScrollSpeed()
                             self.update_frequencies()
                         
                         if isinstance(collidedBuff, Protection):
                             self.player.protect(True)
                             self.player.caughtShieldSound.play()
                             collidedBuff.kill()
+                        
+                        if isinstance(collidedBuff, Dynamite):
+                            self.scrollSpeed = 0
+                            self.updateBackgroundScrollSpeed()
+                            self.sound_player.player_channel.play(self.player.caughtDynamiteSound)
+                            self.player.isDynamite = True
+                            self.player.isProtected = False
+                            self.player.isWithBat = False
+                            self.player.isThrowing = False
+                            self.pickaxe.kill()
+                            self.player.isInvincible = True
+                            self.dynamite_buff_timer = pygame.time.get_ticks()
                             
+                    if pygame.time.get_ticks() - self.dynamite_buff_timer >= 3500:
+                        self.scrollSpeed = 50
+                        self.updateBackgroundScrollSpeed()
+                    
+                    if pygame.time.get_ticks() - self.dynamite_buff_timer >= 3500:
+                        self.scrollSpeed = 10
+                        self.invicibilityBegin = pygame.time.get_ticks()
+                        self.player.isDynamite = False
+                        self.updateBackgroundScrollSpeed()
                             
                     if pygame.time.get_ticks() - self.buff_begin >= 10000:
                         self.player.touchBat(False)
                         self.sound_player.bat_channel.stop()
                         self.scrollSpeed = 10
-                        self.bgSprite.setScrollSpeed(self.scrollSpeed)
-                        if self.newBg is not None:
-                            self.newBg.setScrollSpeed(self.scrollSpeed)
+                        self.updateBackgroundScrollSpeed()
                         self.update_frequencies()
 
                     self.pickaxeGS.update()
@@ -224,6 +247,7 @@ class Game():
                     self.pickaxe_Hitting_Animation.update(events)
                     self.buffs.update(self.scrollSpeed)
                     self.xp_barGS.update(events)
+                    self.big_buffs.update(self.scrollSpeed)
 
 
                     if (self.ESC_KEY):
@@ -320,8 +344,11 @@ class Game():
         #Buffs
         self.buff_frequency = 5000 * (10/self.scrollSpeed)
         
+        #Big buffs
+        self.big_buff_frequency = 5000 * (10/self.scrollSpeed)
+        
     def manageInvicibility(self):
-        if self.player.isInvincible:
+        if self.player.isInvincible and not self.player.isDynamite:
             if pygame.time.get_ticks() - self.invicibilityBegin >= 1000:
                 self.player.isInvincible = False
     
@@ -402,6 +429,26 @@ class Game():
             else:
                 new_buff.kill()
                 del new_buff
+        
+            #Generate big buffs
+            if current_time - self.latest_buff > self.buff_frequency:
+                self.latest_buff = current_time
+
+                
+                if random.choice(["Dynamite"]) == "Dynamite":
+                    new_big_buff = Dynamite(self.scrollSpeed).generate_buff(self)
+                else:
+                    pass
+                    
+                if (not pygame.sprite.spritecollide(new_big_buff, self.buffs, False, None)
+                        and not pygame.sprite.spritecollide(new_big_buff, self.obstacles, False, None)
+                        and not pygame.sprite.spritecollide(new_big_buff, self.ores, False, None)
+                        and not pygame.sprite.spritecollide(new_big_buff, self.big_buffs, False, None)):
+
+                    self.big_buffs.add(new_big_buff)
+                else:
+                    new_big_buff.kill()
+                    del new_big_buff
 
                 
     def manage_background(self):
@@ -428,3 +475,8 @@ class Game():
 
     def display_collision_animation(self, position):
         self.pickaxe_Hitting_Animation.add(PickaxeHittingObstacleAnimation(self.sound_player, position, self.scrollSpeed))
+
+    def updateBackgroundScrollSpeed(self):
+        self.bgSprite.setScrollSpeed(self.scrollSpeed)
+        if self.newBg is not None:
+            self.newBg.setScrollSpeed(self.scrollSpeed)

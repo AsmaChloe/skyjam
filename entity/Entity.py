@@ -19,8 +19,10 @@ class Entity(pygame.sprite.Sprite):
         self.isWithBat = False
         self.caughtBatSound = pygame.mixer.Sound("sound/Chauve_souris.wav")
         self.caughtShieldSound = pygame.mixer.Sound("sound/Bouclier.wav")
+        self.caughtDynamiteSound = pygame.mixer.Sound("sound/DYNAMITE.wav")
         self.isInvincible = False
         self.isProtected = False
+        self.isDynamite = False
         self.isEvolvingPickaxe = False
         
         self.imageCollection = []
