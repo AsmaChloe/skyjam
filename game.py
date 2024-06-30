@@ -111,6 +111,10 @@ class Game():
         self.buff_begin = pygame.time.get_ticks()
         self.invicibilityBegin = pygame.time.get_ticks()
 
+        #Custom userevent pickaxe hits walls
+        self.WALLHITLEFT = pygame.USEREVENT + 1
+        self.WALLHITRIGHT = pygame.USEREVENT + 2
+
     def game_loop(self):
         while self.running:
             events = pygame.event.get()
@@ -150,73 +154,75 @@ class Game():
                         collided_obstacle = pygame.sprite.spritecollideany(self.pickaxe, self.obstacles, pygame.sprite.collide_mask)
                         collided_ore = pygame.sprite.spritecollideany(self.pickaxe, self.ores, pygame.sprite.collide_mask)
                         if collided_obstacle or collided_ore:
+
+                            if not self.pickaxe.noHit:
+                                if(collided_ore) :
+                                    # Add XP
+                                    self.player.XP += collided_ore.ore_type.XP
+                                    self.XP_sprite.image = pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(f"{self.player.XP} XP", True, (255, 255, 255))
+
+
+                                    # Remove ore
+                                    self.sound_player.ore_channel.play(collided_ore.broken_sound)
+                                    collided_ore.broken = True
+                                    collided_ore.broken_sound.play()
+
+                                    if self.pickaxe_type != PickaxeType.DIAMOND_PICKAXE and self.player.XP >= self.pickaxe_type.next_pickaxe_cost :
+                                        self.player.XP -= self.pickaxe_type.next_pickaxe_cost
+                                        self.pickaxe_type = self.pickaxe.evolve()
+
+                                    self.update_xp_bar()
+
+                                if(collided_obstacle) :
+                                    print(f"Collided obstacle mask pos: {collided_obstacle.mask.get_bounding_rects()}")
+                                    self.display_collision_animation(self.pickaxe.rect.midbottom)
                             self.pickaxe.switchDir()
 
-                            if(collided_ore) :
-                                # Add XP
-                                self.player.XP += collided_ore.ore_type.XP
-                                print("Player gained XP : +", collided_ore.ore_type.XP, "XP - Total XP : ", self.player.XP)
-
-                                # Remove ore
-                                self.sound_player.ore_channel.play(collided_ore.broken_sound)
-                                collided_ore.broken = True
-                                collided_ore.broken_sound.play()
-
-                                if self.pickaxe_type != PickaxeType.DIAMOND_PICKAXE and self.player.XP >= self.pickaxe_type.next_pickaxe_cost :
-                                    self.player.XP -= self.pickaxe_type.next_pickaxe_cost
-                                    self.pickaxe_type = self.pickaxe.evolve()
 
 
-                                self.XP_sprite.image = pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(f"{self.player.XP} XP", True, (255, 255, 255))
-                                # self.update_xp_bar()
-                            if(collided_obstacle) :
-                                self.display_collision_animation(collided_obstacle)
+                    # Collision player / obstacles
+                    if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
 
+                        # If the player has a bat
+                        if self.player.isWithBat:
+                            self.player.touchBat(False)
+                            self.sound_player.bat_channel.stop()
+                            self.scrollSpeed = 10
+                            self.bgSprite.setScrollSpeed(self.scrollSpeed)
+                            if self.newBg is not None:
+                                self.newBg.setScrollSpeed(self.scrollSpeed)
+                            self.update_frequencies()
+                            self.player.isInvincible = True
+                            self.invicibilityBegin = pygame.time.get_ticks()
+                        elif self.player.isProtected:
+                            self.player.protect(False)
+                            self.player.isInvincible = True
+                            self.invicibilityBegin = pygame.time.get_ticks()
+                        elif not self.player.isInvincible:
+                            self.gameOver = True
 
-
-                    # # Collision player / obstacles
-                    # if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
-                    #
-                    #     # If the player has a bat
-                    #     if self.player.isWithBat:
-                    #         self.player.touchBat(False)
-                    #         self.sound_player.bat_channel.stop()
-                    #         self.scrollSpeed = 10
-                    #         self.bgSprite.setScrollSpeed(self.scrollSpeed)
-                    #         if self.newBg is not None:
-                    #             self.newBg.setScrollSpeed(self.scrollSpeed)
-                    #         self.update_frequencies()
-                    #         self.player.isInvincible = True
-                    #         self.invicibilityBegin = pygame.time.get_ticks()
-                    #     elif self.player.isProtected:
-                    #         self.player.protect(False)
-                    #         self.player.isInvincible = True
-                    #         self.invicibilityBegin = pygame.time.get_ticks()
-                    #     elif not self.player.isInvincible:
-                    #         self.gameOver = True
-                    #
-                    #         self.sound_player.player_channel.play(self.player.hurt_sounds[random.randint(0, 2)])
-                    #         self.sound_player.stop_sounds_at_game_over()
-                    #
-                    # collidedBuff = pygame.sprite.spritecollideany(self.player, self.buffs)
-                    #
-                    # if collidedBuff is not None:
-                    #     if isinstance(collidedBuff, Bat):
-                    #         self.player.touchBat(True)
-                    #         self.sound_player.bat_channel.play(self.player.caughtBatSound)
-                    #         self.buff_begin = pygame.time.get_ticks()
-                    #         collidedBuff.kill()
-                    #         self.scrollSpeed = 5
-                    #         self.bgSprite.setScrollSpeed(self.scrollSpeed)
-                    #         if self.newBg is not None:
-                    #             self.newBg.setScrollSpeed(self.scrollSpeed)
-                    #         self.update_frequencies()
-                    #
-                    #     if isinstance(collidedBuff, Protection):
-                    #         self.player.protect(True)
-                    #         self.player.caughtShieldSound.play()
-                    #         collidedBuff.kill()
-                    #
+                            self.sound_player.player_channel.play(self.player.hurt_sounds[random.randint(0, 2)])
+                            self.sound_player.stop_sounds_at_game_over()
+                    
+                    collidedBuff = pygame.sprite.spritecollideany(self.player, self.buffs)
+                    
+                    if collidedBuff is not None:
+                        if isinstance(collidedBuff, Bat):
+                            self.player.touchBat(True)
+                            self.sound_player.bat_channel.play(self.player.caughtBatSound)
+                            self.buff_begin = pygame.time.get_ticks()
+                            collidedBuff.kill()
+                            self.scrollSpeed = 5
+                            self.bgSprite.setScrollSpeed(self.scrollSpeed)
+                            if self.newBg is not None:
+                                self.newBg.setScrollSpeed(self.scrollSpeed)
+                            self.update_frequencies()
+                        
+                        if isinstance(collidedBuff, Protection):
+                            self.player.protect(True)
+                            self.player.caughtShieldSound.play()
+                            collidedBuff.kill()
+                            
                             
                     if pygame.time.get_ticks() - self.buff_begin >= 10000:
                         self.player.touchBat(False)
@@ -305,11 +311,19 @@ class Game():
                 if event.type == pygame.MOUSEBUTTONUP:
                     if self.playing:
                         if not self.pickaxeGS.sprites():    #renvoie une liste des sprites. "not liste" fonctionne car une liste vide est implicitement un "False" en python
-                            self.pickaxe = Pickaxe(pygame.Vector2(self.player.rect.midbottom), pygame.Vector2(event.pos), self.pickaxe_type)
+                            self.pickaxe = Pickaxe(pygame.Vector2(self.player.rect.midbottom), pygame.Vector2(event.pos), 25, self.pickaxe_type, self.WALLHITLEFT, self.WALLHITRIGHT)
                             self.pickaxeGS.add(self.pickaxe)
                             self.player.throw()
                     else:
                         self.MOUSE_EVENTS.append(event)
+                if event.type == self.WALLHITLEFT:
+                    self.display_collision_animation(self.pickaxe.rect.bottomleft)
+
+                if event.type == self.WALLHITRIGHT:
+                    self.display_collision_animation(self.pickaxe.rect.bottomright)
+
+
+
 
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.ENTER_KEY, self.ESC_KEY = False, False, False, False
@@ -333,13 +347,14 @@ class Game():
         self.screen.fill((0, 0, 0))
 
         #Player reset
+
         self.player.kill()
         self.player = Entity(self,"player", pygame.Vector2(self.WIDTH / 2, 200))
         self.playerGS.add(self.player)
 
         self.player.XP = 0
         self.XP_sprite.image = pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(f"{self.player.XP} XP", True, (255, 255, 255))
-        # self.update_xp_bar()
+        self.update_xp_bar()
 
         #Pickaxe reset
         if self.pickaxe is not None:
@@ -418,36 +433,36 @@ class Game():
             self.bgSprite = self.newBg
             self.newBg = None
             
-    # def load_xp_bar_images(self):
-    #     self.xp_bar_images = {}
-    #     xp_folder = "img/xp/"
-    #     for filename in os.listdir(xp_folder):
-    #         if filename.startswith("xp_bar_") and filename.endswith(".png"):
-    #             xp_value = int(filename[7:-4])
-    #             self.xp_bar_images[xp_value] = pygame.image.load(os.path.join(xp_folder, filename)).convert_alpha()
-    #
-    #     self.xp_levels = sorted(self.xp_bar_images.keys())
-    #
-    # def update_xp_bar(self):
-    #     xp_level = (self.player.XP // 5) * 5
-    #
-    #     if (xp_level >= 100):
-    #         self.reset_xp_bar()
-    #
-    #     available_levels = [level for level in self.xp_levels if level <= xp_level]
-    #
-    #     if available_levels:
-    #         appropriate_level = max(available_levels)
-    #     else:
-    #         appropriate_level = min(self.xp_levels)
-    #
-    #     self.custom_sprite.image = self.xp_bar_images[appropriate_level]
-    #     self.custom_sprite.rect.topleft = (self.WIDTH - self.custom_sprite.rect.width - 70, 23)
-    #
-    # def reset_xp_bar(self):
-    #     initial_xp_image = pygame.image.load("img/xp/xp_bar_0.png").convert_alpha()
-    #     self.current_xp_image = initial_xp_image
-    #
+    def load_xp_bar_images(self):
+        self.xp_bar_images = {}
+        xp_folder = "img/xp/"
+        for filename in os.listdir(xp_folder):
+            if filename.startswith("xp_bar_") and filename.endswith(".png"):
+                xp_value = int(filename[7:-4])
+                self.xp_bar_images[xp_value] = pygame.image.load(os.path.join(xp_folder, filename)).convert_alpha()
+
+        self.xp_levels = sorted(self.xp_bar_images.keys())
+
+    def update_xp_bar(self):
+        xp_level = (self.player.XP // 5) * 5
+
+        if (xp_level >= 100):
+            self.reset_xp_bar()
+
+        available_levels = [level for level in self.xp_levels if level <= xp_level]
+
+        if available_levels:
+            appropriate_level = max(available_levels)
+        else:
+            appropriate_level = min(self.xp_levels)
+
+        self.custom_sprite.image = self.xp_bar_images[appropriate_level]
+        self.custom_sprite.rect.topleft = (self.WIDTH - self.custom_sprite.rect.width - 70, 23)
+
+    def reset_xp_bar(self):
+        initial_xp_image = pygame.image.load("img/xp/xp_bar_0.png").convert_alpha()
+        self.current_xp_image = initial_xp_image
+
 
     def display_collision_animation(self, collided_obstacle):
         pos = pygame.sprite.collide_mask(self.pickaxeGS.sprite, collided_obstacle)

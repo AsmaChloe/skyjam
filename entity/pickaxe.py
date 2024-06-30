@@ -30,7 +30,7 @@ class PickaxeType(Enum):
     DIAMOND_PICKAXE = ("diamond_pickaxe", "Animation_diamant", None , 70)
 
 class Pickaxe(pygame.sprite.Sprite):
-    def __init__(self, initPos, destination, type):
+    def __init__(self, initPos, destination, speed, type, whl, whr):
         self.type = type
         super().__init__()
         self.tickFrame = 0
@@ -41,7 +41,11 @@ class Pickaxe(pygame.sprite.Sprite):
         self.maxSpeed = type.maxSpeed
         self.xSpeed = 0
         self.topLimit = initPos.y
-        
+        self.noHit = False
+
+        self.WALLHITLEFT = whl
+        self.WALLHITRIGHT = whr
+
         self.directionVector = pygame.Vector2(destination - initPos).normalize()
 
         self.image = self.imageCollection[0]
@@ -53,7 +57,8 @@ class Pickaxe(pygame.sprite.Sprite):
 
     def switchDir(self):
         self.mvtDir = -1
-    
+        self.noHit = True
+
     def animate(self):
         self.tickFrame = (self.tickFrame + 0.5) % 8
         self.image = self.imageCollection[int(self.tickFrame)]
@@ -81,7 +86,12 @@ class Pickaxe(pygame.sprite.Sprite):
 
     def checkBound(self, xSpeedThrow):
         if self.rect.left - xSpeedThrow <= 445 or self.rect.right + xSpeedThrow >= 1480:
+            if self.rect.left - xSpeedThrow <= 445:
+                pygame.event.post(pygame.event.Event(self.WALLHITLEFT))
+            elif self.rect.right + xSpeedThrow >= 1480:
+                pygame.event.post(pygame.event.Event(self.WALLHITRIGHT))
             self.switchDir()
+
             return False
         return True
     
