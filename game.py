@@ -245,6 +245,7 @@ class Game():
                         self.player.isProtected = False
                         self.player.isWithBat = False
                         self.player.isThrowing = False
+                        self.player.dynamiteTickFrame = 0
                         self.player.isDynamiteStarting = True
                         if self.pickaxe is not None:
                             self.pickaxe.kill()
@@ -262,6 +263,8 @@ class Game():
                         self.player.isDynamiteEnding = True
                         self.player.dynamiteTickFrame = 0
                         self.player.isDynamite = False
+                        self.player.isInvincible = True
+                        self.invicibilityBegin = pygame.time.get_ticks()
                         self.updateBackgroundScrollSpeed()
                         self.update_frequencies()
                             

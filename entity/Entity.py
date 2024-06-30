@@ -52,6 +52,7 @@ class Entity(pygame.sprite.Sprite):
         self.imageCollectionDynamiteStart = []
         self.imageCollectionDynamiteTravel = []
         self.imageCollectionDynamiteEnd = []
+        self.imageCollectionDynamite = []
 
         
         #collection image pour animation idle
@@ -83,6 +84,9 @@ class Entity(pygame.sprite.Sprite):
         
         for i in range(13, 24):
             self.imageCollectionDynamiteEnd.append(pygame.image.load(f'graphics/character/dynamite/trajet dynamite_animation{i}.png'))
+        
+        for i in range(1, 9):
+            self.imageCollectionDynamite.append(pygame.image.load(f'graphics/character/dynamite/bonhomme/dynamite{i}.png'))
             
         
         self.image = pygame.Surface((290, 320), pygame.SRCALPHA, 32).convert_alpha()
@@ -127,8 +131,6 @@ class Entity(pygame.sprite.Sprite):
                     self.dynamiteTickFrame = 0
                     self.isDynamite = False
                     self.isDynamiteEnding = False
-        elif self.isDynamite:
-            pass
         else :
             self.image = pygame.Surface((290, 320), pygame.SRCALPHA, 32).convert_alpha()
             if(self.isEvolvingPickaxe)  :
@@ -138,7 +140,14 @@ class Entity(pygame.sprite.Sprite):
                     self.isEvolvingPickaxe = False
                     self.evolutionTickFrame = 0
                     self.currentPickaxeType = self.game.pickaxe_type
-            else:     
+            else:
+                if self.isDynamite:
+                    self.dynamiteTickFrame = (self.dynamiteTickFrame + 0.2) % 8
+                    surf = self.imageCollectionDynamite[int(self.dynamiteTickFrame)]
+                    if self.side:
+                        self.image.blit(surf, surf.get_rect(center = (290/2 + 35, 320/2)))
+                    else:
+                        self.image.blit(surf, surf.get_rect(center = (290/2 - 35, 320/2)))
                 if not self.isWithBat:
                     #animation lancé
                     if self.isThrowing:
@@ -172,6 +181,7 @@ class Entity(pygame.sprite.Sprite):
                     else:
                         shield = self.imageCollectionProtected[int(self.protectionTickFrame)]
                     self.image.blit(shield, shield.get_rect(center = (290/2, 320/2)))
+
                 self.mask = pygame.mask.from_surface(self.image)
             
     def touchBat(self, isBatTouched):
