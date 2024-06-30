@@ -56,7 +56,7 @@ class Game():
         self.score_tick = 0
         self.score = 0
         self.score_sprite = CustomSprite(
-            pygame.font.Font("fonts/8bit-wonder/8-BIT WONDER.TTF", size=30).render(f"Score * {self.score}", True, (255, 255, 255)),
+            pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF", size=30).render(f"Score * {self.score}", True, (255, 255, 255)),
             "score"
         )
         self.score_GS = pygame.sprite.GroupSingle()
@@ -143,6 +143,7 @@ class Game():
                     self.pickaxe_Hitting_Animation.draw(self.screen)
                     self.buffs.draw(self.screen)
                     self.xp_barGS.draw(self.screen)
+                    self.score_GS.draw(self.screen)
 
                     self.manageInvicibility()
 
@@ -248,9 +249,10 @@ class Game():
                     #Score update every second
                     if pygame.time.get_ticks() - self.score_tick >= 1000:
                         self.score += self.scrollSpeed
-                        self.score_sprite.image = pygame.font.Font("fonts/8bit-wonder/8-BIT WONDER.TTF", size=30).render(f"Score * {self.score}", True, (255, 255, 255))
+                        self.score_sprite.image = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF",
+                                                                   size=30).render(f"Score * {self.score}", True,
+                                                                                   (255, 255, 255))
                         self.score_tick = pygame.time.get_ticks()
-
 
                     self.pickaxeGS.update()
                     self.bg.update()
@@ -396,7 +398,7 @@ class Game():
 
         #Score reset
         self.score = 0
-        self.score_sprite.image = pygame.font.Font("fonts/8bit-wonder/8-BIT WONDER.TTF", size=30).render(f"{self.score}", True, (255, 255, 255))
+        self.score_sprite.image = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF", size=30).render(f"{self.score}", True, (255, 255, 255))
         self.score_tick = pygame.time.get_ticks()
 
     def quit(self):
