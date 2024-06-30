@@ -16,7 +16,7 @@ from entity.Entity import Entity
 from entity.background import Background
 from utils.CustomSprite import CustomSprite
 from utils.SoundPlayer import SoundPlayer
-from entity.pickaxe import Pickaxe
+from entity.pickaxe import Pickaxe, PickaxeType
 from entity.slowdown import Bat
 from entity.protection import Protection
 
@@ -38,7 +38,7 @@ class Game():
         self.pickaxe = None
         self.pickaxeGS = pygame.sprite.GroupSingle()
         self.pickaxe_Hitting_Animation = pygame.sprite.Group()
-        # self.pickaxeClass = None
+        self.pickaxe_type = PickaxeType.WOOD_PICKAXE
 
         # Music
         self.MUSIC_ON = True
