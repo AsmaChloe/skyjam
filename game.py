@@ -28,6 +28,7 @@ class Game():
     def __init__(self):
         pygame.init()
         self.scrollSpeed = 10
+        self.accel = 10
         self.WIDTH, self.HEIGHT = 1920, 1080 #1280 , 720
         self.LEFT_BORDER, self.RIGHT_BORDER = 445, 1480
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
@@ -158,6 +159,7 @@ class Game():
                         self.first_game = False
                 else :
                     if not self.gameOver:
+
                         # Music
                         if not self.sound_player.current_key == "game":
                             self.sound_player.stop()
@@ -270,7 +272,6 @@ class Game():
                                 self.gameover_menu.update()
                                 self.main_menu.update()
 
-
                         if (pygame.time.get_ticks() - self.dynamite_buff_timer >= 3500) and self.player.isDynamite and not self.player.isDynamiteStarting and not self.player.isDynamiteDuring and not self.player.isDynamiteEnding:
                             self.original_scrollSpeed = self.scrollSpeed
                             self.scrollSpeed = self.scrollSpeed * 3
@@ -284,7 +285,7 @@ class Game():
                             self.updateBackgroundScrollSpeed()
                             self.update_frequencies()
 
-                        if (pygame.time.get_ticks() - self.dynamite_buff_timer > 3500) and (pygame.time.get_ticks() - self.dynamite_buff_timer < 8500):
+                        if self.player.isDynamiteDuring :
                             self.player.isInvincible = True
                             self.invicibilityBegin = pygame.time.get_ticks()
 

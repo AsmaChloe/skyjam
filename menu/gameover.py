@@ -8,7 +8,7 @@ import pygame
 
 class GameOver(MenuSubOptions):
     def __init__(self, game, state = "GameOver", previous_state=(None, None)):
-
+        self.game = game
         MenuSubOptions.__init__(self, game, state, self.randomCatchPhrase(), ["Rejouer", "Menu principal", "",""], previous_state=previous_state)
         
         score_sprite = CustomSprite(
