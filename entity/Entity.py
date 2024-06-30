@@ -12,6 +12,7 @@ class Entity(pygame.sprite.Sprite):
         self.tickFrame = 0
         self.throwTickFrame = 0
         self.batTickFame = 0
+        self.protectionTickFrame = 0
         
         self.isThrowing = False
         self.xSpeed = 10
@@ -23,44 +24,43 @@ class Entity(pygame.sprite.Sprite):
         self.isEvolvingPickaxe = False
         
         self.imageCollection = []
-        self.maskCollection = []
+
         
         self.imageCollectionThrowing = []
-        self.maskCollectionThrowing = []
+
         
         self.imageCollectionBat = []
-        self.maskCollectionBat = []
+
         
         self.imageCollectionBatThrowing = []
-        self.maskCollectionBatThrowing = []
+
         
         self.imageCollectionProtected = []
-        self.maskCollectionProtected = []
+
         
         #collection image pour animation idle
         for i in range(1, 19):
             self.imageCollection.append(pygame.image.load(f"graphics/character/animation chute{i}.png").convert_alpha())
-            self.maskCollection.append(pygame.mask.from_surface(self.imageCollection[-1]))
+            
         
         #collection image pour animation lancé
         for i in range(1, 5):
             self.imageCollectionThrowing.append(pygame.image.load(f"graphics/character/hit/Lancé_pioche_animation{i}.png").convert_alpha())
-            self.maskCollectionThrowing.append(pygame.mask.from_surface(self.imageCollectionThrowing[-1]))
+            
         
         for i in range(1, 13):
             self.imageCollectionBat.append(pygame.image.load(f"graphics/character/avec_chauve_souris/Chauve souris qui se débat{i}.png").convert_alpha())
-            self.maskCollectionBat.append(pygame.mask.from_surface(self.imageCollectionBat[-1]))
+           
             
         for i in range(1, 3):
             self.imageCollectionBatThrowing.append(pygame.image.load(f"graphics/character/avec_chauve_souris/hit/Chauve souris qui se débat{i}.png").convert_alpha())
-            self.maskCollectionBatThrowing.append(pygame.mask.from_surface(self.imageCollectionBatThrowing[-1]))
+            
         
         for i in range(1, 19):
-            self.imageCollectionProtected.append(pygame.image.load(f'graphics/character/protected/animation_chute_bouclier{i}.png'))
-            self.maskCollectionProtected.append(pygame.mask.from_surface(self.imageCollectionProtected[-1]))
+            self.imageCollectionProtected.append(pygame.image.load(f'graphics/character/protected/animation bouclier joueur{i}.png'))
+            
         
-        self.image = self.imageCollection[0]
-        self.mask = self.maskCollection[0]
+        self.image = pygame.Surface((290, 320), pygame.SRCALPHA, 32).convert_alpha()
         self.rect = self.image.get_rect(center = (self.position.x, self.position.y))
 
         self.XP = 0
@@ -69,40 +69,42 @@ class Entity(pygame.sprite.Sprite):
         self.hurt_sounds = [pygame.mixer.Sound("sound/Aie_1.wav"), pygame.mixer.Sound("sound/Aie_2.wav"), pygame.mixer.Sound("sound/Aie_3.wav")]
 
     def animate(self):
-        if self.isProtected:
-            self.tickFrame = (self.tickFrame + 0.2) % 18
-            self.image = self.imageCollectionProtected[int(self.tickFrame)]
-            self.mask = self.maskCollectionProtected[int(self.tickFrame)]
-        else:
-            if not self.isWithBat:
-                #animation lancé
-                if self.isThrowing:
-                    self.throwTickFrame = (self.throwTickFrame + 0.2)
-                    self.image = self.imageCollectionThrowing[int(self.throwTickFrame)]
-                    self.mask = self.maskCollectionThrowing[int(self.throwTickFrame)]
-                    
-                    #4 frames sur l'animation donc on limite l'index à 3
-                    if int(self.throwTickFrame) == 3:
-                        self.throwTickFrame = 0
-                        self.isThrowing = False
-                else:
-                    #animation IDLE
-                    self.tickFrame = (self.tickFrame + 0.2) % 18
-                    self.image = self.imageCollection[int(self.tickFrame)]
-                    self.mask = self.maskCollection[int(self.tickFrame)]
+        self.image = pygame.Surface((290, 320), pygame.SRCALPHA, 32).convert_alpha()
+ 
+        if not self.isWithBat:
+            #animation lancé
+            if self.isThrowing:
+                self.throwTickFrame = (self.throwTickFrame + 0.2)
+                self.image.blit(self.imageCollectionThrowing[int(self.throwTickFrame)], self.imageCollectionThrowing[int(self.throwTickFrame)].get_rect(center = (290/2, 320/2)))
+                
+                #4 frames sur l'animation donc on limite l'index à 3
+                if int(self.throwTickFrame) == 3:
+                    self.throwTickFrame = 0
+                    self.isThrowing = False
             else:
-                if self.isThrowing:
-                    self.throwTickFrame = (self.throwTickFrame + 0.5)
-                    self.batTickFame = (self.batTickFame + 0.2) % 12
-                    self.image = self.imageCollectionBatThrowing[int(self.batTickFame)%2]
-                    self.mask = self.maskCollectionBatThrowing[int(self.batTickFame)%2]
-                    if int(self.throwTickFrame) == 3:
-                        self.throwTickFrame = 0
-                        self.isThrowing = False
-                else:
-                    self.batTickFame = (self.batTickFame + 0.2) % 12
-                    self.image = self.imageCollectionBat[int(self.batTickFame)]
-                    self.mask = self.maskCollectionBat[int(self.batTickFame)]
+                #animation IDLE
+                self.tickFrame = (self.tickFrame + 0.2) % 18
+                self.image.blit(self.imageCollection[int(self.tickFrame)], self.imageCollection[int(self.tickFrame)].get_rect(center = (290/2, 320/2)))
+        else:
+            if self.isThrowing:
+                self.throwTickFrame = (self.throwTickFrame + 0.5)
+                self.batTickFame = (self.batTickFame + 0.2) % 12
+                self.image.blit(self.imageCollectionBatThrowing[int(self.batTickFame)%2], self.imageCollectionBatThrowing[int(self.batTickFame)%2].get_rect(center = (290/2, 320/2)))
+                if int(self.throwTickFrame) == 3:
+                    self.throwTickFrame = 0
+                    self.isThrowing = False
+            else:
+                self.batTickFame = (self.batTickFame + 0.2) % 12
+                self.image.blit(self.imageCollectionBat[int(self.batTickFame)], self.imageCollectionBat[int(self.batTickFame)].get_rect(center = (290/2, 320/2)))
+        
+        if self.isProtected:
+            self.protectionTickFrame = (self.protectionTickFrame + 0.15) % 18
+            if self.isWithBat:
+                shield = pygame.transform.rotozoom(self.imageCollectionProtected[int(self.protectionTickFrame)], 0, 1.5)
+            else:
+                shield = self.imageCollectionProtected[int(self.protectionTickFrame)]
+            self.image.blit(shield, shield.get_rect(center = (290/2, 320/2))) 
+        self.mask = pygame.mask.from_surface(self.image)
         
     def touchBat(self, isBatTouched):
         self.isWithBat = isBatTouched
@@ -130,13 +132,28 @@ class Entity(pygame.sprite.Sprite):
         self.game.sound_player.pickaxe_channel.play(self.throw_sound)
     
     def checkBound(self, leftRight):
+        leftBound = 365
+        rightBound = 1570
+        
+        if self.isWithBat:
+            leftBound = 395
+            rightBound = 1545
+        
+        if self.isProtected:
+            leftBound = 405
+            rightBound = 1540
+        
+        if self.isProtected and self.isWithBat:
+            leftBound = 447
+            rightBound = 1498
+        
         if leftRight:
-            if self.rect.left - self.xSpeed <= 445:
+            if self.rect.left - self.xSpeed <= leftBound:
                 return False
             else:
                 return True
         else:
-            if self.rect.right + self.xSpeed >= 1480:
+            if self.rect.right + self.xSpeed >= rightBound:
                 return False
             else:
                 return True

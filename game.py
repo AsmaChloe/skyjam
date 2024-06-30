@@ -177,7 +177,7 @@ class Game():
                             self.update_frequencies()
                             self.player.isInvincible = True
                             self.invicibilityBegin = pygame.time.get_ticks()
-                        elif self.player.isProtected:
+                        elif self.player.isProtected and not self.player.isInvincible:
                             self.player.protect(False)
                             self.player.isInvincible = True
                             self.invicibilityBegin = pygame.time.get_ticks()
@@ -294,7 +294,7 @@ class Game():
                 if event.type == pygame.MOUSEBUTTONUP:
                     if self.playing:
                         if not self.pickaxeGS.sprites():    #renvoie une liste des sprites. "not liste" fonctionne car une liste vide est implicitement un "False" en python
-                            self.pickaxe = Pickaxe(pygame.Vector2(self.player.rect.midbottom), pygame.Vector2(event.pos), 25, self.pickaxe_type, self.WALLHITLEFT, self.WALLHITRIGHT)
+                            self.pickaxe = Pickaxe(pygame.Vector2(self.player.rect.center), pygame.Vector2(event.pos), 25, self.pickaxe_type, self.WALLHITLEFT, self.WALLHITRIGHT)
                             self.pickaxeGS.add(self.pickaxe)
                             self.player.throw()
                     else:
