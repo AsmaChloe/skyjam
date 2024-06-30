@@ -110,6 +110,10 @@ class Game():
         #Buff timer
         self.buff_begin = pygame.time.get_ticks()
         self.invicibilityBegin = pygame.time.get_ticks()
+        
+        #Custom userevent pickaxe hits walls
+        self.WALLHITLEFT = pygame.USEREVENT + 1
+        self.WALLHITRIGHT = pygame.USEREVENT + 2
 
     def game_loop(self):
         while self.running:
@@ -150,22 +154,23 @@ class Game():
                         collided_obstacle = pygame.sprite.spritecollideany(self.pickaxe, self.obstacles, pygame.sprite.collide_mask)
                         collided_ore = pygame.sprite.spritecollideany(self.pickaxe, self.ores, pygame.sprite.collide_mask)
                         if collided_obstacle or collided_ore:
+                        
+                            if not self.pickaxe.noHit:
+                                if(collided_ore) :
+                                    # Add XP
+                                    self.player.XP += collided_ore.ore_type.XP
+                                    self.XP_sprite.image = pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(f"{self.player.XP} XP", True, (255, 255, 255))
+
+                                    self.update_xp_bar()
+
+                                    # Remove ore
+                                    self.sound_player.ore_channel.play(collided_ore.broken_sound)
+                                    collided_ore.broken = True
+                                    collided_ore.broken_sound.play()
+                                if(collided_obstacle) :
+                                    print(f"Collided obstacle mask pos: {collided_obstacle.mask.get_bounding_rects()}")
+                                    self.display_collision_animation(self.pickaxe.rect.midbottom)
                             self.pickaxe.switchDir()
-
-                            if(collided_ore) :
-                                # Add XP
-                                self.player.XP += collided_ore.ore_type.XP
-                                self.XP_sprite.image = pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(f"{self.player.XP} XP", True, (255, 255, 255))
-
-                                self.update_xp_bar()
-
-                                # Remove ore
-                                self.sound_player.ore_channel.play(collided_ore.broken_sound)
-                                collided_ore.broken = True
-                                collided_ore.broken_sound.play()
-                            if(collided_obstacle) :
-                                print(f"Collided obstacle mask pos: {collided_obstacle.mask.get_bounding_rects()}")
-                                self.display_collision_animation(collided_obstacle)
 
 
 
@@ -300,11 +305,19 @@ class Game():
                 if event.type == pygame.MOUSEBUTTONUP:
                     if self.playing:
                         if not self.pickaxeGS.sprites():    #renvoie une liste des sprites. "not liste" fonctionne car une liste vide est implicitement un "False" en python
-                            self.pickaxe = Pickaxe(pygame.Vector2(self.player.rect.midbottom), pygame.Vector2(event.pos), 25)
+                            self.pickaxe = Pickaxe(pygame.Vector2(self.player.rect.midbottom), pygame.Vector2(event.pos), 25, self.WALLHITLEFT, self.WALLHITRIGHT)
                             self.pickaxeGS.add(self.pickaxe)
                             self.player.throw()
                     else:
                         self.MOUSE_EVENTS.append(event)
+                if event.type == self.WALLHITLEFT:
+                    self.display_collision_animation(self.pickaxe.rect.bottomleft)
+                    
+                if event.type == self.WALLHITRIGHT:
+                    self.display_collision_animation(self.pickaxe.rect.bottomright)
+                
+                
+                    
 
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.ENTER_KEY, self.ESC_KEY = False, False, False, False
@@ -438,8 +451,6 @@ class Game():
         self.current_xp_image = initial_xp_image
 
 
-    def display_collision_animation(self, collided_obstacle):
-        x_collision, y_collision = pygame.sprite.collide_mask(self.pickaxeGS.sprite, collided_obstacle)
-        print(f"Collision at {x_collision}, {y_collision}")
+    def display_collision_animation(self, animation_postion):
 
-        self.pickaxe_Hitting_Animation.add(PickaxeHittingObstacleAnimation(self.sound_player, (x_collision, y_collision), self.scrollSpeed))
+        self.pickaxe_Hitting_Animation.add(PickaxeHittingObstacleAnimation(self.sound_player, animation_postion, self.scrollSpeed))

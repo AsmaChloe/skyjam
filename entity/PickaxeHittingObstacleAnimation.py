@@ -21,9 +21,9 @@ class PickaxeHittingObstacleAnimation(CustomSprite) :
         self.scroll_speed = scroll_speed
 
     def update(self, events):
-        self.img_index += 1
-        if self.img_index >= len(self.image_collection):
+        self.img_index = (self.img_index + 0.4)
+        if int(self.img_index) >= len(self.image_collection):
             self.kill()
         else:
-            self.image = self.image_collection[self.img_index]
+            self.image = self.image_collection[int(self.img_index)]
             self.rect.top -= self.scroll_speed
