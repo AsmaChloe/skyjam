@@ -188,7 +188,7 @@ class Game():
                             self.update_frequencies()
                             self.player.isInvincible = True
                             self.invicibilityBegin = pygame.time.get_ticks()
-                        elif self.player.isProtected:
+                        elif self.player.isProtected and not self.player.isInvincible:
                             self.player.protect(False)
                             self.player.isInvincible = True
                             self.invicibilityBegin = pygame.time.get_ticks()
