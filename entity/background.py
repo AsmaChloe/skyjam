@@ -18,25 +18,33 @@ class BackgroundType(Enum):
 
     #LEFT
     SIMPLE_WALL_LEFT = ("left", "graphics/background/Mur_L/Mur_L.png", 0.4)
-    FERN_WALL_LEFT_1 = ("left", "graphics/background/Mur_L/Mur_L_Fougere_1.png", 0.1)
-    FERN_WALL_LEFT_2 = ("left", "graphics/background/Mur_L/Mur_L_Fougere_2.png", 0.1)
+    FERN_WALL_LEFT_1 = ("left", "graphics/background/Mur_L/Mur_Fougere_1_L.png", 0.1)
+    FERN_WALL_LEFT_2 = ("left", "graphics/background/Mur_L/Mur_Fougere_2_L.png", 0.1)
+    FERN_WALL_LEFT_3 = ("left", "graphics/background/Mur_L/Mur_Fougere_3_L.png", 0.05)
+    FERN_WALL_LEFT_4 = ("left", "graphics/background/Mur_L/Mur_Fougere_4_L.png", 0.05)
+    FERN_WALL_LEFT_5 = ("left", "graphics/background/Mur_L/Mur_Fougere_5_L.png", 0.1)
     # GEODE_WALL_LEFT_1 = ("left", "graphics/background/Mur_L/Mur_L_Geode_1.png", 0.1)
     GEODE_WALL_LEFT_2 = ("left", "graphics/background/Mur_L/Mur_L_Geode_2.png", 0.1)
     CAVE_DYNAMITE_WALL_LEFT = ("left", "graphics/background/Mur_L/Mur_L_Grotte_dynamite.png", 0.01)
     # CAVE_GEODE_WALL_LEFT = ("left", "graphics/background/Mur_L/Mur_L_Grotte_geode.png", 0.01)
     # CAVE_GEODE_DYNAMITE_WALL_LEFT = ("left", "graphics/background/Mur_L/Mur_L_Grotte_geode_dynamite.png", 0.01)
     # CAVE_CHARACTER_WALL_LEFT = ("left", "graphics/background/Mur_L/Mur_L_Grotte_perso.png", 0.01)
+    DIAMOND_CAVE_MEME_WALL_LEFT = ("left", "graphics/background/Mur_L/Mur_L_meme_diamants.png", 0.01)
 
     #RIGHT
     SIMPLE_WALL_RIGHT = ("right", "graphics/background/Mur_R/Mur_R.png", 0.4)
-    FERN_WALL_RIGHT_1 = ("right", "graphics/background/Mur_R/Mur_R_Fougere_1.png", 0.1)
-    FERN_WALL_RIGHT_2 = ("right", "graphics/background/Mur_R/Mur_R_Fougere_2.png", 0.1)
+    FERN_WALL_RIGHT_1 = ("right", "graphics/background/Mur_R/Mur_Fougere_1_R.png", 0.1)
+    FERN_WALL_RIGHT_2 = ("right", "graphics/background/Mur_R/Mur_Fougere_2_R.png", 0.1)
+    FERN_WALL_RIGHT_3 = ("right", "graphics/background/Mur_R/Mur_Fougere_3_R.png", 0.05)
+    FERN_WALL_RIGHT_4 = ("right", "graphics/background/Mur_R/Mur_Fougere_4_R.png", 0.05)
+    FERN_WALL_RIGHT_5 = ("right", "graphics/background/Mur_R/Mur_Fougere_5_R.png", 0.1)
     # GEODE_WALL_RIGHT_1 = ("right", "graphics/background/Mur_R/Mur_R_Geode_1.png", 0.1)
     GEODE_WALL_RIGHT_2 = ("right", "graphics/background/Mur_R/Mur_R_Geode_2.png", 0.1)
     CAVE_DYNAMITE_WALL_RIGHT = ("right", "graphics/background/Mur_R/Mur_R_Grotte_dynamite.png", 0.01)
     # CAVE_GEODE_WALL_RIGHT = ("right", "graphics/background/Mur_R/Mur_R_Grotte_geode.png", 0.01)
     # CAVE_GEODE_DYNAMITE_WALL_RIGHT = ("right", "graphics/background/Mur_R/Mur_R_Grotte_geode_dynamite.png", 0.01)
     # CAVE_CHARACTER_WALL_RIGHT = ("right", "graphics/background/Mur_R/Mur_R_Grotte_perso.png", 0.01)
+    DIAMOND_CAVE_MEME_WALL_RIGHT = ("right", "graphics/background/Mur_R/Mur_R_meme_diamants.png", 0.01)
 
 
 class Background(pygame.sprite.Sprite):
@@ -49,14 +57,15 @@ class Background(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect(midtop = initPos)
         self.scrollSpeed = scrollSpeed
-        
+
         #le point de début de la zone est au pixel 414 et la fin au pixel 1506 et la zone fait 1092 pixels de large
-        
+
 
         for i in range(2):
             #zone jouable
             self.image.blit(self.middleTexture, self.middleTexture.get_rect(topleft = (675, 1050 * i)))
-        
+
+
         for j in range(4):
             #mur de gauche
 
@@ -66,10 +75,11 @@ class Background(pygame.sprite.Sprite):
             rWall = self.randomWall("right")
             self.image.blit(rWall, rWall.get_rect(topleft = (1715, 525 * j)))
 
-    
+
+
     def setScrollSpeed(self, scrollSpeed):
         self.scrollSpeed = scrollSpeed
-        
+
     def update(self):
         self.rect.top -= self.scrollSpeed
 

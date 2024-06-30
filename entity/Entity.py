@@ -2,8 +2,9 @@ import pygame
 
 
 class Entity(pygame.sprite.Sprite):
-    def __init__(self, name, position):
+    def __init__(self, game, name, position):
         super().__init__()
+        self.game = game
         self.name = name
         self.position = position
         self.side = True
@@ -125,7 +126,7 @@ class Entity(pygame.sprite.Sprite):
     def throw(self):
         self.throwTickFrame = 0
         self.isThrowing = True
-        self.throw_sound.play()
+        self.game.sound_player.pickaxe_channel.play(self.throw_sound)
     
     def checkBound(self, leftRight):
         if leftRight:
