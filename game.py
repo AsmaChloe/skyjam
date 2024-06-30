@@ -52,6 +52,17 @@ class Game():
         self.clock = pygame.time.Clock()
         self.dt = 0
 
+        # Score that depends on time spent in game
+        self.score_tick = 0
+        self.score = 0
+        self.score_sprite = CustomSprite(
+            pygame.font.Font("fonts/8bit-wonder/8-BIT WONDER.TTF", size=30).render(f"Score * {self.score}", True, (255, 255, 255)),
+            "score"
+        )
+        self.score_GS = pygame.sprite.GroupSingle()
+        self.score_sprite.rect.topleft = (20, 20)
+        self.score_GS.add(self.score_sprite)
+
         self.running = True
         self.playing = False
         self.gameOver = False
@@ -215,7 +226,7 @@ class Game():
                         if self.newBg is not None:
                             self.newBg.setScrollSpeed(self.scrollSpeed)
                         self.update_frequencies()
-                            
+
                     # Buff timer
                     if pygame.time.get_ticks() - self.buff_begin >= 10000:
                         self.player.touchBat(False)
@@ -234,6 +245,13 @@ class Game():
                             self.newBg.setScrollSpeed(self.scrollSpeed)
                         self.update_frequencies()
 
+                    #Score update every second
+                    if pygame.time.get_ticks() - self.score_tick >= 1000:
+                        self.score += self.scrollSpeed
+                        self.score_sprite.image = pygame.font.Font("fonts/8bit-wonder/8-BIT WONDER.TTF", size=30).render(f"Score * {self.score}", True, (255, 255, 255))
+                        self.score_tick = pygame.time.get_ticks()
+
+
                     self.pickaxeGS.update()
                     self.bg.update()
                     self.playerGS.update()
@@ -242,7 +260,7 @@ class Game():
                     self.pickaxe_Hitting_Animation.update(events)
                     self.buffs.update(self.scrollSpeed)
                     self.xp_barGS.update(events)
-
+                    self.score_GS.update(events)
 
                     if (self.ESC_KEY):
                         self.playing = False
@@ -376,6 +394,11 @@ class Game():
         #flag reset
         self.gameOver = False
 
+        #Score reset
+        self.score = 0
+        self.score_sprite.image = pygame.font.Font("fonts/8bit-wonder/8-BIT WONDER.TTF", size=30).render(f"{self.score}", True, (255, 255, 255))
+        self.score_tick = pygame.time.get_ticks()
+
     def quit(self):
         pygame.quit()
         exit()
@@ -405,12 +428,12 @@ class Game():
         if current_time - self.latest_buff > self.buff_frequency:
             self.latest_buff = current_time
 
-            
+
             if random.choice(["Bat", "Protection"]) == "Bat":
                 new_buff = Bat(self.scrollSpeed, self.sound_player).generate_buff(self)
             else:
                 new_buff = Protection(self.scrollSpeed).generate_buff(self)
-                
+
             if (not pygame.sprite.spritecollide(new_buff, self.buffs, False, None)
                     and not pygame.sprite.spritecollide(new_buff, self.obstacles, False, None)
                     and not pygame.sprite.spritecollide(new_buff, self.ores, False, None)):
@@ -420,12 +443,12 @@ class Game():
                 new_buff.kill()
                 del new_buff
 
-                
+
     def manage_background(self):
         if self.bgSprite.rect.top <= 0 and self.newBg is None:
             self.newBg = Background(self.scrollSpeed, (1920/2, self.bgSprite.rect.bottom))
             self.bg.add(self.newBg)
-        
+
         if self.bgSprite.rect.bottom <= 0:
             self.bgSprite.kill()
             del self.bgSprite

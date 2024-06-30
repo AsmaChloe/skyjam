@@ -1,8 +1,10 @@
+
+skyjam_apericube.zip
+
 .idea/
 
 build/
 skyjam_apericube/
-*.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
