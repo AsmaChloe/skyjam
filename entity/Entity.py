@@ -13,28 +13,18 @@ class Entity(pygame.sprite.Sprite):
         self.throwTickFrame = 0
         self.batTickFame = 0
         self.protectionTickFrame = 0
-
-        self.dynamiteTickFrame = 0
         self.evolutionTickFrame = 0
-
         
         self.isThrowing = False
         self.xSpeed = 10
         self.isWithBat = False
         self.caughtBatSound = pygame.mixer.Sound("sound/Chauve_souris.wav")
         self.caughtShieldSound = pygame.mixer.Sound("sound/Bouclier.wav")
-        self.caughtDynamiteSound = pygame.mixer.Sound("sound/DYNAMITE.wav")
-        self.rocketMan = pygame.mixer.Sound("sound/Dynamite_vitesse.wav")
         self.isInvincible = False
         self.isProtected = False
-        self.isDynamite = False
-        self.isDynamiteStarting = False
-        self.isDynamiteEnding = False
-        self.isDynamiteDuring = False
         self.isEvolvingPickaxe = False
-
         self.currentPickaxeType = pickaxe_type
-
+        
         self.imageCollection = []
 
         
@@ -48,10 +38,6 @@ class Entity(pygame.sprite.Sprite):
 
         
         self.imageCollectionProtected = []
-        
-        self.imageCollectionDynamiteStart = []
-        self.imageCollectionDynamiteTravel = []
-        self.imageCollectionDynamiteEnd = []
 
         
         #collection image pour animation idle
@@ -75,15 +61,6 @@ class Entity(pygame.sprite.Sprite):
         for i in range(1, 19):
             self.imageCollectionProtected.append(pygame.image.load(f'graphics/character/protected/animation bouclier joueur{i}.png'))
             
-        for i in range(1, 4):
-            self.imageCollectionDynamiteStart.append(pygame.image.load(f'graphics/character/dynamite/trajet dynamite_animation{i}.png'))
-        
-        for i in range(4, 13):
-            self.imageCollectionDynamiteTravel.append(pygame.image.load(f'graphics/character/dynamite/trajet dynamite_animation{i}.png'))
-        
-        for i in range(13, 24):
-            self.imageCollectionDynamiteEnd.append(pygame.image.load(f'graphics/character/dynamite/trajet dynamite_animation{i}.png'))
-            
         
         self.image = pygame.Surface((290, 320), pygame.SRCALPHA, 32).convert_alpha()
         self.rect = self.image.get_rect(center = (self.position.x, self.position.y))
@@ -94,6 +71,7 @@ class Entity(pygame.sprite.Sprite):
         self.hurt_sounds = [pygame.mixer.Sound("sound/Aie_1.wav"), pygame.mixer.Sound("sound/Aie_2.wav"), pygame.mixer.Sound("sound/Aie_3.wav")]
 
     def animate(self):
+
 
         
         if self.isDynamiteStarting or self.isDynamiteDuring or self.isDynamiteEnding:
@@ -127,7 +105,7 @@ class Entity(pygame.sprite.Sprite):
                     self.isDynamiteEnding = False
 
         else :
-            
+           
             self.image = pygame.Surface((290, 320), pygame.SRCALPHA, 32).convert_alpha()
             
             if(self.isEvolvingPickaxe)  :
@@ -153,6 +131,7 @@ class Entity(pygame.sprite.Sprite):
                         self.tickFrame = (self.tickFrame + 0.2) % 18
                         self.image.blit(self.imageCollection[int(self.tickFrame)], self.imageCollection[int(self.tickFrame)].get_rect(center = (290/2, 320/2)))
                 else:
+
                     if self.isThrowing:
                         self.throwTickFrame = (self.throwTickFrame + 0.5)
                         self.batTickFame = (self.batTickFame + 0.2) % 12
@@ -204,7 +183,7 @@ class Entity(pygame.sprite.Sprite):
         leftBound = 365
         rightBound = 1570
         
-        '''if self.isWithBat:
+        if self.isWithBat:
             leftBound = 395
             rightBound = 1545
         
@@ -214,7 +193,7 @@ class Entity(pygame.sprite.Sprite):
         
         if self.isProtected and self.isWithBat:
             leftBound = 447
-            rightBound = 1498'''
+            rightBound = 1498
         
         if leftRight:
             if self.rect.left - self.xSpeed <= leftBound:

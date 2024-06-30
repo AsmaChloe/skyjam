@@ -19,8 +19,6 @@ class SoundPlayer() :
         self.bat_channel = pygame.mixer.Channel(3)
         #Player channel
         self.player_channel = pygame.mixer.Channel(4)
-        #rocket channel
-        self.rocket_channel = pygame.mixer.Channel(5)
 
     def load_and_play(self, music_filename_key, play_params, sound_on) :
         if sound_on :

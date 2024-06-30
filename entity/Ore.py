@@ -64,8 +64,8 @@ class Ore(CustomSprite):
 
     def update(self, events, scrollSpeed):
         if(self.broken and self.img_broken_index < 3):
-            self.image = self.ore_type.broken_img_collection[int(self.img_broken_index)]
-            self.img_broken_index += 0.15
+            self.image = self.ore_type.broken_img_collection[self.img_broken_index]
+            self.img_broken_index += 1
 
         self.rect.midtop = self.mid_top_position
         self.speed = scrollSpeed
