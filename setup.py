@@ -33,7 +33,7 @@ if sys.platform == "win32":
 setup(
     name="Un jeu sans nom pour le moment",
     version="0.1",
-    description="Le jeu des apéricubes pour la Skyjam",
+    description="Le jeu des apericubes pour la Skyjam",
     options={"build_exe": build_exe_options},
     executables=[Executable("main.py", base=base)]
 )

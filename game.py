@@ -46,6 +46,17 @@ class Game():
         self.clock = pygame.time.Clock()
         self.dt = 0
 
+        # Score that depends on time spent in game
+        self.score_tick = 0
+        self.score = 0
+        self.score_sprite = CustomSprite(
+            pygame.font.Font("fonts/8bit-wonder/8-BIT WONDER.TTF", size=30).render(f"Score * {self.score}", True, (255, 255, 255)),
+            "score"
+        )
+        self.score_GS = pygame.sprite.GroupSingle()
+        self.score_sprite.rect.topleft = (20, 20)
+        self.score_GS.add(self.score_sprite)
+
         self.running = True
         self.playing = False
         self.gameOver = False
@@ -64,16 +75,6 @@ class Game():
         # Player
         self.player = Entity(self,"player", pygame.Vector2(self.WIDTH / 2, 200))
         self.playerGS = pygame.sprite.GroupSingle(self.player)
-
-        #XP rectangle
-        text = f"{self.player.XP} XP"
-        self.XP_sprite = CustomSprite(
-            pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(text, True, (255, 255, 255)),
-            "XP"
-        )
-        self.XP_sprite.rect.topleft = (20, 20)
-        self.XPGS = pygame.sprite.GroupSingle(self.XP_sprite)
-
 
         self.load_xp_bar_images()
         # XP bar image
@@ -133,8 +134,8 @@ class Game():
 
                     self.manageInvicibility()
 
-                    self.XPGS.draw(self.screen)
                     self.sprite_group.draw(self.screen)
+                    self.score_GS.draw(self.screen)
 
                     # Pickaxe
                     if self.pickaxeClass is not None and len(self.pickaxe):
@@ -149,8 +150,6 @@ class Game():
                             if(collided_ore) :
                                 # Add XP
                                 self.player.XP += collided_ore.ore_type.XP
-                                self.XP_sprite.image = pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(f"{self.player.XP} XP", True, (255, 255, 255))
-
                                 self.update_xp_bar()
 
                                 # Remove ore
@@ -200,6 +199,11 @@ class Game():
                         self.update_frequencies()
 
 
+                    #Score update every second
+                    if pygame.time.get_ticks() - self.score_tick >= 1000:
+                        self.score += self.scrollSpeed
+                        self.score_sprite.image = pygame.font.Font("fonts/8bit-wonder/8-BIT WONDER.TTF", size=30).render(f"Score * {self.score}", True, (255, 255, 255))
+                        self.score_tick = pygame.time.get_ticks()
 
                     self.pickaxe.update()
                     self.bg.update()
@@ -208,8 +212,7 @@ class Game():
                     self.ores.update(events, self.scrollSpeed)
                     self.pickaxe_Hitting_Animation.update(events)
                     self.buffs.update(self.scrollSpeed)
-                    self.XPGS.update(events)
-
+                    self.score_GS.update(events)
 
                     if (self.ESC_KEY):
                         self.playing = False
@@ -313,7 +316,6 @@ class Game():
         self.playerGS.add(self.player)
 
         self.player.XP = 0
-        self.XP_sprite.image = pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(f"{self.player.XP} XP", True, (255, 255, 255))
         self.update_xp_bar()
 
         #Obstacles reset
@@ -329,6 +331,11 @@ class Game():
         self.latest_ore = pygame.time.get_ticks()
         #flag reset
         self.gameOver = False
+
+        #Score reset
+        self.score = 0
+        self.score_sprite.image = pygame.font.Font("fonts/8bit-wonder/8-BIT WONDER.TTF", size=30).render(f"{self.score}", True, (255, 255, 255))
+        self.score_tick = pygame.time.get_ticks()
 
     def quit(self):
         pygame.quit()

@@ -2,7 +2,7 @@ from menu.menu import MenuSubOptions
 
 class MainMenu(MenuSubOptions):
     def __init__(self, game, state="Main"):
-        MenuSubOptions.__init__(self, game, state, "Apericube", ["Jouer", "Options", "Crédits", "Quitter"])
+        MenuSubOptions.__init__(self, game, state, "Apericube", ["Jouer", "Options", "Credits", "Quitter"])
 
     def validate(self, text):
         '''
@@ -15,8 +15,8 @@ class MainMenu(MenuSubOptions):
         elif text == "Options":
             self.game.current_menu = self.game.options_menu
             self.game.current_menu.state = "Options"
-        elif text == "Crédits":
+        elif text == "Credits":
             self.game.current_menu = self.game.credit_menu
-            self.game.current_menu.state = "Crédits"
+            self.game.current_menu.state = "Credits"
         elif text == "Quitter":
             self.game.quit()
