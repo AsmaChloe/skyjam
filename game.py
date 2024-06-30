@@ -67,7 +67,7 @@ class Game():
         self.MOUSE_EVENTS = []
 
         # Player
-        self.player = Entity(self,"player", pygame.Vector2(self.WIDTH / 2, 200))
+        self.player = Entity(self,"player", self.pickaxe_type, pygame.Vector2(self.WIDTH / 2, 200))
         self.playerGS = pygame.sprite.GroupSingle(self.player)
 
         # XP bar images
@@ -154,6 +154,7 @@ class Game():
                                     collided_ore.broken_sound.play()
 
                                     if self.pickaxe_type != PickaxeType.DIAMOND_PICKAXE and self.player.XP >= self.pickaxe_type.next_pickaxe_cost:
+                                        self.player.isEvolvingPickaxe = True
                                         self.player.XP -= self.pickaxe_type.next_pickaxe_cost
                                         self.pickaxe_type, self.max_XP = self.pickaxe.evolve()
 
@@ -329,21 +330,20 @@ class Game():
         #screenreset
         self.screen.fill((0, 0, 0))
 
-        #Player reset
-
-        self.player.kill()
-        self.player = Entity(self,"player", pygame.Vector2(self.WIDTH / 2, 200))
-        self.playerGS.add(self.player)
-
-        self.player.XP = 0
-        self.update_xp_bar()
-
         #Pickaxe reset
         if self.pickaxe is not None:
             self.pickaxe.kill()
             self.pickaxe = None
         self.pickaxeGS.empty()
         self.pickaxe_type = PickaxeType.WOOD_PICKAXE
+
+        #Player reset
+        self.player.kill()
+        self.player = Entity(self,"player", self.pickaxe_type, pygame.Vector2(self.WIDTH / 2, 200))
+        self.playerGS.add(self.player)
+
+        self.player.XP = 0
+        self.update_xp_bar()
 
         #Obstacles reset
         self.obstacles.empty()
