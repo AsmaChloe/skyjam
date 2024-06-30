@@ -71,49 +71,88 @@ class Entity(pygame.sprite.Sprite):
         self.hurt_sounds = [pygame.mixer.Sound("sound/Aie_1.wav"), pygame.mixer.Sound("sound/Aie_2.wav"), pygame.mixer.Sound("sound/Aie_3.wav")]
 
     def animate(self):
-        if(self.isEvolvingPickaxe)  :
-            self.image = self.currentPickaxeType.pickaxeEvolvingImageCollection[int(self.evolutionTickFrame)]
-            self.evolutionTickFrame = (self.evolutionTickFrame + 0.2) % 18
-            if(int(self.evolutionTickFrame) == 17):
-                self.isEvolvingPickaxe = False
-                self.evolutionTickFrame = 0
-                self.currentPickaxeType = self.game.pickaxe_type
-        else :
-            self.image = pygame.Surface((290, 320), pygame.SRCALPHA, 32).convert_alpha()
-            if not self.isWithBat:
-                #animation lancé
-                if self.isThrowing:
-                    self.throwTickFrame = (self.throwTickFrame + 0.2)
-                    self.image.blit(self.imageCollectionThrowing[int(self.throwTickFrame)], self.imageCollectionThrowing[int(self.throwTickFrame)].get_rect(center = (290/2, 320/2)))
 
-                    #4 frames sur l'animation donc on limite l'index à 3
-                    if int(self.throwTickFrame) == 3:
-                        self.throwTickFrame = 0
-                        self.isThrowing = False
-                else:
-                    #animation IDLE
-                    self.tickFrame = (self.tickFrame + 0.2) % 18
-                    self.image.blit(self.imageCollection[int(self.tickFrame)], self.imageCollection[int(self.tickFrame)].get_rect(center = (290/2, 320/2)))
+
+        
+        if self.isDynamiteStarting or self.isDynamiteDuring or self.isDynamiteEnding:
+            self.image = pygame.Surface((219, 630), pygame.SRCALPHA, 32).convert_alpha()
+            if self.isDynamiteStarting:
+
+                surf = self.imageCollectionDynamiteStart[int(self.dynamiteTickFrame)]
+                self.image.blit(surf, surf.get_rect(midtop = (219//2, 0)))
+                self.dynamiteTickFrame += 0.2
+                
+                if int(self.dynamiteTickFrame) == 2:
+                    self.dynamiteTickFrame = 0
+                    self.isDynamiteStarting = False
+                    self.isDynamiteDuring = True
+                    self.game.sound_player.rocket_channel.play(self.rocketMan)
+            elif self.isDynamiteDuring:
+                print(int(self.dynamiteTickFrame))
+                surf = self.imageCollectionDynamiteTravel[int(self.dynamiteTickFrame)]
+                self.image.blit(surf, surf.get_rect(midtop = (219//2, 0)))
+                self.dynamiteTickFrame += 0.2
+                
+                if int(self.dynamiteTickFrame) == 8:
+                    self.dynamiteTickFrame = 0
             else:
-                if self.isThrowing:
-                    self.throwTickFrame = (self.throwTickFrame + 0.5)
-                    self.batTickFame = (self.batTickFame + 0.2) % 12
-                    self.image.blit(self.imageCollectionBatThrowing[int(self.batTickFame)%2], self.imageCollectionBatThrowing[int(self.batTickFame)%2].get_rect(center = (290/2, 320/2)))
-                    if int(self.throwTickFrame) == 3:
-                        self.throwTickFrame = 0
-                        self.isThrowing = False
-                else:
-                    self.batTickFame = (self.batTickFame + 0.2) % 12
-                    self.image.blit(self.imageCollectionBat[int(self.batTickFame)], self.imageCollectionBat[int(self.batTickFame)].get_rect(center = (290/2, 320/2)))
+                surf = self.imageCollectionDynamiteEnd[int(self.dynamiteTickFrame)]
+                self.image.blit(surf, surf.get_rect(midtop = (219//2, 0)))
+                self.dynamiteTickFrame += 0.2
+                if int(self.dynamiteTickFrame) == 10:
+                    self.dynamiteTickFrame = 0
+                    self.isDynamite = False
+                    self.isDynamiteEnding = False
 
-            if self.isProtected:
-                self.protectionTickFrame = (self.protectionTickFrame + 0.15) % 18
-                if self.isWithBat:
-                    shield = pygame.transform.rotozoom(self.imageCollectionProtected[int(self.protectionTickFrame)], 0, 1.5)
+        else :
+           
+            self.image = pygame.Surface((290, 320), pygame.SRCALPHA, 32).convert_alpha()
+            
+            if(self.isEvolvingPickaxe)  :
+                self.image = self.currentPickaxeType.pickaxeEvolvingImageCollection[int(self.evolutionTickFrame)]
+                self.evolutionTickFrame = (self.evolutionTickFrame + 0.2) % 18
+                if(int(self.evolutionTickFrame) == 17):
+                    self.isEvolvingPickaxe = False
+                    self.evolutionTickFrame = 0
+                    self.currentPickaxeType = self.game.pickaxe_type
+            else:
+                if not self.isWithBat:
+                    #animation lancé
+                    if self.isThrowing:
+                        self.throwTickFrame = (self.throwTickFrame + 0.2)
+                        self.image.blit(self.imageCollectionThrowing[int(self.throwTickFrame)], self.imageCollectionThrowing[int(self.throwTickFrame)].get_rect(center = (290/2, 320/2)))
+
+                        #4 frames sur l'animation donc on limite l'index à 3
+                        if int(self.throwTickFrame) == 3:
+                            self.throwTickFrame = 0
+                            self.isThrowing = False
+                    else:
+                        #animation IDLE
+                        self.tickFrame = (self.tickFrame + 0.2) % 18
+                        self.image.blit(self.imageCollection[int(self.tickFrame)], self.imageCollection[int(self.tickFrame)].get_rect(center = (290/2, 320/2)))
                 else:
-                    shield = self.imageCollectionProtected[int(self.protectionTickFrame)]
-                self.image.blit(shield, shield.get_rect(center = (290/2, 320/2)))
-            self.mask = pygame.mask.from_surface(self.image)
+
+                    if self.isThrowing:
+                        self.throwTickFrame = (self.throwTickFrame + 0.5)
+                        self.batTickFame = (self.batTickFame + 0.2) % 12
+                        self.image.blit(self.imageCollectionBatThrowing[int(self.batTickFame)%2], self.imageCollectionBatThrowing[int(self.batTickFame)%2].get_rect(center = (290/2, 320/2)))
+                        if int(self.throwTickFrame) == 3:
+                            self.throwTickFrame = 0
+                            self.isThrowing = False
+                    else:
+                        self.batTickFame = (self.batTickFame + 0.2) % 12
+                        self.image.blit(self.imageCollectionBat[int(self.batTickFame)], self.imageCollectionBat[int(self.batTickFame)].get_rect(center = (290/2, 320/2)))
+
+                if self.isProtected:
+                    self.protectionTickFrame = (self.protectionTickFrame + 0.15) % 18
+                    if self.isWithBat:
+                        shield = pygame.transform.rotozoom(self.imageCollectionProtected[int(self.protectionTickFrame)], 0, 1.5)
+                    else:
+                        shield = self.imageCollectionProtected[int(self.protectionTickFrame)]
+
+                    self.image.blit(shield, shield.get_rect(center = (290/2, 320/2)))
+
+                self.mask = pygame.mask.from_surface(self.image)
         
     def touchBat(self, isBatTouched):
         self.isWithBat = isBatTouched
