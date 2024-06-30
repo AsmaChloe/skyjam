@@ -28,7 +28,6 @@ class Pickaxe(pygame.sprite.Sprite):
         
         self.returnVector = pygame.Vector2(initPos - pygame.Vector2(self.rect.center))
 
-        self.hitting_metal_sound = pygame.mixer.Sound("sound/Impacte_Pioche_Metal.wav")
 
     def switchDir(self):
         self.mvtDir = -1

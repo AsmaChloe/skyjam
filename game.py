@@ -7,6 +7,7 @@ from random import choices
 from entity.Cursor import Cursor
 from entity.Obstacle import ObstacleType, generate_obstacle
 from entity.Ore import OreType, generate_ore
+from entity.PickaxeHittingObstacleAnimation import PickaxeHittingObstacleAnimation
 from menu.mainmenu import MainMenu
 from menu.optionsmenu import OptionsMenu
 from menu.creditmenu import CreditMenu
@@ -33,6 +34,7 @@ class Game():
 
         # Pickaxe
         self.pickaxe = pygame.sprite.GroupSingle()
+        self.pickaxe_Hitting_Animation = pygame.sprite.Group()
         self.pickaxeClass = None
 
         # Music
@@ -126,8 +128,9 @@ class Game():
                     self.playerGS.draw(self.screen)
                     self.obstacles.draw(self.screen)
                     self.ores.draw(self.screen)
-
+                    self.pickaxe_Hitting_Animation.draw(self.screen)
                     self.buffs.draw(self.screen)
+
                     self.manageInvicibility()
 
                     self.XPGS.draw(self.screen)
@@ -155,7 +158,9 @@ class Game():
                                 collided_ore.broken = True
                                 collided_ore.broken_sound.play()
                             if(collided_obstacle) :
-                                self.sound_player.pickaxe_channel.play(self.pickaxeClass.hitting_metal_sound)
+                                print(f"Collided obstacle mask pos: {collided_obstacle.mask.get_bounding_rects()}")
+                                self.display_collision_animation(collided_obstacle)
+
 
 
                     # Collision player / obstacles
@@ -199,11 +204,10 @@ class Game():
                     self.pickaxe.update()
                     self.bg.update()
                     self.playerGS.update()
-
                     self.obstacles.update(events, self.scrollSpeed)
                     self.ores.update(events, self.scrollSpeed)
+                    self.pickaxe_Hitting_Animation.update(events)
                     self.buffs.update(self.scrollSpeed)
-                    
                     self.XPGS.update(events)
 
 
@@ -393,3 +397,9 @@ class Game():
         initial_xp_image = pygame.image.load("img/xp/xp_bar_0.png").convert_alpha()
         self.current_xp_image = initial_xp_image
 
+
+    def display_collision_animation(self, collided_obstacle):
+        x_collision, y_collision = pygame.sprite.collide_mask(self.pickaxe.sprite, collided_obstacle)
+        print(f"Collision at {x_collision}, {y_collision}")
+
+        self.pickaxe_Hitting_Animation.add(PickaxeHittingObstacleAnimation(self.sound_player, (x_collision, y_collision), self.scrollSpeed))
