@@ -11,7 +11,7 @@ class GameOver(MenuSubOptions):
         self.game = game
         MenuSubOptions.__init__(self, game, state, "Game Over",
                                 ["Rejouer", "Menu principal", "", ""],
-                                previous_state=previous_state)
+                                previous_state=previous_state, title_font_size=50)
 
     def create_sprites(self):
         super().create_sprites()

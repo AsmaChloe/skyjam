@@ -6,7 +6,7 @@ from utils.CustomSprite import CustomSprite
 
 
 class Menu():
-    def __init__(self, game, state, previous_state=(None, None)):
+    def __init__(self, game, state, previous_state=(None, None), title_font_size=60):
         self.game = game
         self.position = game.WIDTH // 2, game.HEIGHT // 2
         self.offset = 15
@@ -15,7 +15,7 @@ class Menu():
         self.state = state
 
         pygame.font.init()
-        self.title_font = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF", size=60)
+        self.title_font = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF", size=title_font_size)
         self.menu_fonts = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF", size=40)
 
         self.sprites = pygame.sprite.Group()
@@ -58,11 +58,11 @@ class Menu():
         self.position_sprites()
 
 class MenuSubOptions(Menu):
-    def __init__(self, game, state, main_text, menu_texts, previous_state=(None, None)):
+    def __init__(self, game, state, main_text, menu_texts, previous_state=(None, None), title_font_size=60):
         self.main_text = main_text
         self.menu_texts = menu_texts
         self.validate_button_sound = pygame.mixer.Sound("sound/Boutons_Menu.wav")
-        Menu.__init__(self, game, state, previous_state)
+        Menu.__init__(self, game, state, previous_state, title_font_size)
 
     def create_sprites(self):
         """
