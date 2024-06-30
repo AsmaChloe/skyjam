@@ -29,7 +29,6 @@ class PickaxeType(Enum):
         if pickaxe_name != "diamond_pickaxe":
             for i in range(1, 19):
                 self.pickaxeEvolvingImageCollection.append(pygame.image.load(f"graphics/character/pickaxe_evolution/{pickaxe_name}/Animation_évolution_pioche{i}.png"))
-                self.pickaxeEvolvingMaskCollection.append(pygame.mask.from_surface(self.pickaxeEvolvingImageCollection[-1]))
 
         self.next_pickaxe_cost = next_pickaxe_cost
         self.maxSpeed = maxSpeed
