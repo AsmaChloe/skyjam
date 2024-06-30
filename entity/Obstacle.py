@@ -33,7 +33,7 @@ class ObstacleType(Enum):
         self.breakable = breakable
         self.broken_img_collection = [pygame.image.load(f"img/ore/stone/explosion neutre{i}.png") for i in range(1, 4)]
 
-    WHOLE_BEAM = ("whole_beam", "center", "img/obstacles/300x/Poutre_Metal-export.png", 0.6, False)
+    WHOLE_BEAM = ("whole_beam", "center", "img/obstacles/300x/Poutre_Metal-export.png", 0.8, False)
     LEFT_SMALL_BEAM = ("left_small_beam", "left", "img/obstacles/300x/Poutre_Metal_Incrustee_L.png", 0.1, False)
     RIGHT_SMALL_BEAM = ("right_small_beam", "right", "img/obstacles/300x/Poutre_Metal_Incrustee_R-export.png", 0.1, False)
 

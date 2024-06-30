@@ -218,7 +218,6 @@ class Game():
 
                                     if(collided_obstacle) :
                                         self.display_collision_animation(self.pickaxe.rect.midbottom)
-                                        print(collided_obstacle.obs_type.breakable)
                                         if collided_obstacle.obs_type.breakable:
                                             collided_obstacle.broken = True
                                             self.sound_player.ore_channel.play(collided_obstacle.broken_sound)
@@ -458,7 +457,7 @@ class Game():
             speed = 0.00001
         else:
             speed = self.scrollSpeed
-        self.obstacle_frequency = 500 * (10/speed)
+        self.obstacle_frequency = 400 * (10/speed)
         # Ores
         self.ore_frequency = 2000 * (10/speed)
         
