@@ -33,9 +33,10 @@ class Game():
         self.bg = pygame.sprite.GroupSingle(self.bgSprite)
 
         # Pickaxe
-        self.pickaxe = pygame.sprite.GroupSingle()
+        self.pickaxe = None
+        self.pickaxeGS = pygame.sprite.GroupSingle()
         self.pickaxe_Hitting_Animation = pygame.sprite.Group()
-        self.pickaxeClass = None
+        # self.pickaxeClass = None
 
         # Music
         self.MUSIC_ON = True
@@ -124,7 +125,7 @@ class Game():
                     self.generate_environment()
 
                     self.bg.draw(self.screen)
-                    self.pickaxe.draw(self.screen)
+                    self.pickaxeGS.draw(self.screen)
                     self.playerGS.draw(self.screen)
                     self.obstacles.draw(self.screen)
                     self.ores.draw(self.screen)
@@ -137,14 +138,14 @@ class Game():
                     self.sprite_group.draw(self.screen)
 
                     # Pickaxe
-                    if self.pickaxeClass is not None and len(self.pickaxe):
-                        self.pickaxeClass.updatePlayerPos(pygame.Vector2(self.player.rect.center))
+                    if len(self.pickaxeGS):
+                        self.pickaxe.updatePlayerPos(pygame.Vector2(self.player.rect.center))
 
                         #Collision pickaxe w/ anything
-                        collided_obstacle = pygame.sprite.spritecollideany(self.pickaxeClass, self.obstacles, pygame.sprite.collide_mask)
-                        collided_ore = pygame.sprite.spritecollideany(self.pickaxeClass, self.ores, pygame.sprite.collide_mask)
+                        collided_obstacle = pygame.sprite.spritecollideany(self.pickaxe, self.obstacles, pygame.sprite.collide_mask)
+                        collided_ore = pygame.sprite.spritecollideany(self.pickaxe, self.ores, pygame.sprite.collide_mask)
                         if collided_obstacle or collided_ore:
-                            self.pickaxeClass.switchDir()
+                            self.pickaxe.switchDir()
 
                             if(collided_ore) :
                                 # Add XP
@@ -199,9 +200,7 @@ class Game():
                         self.bgSprite.setScrollSpeed(self.scrollSpeed)
                         self.update_frequencies()
 
-
-
-                    self.pickaxe.update()
+                    self.pickaxeGS.update()
                     self.bg.update()
                     self.playerGS.update()
                     self.obstacles.update(events, self.scrollSpeed)
@@ -278,9 +277,9 @@ class Game():
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     if self.playing:
-                        if not self.pickaxe.sprites():    #renvoie une liste des sprites. "not liste" fonctionne car une liste vide est implicitement un "False" en python
-                            self.pickaxeClass = Pickaxe(pygame.Vector2(self.player.rect.midbottom), pygame.Vector2(event.pos), 25)
-                            self.pickaxe.add(self.pickaxeClass)
+                        if not self.pickaxeGS.sprites():    #renvoie une liste des sprites. "not liste" fonctionne car une liste vide est implicitement un "False" en python
+                            self.pickaxe = Pickaxe(pygame.Vector2(self.player.rect.midbottom), pygame.Vector2(event.pos), 25)
+                            self.pickaxeGS.add(self.pickaxe)
                             self.player.throw()
                     else:
                         self.MOUSE_EVENTS.append(event)
@@ -321,8 +320,8 @@ class Game():
         self.latest_obstacle = pygame.time.get_ticks()
 
         #pickaxe reset
-        if self.pickaxeClass is not None:
-            self.pickaxeClass.kill()
+        if self.pickaxe is not None:
+            self.pickaxe.kill()
 
         #Ores reset
         self.ores.empty()
@@ -399,7 +398,7 @@ class Game():
 
 
     def display_collision_animation(self, collided_obstacle):
-        x_collision, y_collision = pygame.sprite.collide_mask(self.pickaxe.sprite, collided_obstacle)
+        x_collision, y_collision = pygame.sprite.collide_mask(self.pickaxeGS.sprite, collided_obstacle)
         print(f"Collision at {x_collision}, {y_collision}")
 
         self.pickaxe_Hitting_Animation.add(PickaxeHittingObstacleAnimation(self.sound_player, (x_collision, y_collision), self.scrollSpeed))
