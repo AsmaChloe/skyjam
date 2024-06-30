@@ -1,4 +1,6 @@
 import os
+
+from animations.MenuAnimation import MenuAnimation
 from menu.menu import MenuSubOptions
 from utils.JsonUtil import JsonUtil
 from utils.CustomSprite import CustomSprite
@@ -7,6 +9,9 @@ class MainMenu(MenuSubOptions):
     def __init__(self, game, state="Main"):
         self.game = game
         MenuSubOptions.__init__(self, game, state, "Apericube", ["Jouer", "Options", "Credits", "Quitter", ""])
+        self.animation = MenuAnimation((self.game.WIDTH * 1/5, self.game.HEIGHT * 3/4))
+        self.sprites.add(self.animation)
+
 
     def create_sprites(self):
         super().create_sprites()
@@ -19,6 +24,7 @@ class MainMenu(MenuSubOptions):
 
     def update(self):
         super().update()
+
 
 
     def validate(self, text):

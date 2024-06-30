@@ -370,6 +370,8 @@ class Game():
                     self.scrollSpeed = int(self.accel)
                     self.updateBackgroundScrollSpeed()
             else:
+                self.screen.fill((2, 4, 8))
+
                 # Music
                 if not self.sound_player.current_key == "menu":
                     self.sound_player.stop()
