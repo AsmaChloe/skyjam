@@ -31,13 +31,18 @@ class ObstacleType(Enum):
             self.image = pygame.image.load(image_path)
         self.probability = probability
         self.breakable = breakable
+        self.broken_img_collection = [pygame.image.load(f"img/ore/stone/explosion neutre{i}.png") for i in range(1, 4)]
 
     WHOLE_BEAM = ("whole_beam", "center", "img/obstacles/300x/Poutre_Metal-export.png", 0.6, False)
     LEFT_SMALL_BEAM = ("left_small_beam", "left", "img/obstacles/300x/Poutre_Metal_Incrustee_L.png", 0.1, False)
     RIGHT_SMALL_BEAM = ("right_small_beam", "right", "img/obstacles/300x/Poutre_Metal_Incrustee_R-export.png", 0.1, False)
 
-    LEFT_SPIKE = ("left_spike", "left", "img/obstacles/300x/pierre_pics_L.png", 0.1, True)
-    RIGHT_SPIKE = ("right_spike", "right", "img/obstacles/300x/pierre_pics_R.png", 0.1, True)
+    LEFT_SPIKE = ("left_spike", "left", "img/obstacles/300x/pierre_pics_L.png", 0.1, False)
+    RIGHT_SPIKE = ("right_spike", "right", "img/obstacles/300x/pierre_pics_R.png", 0.1, False)
+
+    ROCK_1 = ("rock_1", "center", "img/obstacles/300x/Roche_cassable.png", 0.2, True)
+    ROCK_2 = ("rock_2", "center", "img/obstacles/300x/Roche_cassable_R.png", 0.2, True)
+
 
 class Obstacle(CustomSprite):
     """
@@ -64,15 +69,22 @@ class Obstacle(CustomSprite):
 
         self.breakable = self.obs_type.breakable
         self.broken = False
+        self.broken_sound = pygame.mixer.Sound("sound/Minerai.wav")
+        self.img_broken_index = 0
 
     @override
     def update(self, events, scrollSpeed):
+
+        if(self.broken and self.img_broken_index < 3):
+            self.image = self.obs_type.broken_img_collection[int(self.img_broken_index)]
+            self.img_broken_index += 0.1
+
         self.rect.midtop = self.mid_top_position
         self.speed = scrollSpeed
         self.mid_top_position.y -= self.speed
 
         # if out of screen kill
-        if self.rect.bottom < 0 or self.broken:
+        if self.rect.bottom < 0 or (self.broken and self.img_broken_index >= 3):
             self.kill()
 
 def generate_obstacle(game, obstacle_type : ObstacleType):

@@ -204,7 +204,6 @@ class Game():
                                         # Remove ore
                                         self.sound_player.ore_channel.play(collided_ore.broken_sound)
                                         collided_ore.broken = True
-                                        collided_ore.broken_sound.play()
 
                                         if self.pickaxe_type != PickaxeType.DIAMOND_PICKAXE and self.player.XP >= self.pickaxe_type.next_pickaxe_cost:
                                             self.player.isEvolvingPickaxe = True
@@ -216,6 +215,10 @@ class Game():
 
                                     if(collided_obstacle) :
                                         self.display_collision_animation(self.pickaxe.rect.midbottom)
+                                        if collided_obstacle.obs_type.breakable:
+                                            collided_obstacle.broken = True
+                                            self.sound_player.ore_channel.play(collided_obstacle.broken_sound)
+                                            collided_obstacle.kill()
                                 self.pickaxe.switchDir()
 
 
