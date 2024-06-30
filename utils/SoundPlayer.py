@@ -40,3 +40,4 @@ class SoundPlayer() :
         self.pickaxe_channel.stop()
         self.ore_channel.stop()
         self.bat_channel.stop()
+        self.rocket_channel.stop()

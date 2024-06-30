@@ -193,7 +193,6 @@ class Game():
                     collidedBigBuff = pygame.sprite.spritecollideany(self.player, self.big_buffs, pygame.sprite.collide_mask)
 
                     if collidedBigBuff is not None:
-                        print(collidedBigBuff)
                         if isinstance(collidedBigBuff, Dynamite) and not self.player.isDynamite:
                             self.sound_player.player_channel.play(self.player.caughtDynamiteSound)
                             collidedBigBuff.kill()
@@ -207,6 +206,7 @@ class Game():
                                 self.sound_player.bat_channel.play(self.player.caughtBatSound)
                                 self.buff_begin = pygame.time.get_ticks()
                                 collidedBuff.kill()
+                                self.original_scrollSpeed = self.scrollSpeed
                                 self.scrollSpeed = self.scrollSpeed * 0.5
                                 self.updateBackgroundScrollSpeed()
                                 self.update_frequencies()
@@ -242,6 +242,7 @@ class Game():
 
 
                     if (pygame.time.get_ticks() - self.dynamite_buff_timer >= 3500) and self.player.isDynamite and not self.player.isDynamiteStarting and not self.player.isDynamiteDuring and not self.player.isDynamiteEnding:
+                        self.original_scrollSpeed = self.scrollSpeed
                         self.scrollSpeed = self.scrollSpeed * 3
                         self.player.isProtected = False
                         self.player.isWithBat = False
@@ -305,7 +306,6 @@ class Game():
                     self.pickaxe_Hitting_Animation.update(events)
                     self.buffs.update(self.scrollSpeed)
                     self.xp_barGS.update(events)
-
                     self.big_buffs.update(self.scrollSpeed)
                     self.bg.update()
                     self.score_GS.update(events)
@@ -325,7 +325,6 @@ class Game():
                     self.current_menu.sprites.update(self.MOUSE_EVENTS)
                     self.current_menu.sprites.draw(self.screen)
 
-                self.original_scrollSpeed = self.scrollSpeed
                 self.scrollSpeed += 0.005
                 self.updateBackgroundScrollSpeed()
             else:
@@ -523,7 +522,6 @@ class Game():
                         and not pygame.sprite.spritecollide(new_big_buff, self.big_buffs, False, None)):
 
                     self.big_buffs.add(new_big_buff)
-                    print(self.big_buffs)
                 else:
                     new_big_buff.kill()
                     del new_big_buff
