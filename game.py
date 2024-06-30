@@ -49,7 +49,7 @@ class Game():
         # Music
         self.MUSIC_ON = True
 
-        self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/game_theme.wav', 'gameover': 'music/son_fin_placeholder.wav'}
+        self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/Musique_Version_2.wav', 'gameover': 'music/son_fin_placeholder.wav'}
         self.sound_player = SoundPlayer(self.musics_filenames_dict, "menu")
         self.sound_player.load_and_play("menu", {"loops": -1}, self.MUSIC_ON)
 
