@@ -19,7 +19,7 @@ class Pickaxe(pygame.sprite.Sprite):
         #self.turning = False
         
         for i in range(1, 9):
-            self.imageCollection.append(pygame.image.load(f"graphics/wood_pickaxe/Animation_bois{i}.png").convert_alpha())
+            self.imageCollection.append(pygame.image.load(f"graphics/pickaxe/wood_pickaxe/Animation_bois{i}.png").convert_alpha())
             self.maskCollection.append(pygame.mask.from_surface(self.imageCollection[-1]))
             
         self.image = self.imageCollection[0]

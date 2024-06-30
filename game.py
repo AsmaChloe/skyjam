@@ -43,7 +43,7 @@ class Game():
         # Music
         self.MUSIC_ON = True
 
-        self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/groovy_ambient_funk.mp3', 'gameover': 'music/son_fin_placeholder.wav'}
+        self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/game_theme.mp3', 'gameover': 'music/son_fin_placeholder.wav'}
         self.sound_player = SoundPlayer(self.musics_filenames_dict, "menu")
         self.sound_player.load_and_play("menu", {"loops": -1}, self.MUSIC_ON)
 
@@ -382,11 +382,10 @@ class Game():
 
             
             if random.choice(["Bat", "Protection"]) == "Bat":
-                new_buff = Bat(self.scrollSpeed).generate_buff(self)
+                new_buff = Bat(self.scrollSpeed, self.sound_player).generate_buff(self)
             else:
                 new_buff = Protection(self.scrollSpeed).generate_buff(self)
                 
-            new_buff = Bat(self.sound_player, self.scrollSpeed).generate_buff(self)
             if (not pygame.sprite.spritecollide(new_buff, self.buffs, False, None)
                     and not pygame.sprite.spritecollide(new_buff, self.obstacles, False, None)
                     and not pygame.sprite.spritecollide(new_buff, self.ores, False, None)):

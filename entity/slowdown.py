@@ -4,9 +4,10 @@ import pygame
 from utils.CustomSprite import CustomSprite
 
 class Bat(Buff):
-    def __init__(self, scroll_speed):
+    def __init__(self, scroll_speed, music_player):
         
         super().__init__(scroll_speed)
+        self.music_player = music_player
 
         
         for i in range(1, 13):
