@@ -155,6 +155,9 @@ class Game():
             if self.playing:
                 if self.first_game:
                     self.screen.fill((2, 4, 8))
+                    if not self.starting_animation.sound_played :
+                        self.starting_animation.sound.play()
+                        self.starting_animation.sound_played = True
 
                     self.starting_animationGS.draw(self.screen)
 
@@ -215,6 +218,7 @@ class Game():
 
                                     if(collided_obstacle) :
                                         self.display_collision_animation(self.pickaxe.rect.midbottom)
+                                        print(collided_obstacle.obs_type.breakable)
                                         if collided_obstacle.obs_type.breakable:
                                             collided_obstacle.broken = True
                                             self.sound_player.ore_channel.play(collided_obstacle.broken_sound)
