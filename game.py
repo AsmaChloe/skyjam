@@ -237,7 +237,7 @@ class Game():
                                     self.buff_begin = pygame.time.get_ticks()
                                     collidedBuff.kill()
                                     self.original_scrollSpeed = self.scrollSpeed
-                                    self.scrollSpeed = int(self.scrollSpeed * 0.5)
+                                    self.scrollSpeed = int(self.scrollSpeed * 0.75)
                                     self.updateBackgroundScrollSpeed()
                                     self.update_frequencies()
 
@@ -279,6 +279,7 @@ class Game():
                                     self.best_score = self.score
                                     self.scoring_json_file["best"] = self.best_score
                                     JsonUtil.save_json(self.scoring_json_file_path, self.scoring_json_file)
+                                self.gameover_menu.randomizePhrase()
                                 self.gameover_menu.update()
                                 self.main_menu.update()
 

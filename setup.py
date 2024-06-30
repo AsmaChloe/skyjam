@@ -23,13 +23,16 @@ JsonUtil.save_json(scoring_json_file_path, scoring_json_file)
 build_exe_options = {
     "packages": ["pygame"],
     "include_files": [
+        *get_files_in_directory("animations"),
         *get_files_in_directory("entity"),
         *get_files_in_directory("fonts"),
         *get_files_in_directory("graphics"),
         *get_files_in_directory("img"),
+        *get_files_in_directory("menu"),
         *get_files_in_directory("music"),
+        *get_files_in_directory("save"),
         *get_files_in_directory("sound"),
-        *get_files_in_directory("save")
+        *get_files_in_directory("utils")
     ],
     "excludes": ["tkinter"],
     "build_exe": "pitfall_miner"

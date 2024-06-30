@@ -9,7 +9,7 @@ class CreditMenu(Menu):
         self.credits_list = [
             "Alexandre Kraoul Riera - Concept Artist",
             "Asma-Chloë Farah - Développeuse",
-            "Clément Chapelle - Concept Artist & Son",
+            "Clément Chapelle - Concept Artist, Musique & Son",
             "Corentin Dupont - Développeur",
             "Hugo Delay - Développeur",
             "Louis Guernier - Musique",
