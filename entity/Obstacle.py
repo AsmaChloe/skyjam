@@ -40,8 +40,8 @@ class ObstacleType(Enum):
     LEFT_SPIKE = ("left_spike", "left", "img/obstacles/300x/pierre_pics_L.png", 0.1, False)
     RIGHT_SPIKE = ("right_spike", "right", "img/obstacles/300x/pierre_pics_R.png", 0.1, False)
 
-    ROCK_1 = ("rock_1", "center", "img/obstacles/300x/Roche_cassable.png", 0.2, True)
-    ROCK_2 = ("rock_2", "center", "img/obstacles/300x/Roche_cassable_R.png", 0.2, True)
+    ROCK_1 = ("rock_1", "center", "img/obstacles/300x/Roche_cassable.png", 0.6, True)
+    ROCK_2 = ("rock_2", "center", "img/obstacles/300x/Roche_cassable_R.png", 0.6, True)
 
 
 class Obstacle(CustomSprite):
@@ -74,7 +74,8 @@ class Obstacle(CustomSprite):
 
     @override
     def update(self, events, scrollSpeed):
-
+        if(self.broken):
+            self.game.quit()
         if(self.broken and self.img_broken_index < 3):
             self.image = self.obs_type.broken_img_collection[int(self.img_broken_index)]
             self.img_broken_index += 0.1

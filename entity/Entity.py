@@ -119,7 +119,6 @@ class Entity(pygame.sprite.Sprite):
                     self.isDynamiteDuring = True
                     self.game.sound_player.rocket_channel.play(self.rocketMan)
             elif self.isDynamiteDuring:
-                print(int(self.dynamiteTickFrame))
                 surf = self.imageCollectionDynamiteTravel[int(self.dynamiteTickFrame)]
                 self.image.blit(surf, surf.get_rect(midtop = (219//2, 0)))
                 self.dynamiteTickFrame += 0.2
