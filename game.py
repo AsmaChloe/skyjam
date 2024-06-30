@@ -27,6 +27,7 @@ class Game():
         pygame.init()
         self.scrollSpeed = 10
         self.original_scrollSpeed = 10
+        self.accel = 10
         self.WIDTH, self.HEIGHT = 1920, 1080 #1280 , 720
         self.LEFT_BORDER, self.RIGHT_BORDER = 445, 1480
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
@@ -204,130 +205,130 @@ class Game():
                                 self.pickaxe.switchDir()
 
 
-                    collidedBuff = pygame.sprite.spritecollideany(self.player, self.buffs, pygame.sprite.collide_mask)
-                    collidedBigBuff = pygame.sprite.spritecollideany(self.player, self.big_buffs, pygame.sprite.collide_mask)
+                        collidedBuff = pygame.sprite.spritecollideany(self.player, self.buffs, pygame.sprite.collide_mask)
+                        collidedBigBuff = pygame.sprite.spritecollideany(self.player, self.big_buffs, pygame.sprite.collide_mask)
 
-                    if collidedBigBuff is not None:
-                        if isinstance(collidedBigBuff, Dynamite) and not self.player.isDynamite:
-                            self.sound_player.player_channel.play(self.player.caughtDynamiteSound)
-                            collidedBigBuff.kill()
-                            self.player.isDynamite = True
-                            self.player.isInvincible = True
-                            self.dynamite_buff_timer = pygame.time.get_ticks()
-                    else:
-                        if collidedBuff is not None and not self.player.isDynamite:
-                            if isinstance(collidedBuff, Bat):
-                                self.player.touchBat(True)
-                                self.sound_player.bat_channel.play(self.player.caughtBatSound)
-                                self.buff_begin = pygame.time.get_ticks()
-                                collidedBuff.kill()
-                                self.original_scrollSpeed = self.scrollSpeed
-                                self.scrollSpeed = self.scrollSpeed * 0.5
+                        if collidedBigBuff is not None:
+                            if isinstance(collidedBigBuff, Dynamite) and not self.player.isDynamite:
+                                self.sound_player.player_channel.play(self.player.caughtDynamiteSound)
+                                collidedBigBuff.kill()
+                                self.player.isDynamite = True
+                                self.player.isInvincible = True
+                                self.dynamite_buff_timer = pygame.time.get_ticks()
+                        else:
+                            if collidedBuff is not None and not self.player.isDynamite:
+                                if isinstance(collidedBuff, Bat):
+                                    self.player.touchBat(True)
+                                    self.sound_player.bat_channel.play(self.player.caughtBatSound)
+                                    self.buff_begin = pygame.time.get_ticks()
+                                    collidedBuff.kill()
+                                    self.original_scrollSpeed = self.scrollSpeed
+                                    self.scrollSpeed = int(self.scrollSpeed * 0.5)
+                                    self.updateBackgroundScrollSpeed()
+                                    self.update_frequencies()
+
+                                if isinstance(collidedBuff, Protection):
+                                    self.player.protect(True)
+                                    self.player.caughtShieldSound.play()
+                                    collidedBuff.kill()
+
+                        # Collision player / obstacles
+                        if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
+
+                            # If the player has a bat
+                            if self.player.isWithBat:
+                                self.player.touchBat(False)
+                                self.sound_player.bat_channel.stop()
+                                self.scrollSpeed = self.original_scrollSpeed
                                 self.updateBackgroundScrollSpeed()
                                 self.update_frequencies()
+                                self.player.isInvincible = True
+                                self.invicibilityBegin = pygame.time.get_ticks()
+                            elif self.player.isProtected and not self.player.isInvincible:
+                                self.player.protect(False)
+                                self.player.isInvincible = True
+                                self.invicibilityBegin = pygame.time.get_ticks()
+
+                            elif not self.player.isInvincible and not self.player.isDynamiteDuring:
+                                self.reset_game()
+                                self.gameOver = True
+
+                                self.sound_player.player_channel.play(self.player.hurt_sounds[random.randint(0, 2)])
+                                self.sound_player.stop_sounds_at_game_over()
+
+
+                        if (pygame.time.get_ticks() - self.dynamite_buff_timer >= 3500) and self.player.isDynamite and not self.player.isDynamiteStarting and not self.player.isDynamiteDuring and not self.player.isDynamiteEnding:
+                            self.original_scrollSpeed = self.scrollSpeed
+                            self.scrollSpeed = self.scrollSpeed * 3
+                            self.player.isProtected = False
+                            self.player.isWithBat = False
+                            self.player.isThrowing = False
+                            self.player.dynamiteTickFrame = 0
+                            self.player.isDynamiteStarting = True
+                            if self.pickaxe is not None:
+                                self.pickaxe.kill()
+                            self.updateBackgroundScrollSpeed()
+                            self.update_frequencies()
+
+                        if (pygame.time.get_ticks() - self.dynamite_buff_timer > 3500) and (pygame.time.get_ticks() - self.dynamite_buff_timer < 8500):
+                            self.player.isInvincible = True
+                            self.invicibilityBegin = pygame.time.get_ticks()
+
+
+                        if (pygame.time.get_ticks() - self.dynamite_buff_timer >= 8500) and self.player.isDynamite:
+                            self.scrollSpeed = self.original_scrollSpeed
+                            self.player.isDynamiteDuring = False
+                            self.player.isDynamiteEnding = True
+                            self.player.dynamiteTickFrame = 0
+                            self.player.isDynamite = False
+                            self.player.isInvincible = True
+                            self.invicibilityBegin = pygame.time.get_ticks()
+                            self.updateBackgroundScrollSpeed()
+                            self.update_frequencies()
 
                             if isinstance(collidedBuff, Protection):
                                 self.player.protect(True)
                                 self.player.caughtShieldSound.play()
                                 collidedBuff.kill()
 
-                    # Collision player / obstacles
-                    if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
+                        # Pickaxe evolution starts
+                        if self.player.isEvolvingPickaxe:
+                            self.scrollSpeed = 0
+                            self.updateBackgroundScrollSpeed()
 
-                        # If the player has a bat
-                        if self.player.isWithBat:
+
+                        # Buff timer ends
+                        if (pygame.time.get_ticks() - self.buff_begin) >= 10000 and self.player.isWithBat:
                             self.player.touchBat(False)
                             self.sound_player.bat_channel.stop()
                             self.scrollSpeed = self.original_scrollSpeed
                             self.updateBackgroundScrollSpeed()
                             self.update_frequencies()
-                            self.player.isInvincible = True
-                            self.invicibilityBegin = pygame.time.get_ticks()
-                        elif self.player.isProtected and not self.player.isInvincible:
-                            self.player.protect(False)
-                            self.player.isInvincible = True
-                            self.invicibilityBegin = pygame.time.get_ticks()
 
-                        elif not self.player.isInvincible and not self.player.isDynamiteDuring:
-                            self.reset_game()
-                            self.gameOver = True
+                        # Pickaxe evolution timer end
+                        if self.player.isEvolvingPickaxe and pygame.time.get_ticks() - self.evolution_time_begin >= 1000:
+                            self.scrollSpeed = self.original_scrollSpeed
+                            self.updateBackgroundScrollSpeed()
+                            self.update_frequencies()
 
-                            self.sound_player.player_channel.play(self.player.hurt_sounds[random.randint(0, 2)])
-                            self.sound_player.stop_sounds_at_game_over()
+                        #Score update every second
+                        if pygame.time.get_ticks() - self.score_tick >= 1000:
+                            self.score += (int)(self.scrollSpeed)
+                            self.score_sprite.image = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF",
+                                                                       size=30).render(f"Score * {self.score}", True,
+                                                                                       (255, 255, 255))
+                            self.score_tick = pygame.time.get_ticks()
 
-
-                    if (pygame.time.get_ticks() - self.dynamite_buff_timer >= 3500) and self.player.isDynamite and not self.player.isDynamiteStarting and not self.player.isDynamiteDuring and not self.player.isDynamiteEnding:
-                        self.original_scrollSpeed = self.scrollSpeed
-                        self.scrollSpeed = self.scrollSpeed * 3
-                        self.player.isProtected = False
-                        self.player.isWithBat = False
-                        self.player.isThrowing = False
-                        self.player.dynamiteTickFrame = 0
-                        self.player.isDynamiteStarting = True
-                        if self.pickaxe is not None:
-                            self.pickaxe.kill()
-                        self.updateBackgroundScrollSpeed()
-                        self.update_frequencies()
-
-                    if (pygame.time.get_ticks() - self.dynamite_buff_timer > 3500) and (pygame.time.get_ticks() - self.dynamite_buff_timer < 8500):
-                        self.player.isInvincible = True
-                        self.invicibilityBegin = pygame.time.get_ticks()
-
-
-                    if (pygame.time.get_ticks() - self.dynamite_buff_timer >= 8500) and self.player.isDynamite:
-                        self.scrollSpeed = self.original_scrollSpeed
-                        self.player.isDynamiteDuring = False
-                        self.player.isDynamiteEnding = True
-                        self.player.dynamiteTickFrame = 0
-                        self.player.isDynamite = False
-                        self.player.isInvincible = True
-                        self.invicibilityBegin = pygame.time.get_ticks()
-                        self.updateBackgroundScrollSpeed()
-                        self.update_frequencies()
-
-                            if isinstance(collidedBuff, Protection):
-                                self.player.protect(True)
-                                self.player.caughtShieldSound.play()
-                                collidedBuff.kill()
-
-                    # Pickaxe evolution starts
-                    if self.player.isEvolvingPickaxe:
-                        self.scrollSpeed = 0
-                        self.updateBackgroundScrollSpeed()
-
-
-                    # Buff timer ends
-                    if (pygame.time.get_ticks() - self.buff_begin) >= 10000 and self.player.isWithBat:
-                        self.player.touchBat(False)
-                        self.sound_player.bat_channel.stop()
-                        self.scrollSpeed = self.original_scrollSpeed
-                        self.updateBackgroundScrollSpeed()
-                        self.update_frequencies()
-
-                    # Pickaxe evolution timer end
-                    if self.player.isEvolvingPickaxe and pygame.time.get_ticks() - self.evolution_time_begin >= 1000:
-                        self.scrollSpeed = self.original_scrollSpeed
-                        self.updateBackgroundScrollSpeed()
-                        self.update_frequencies()
-
-                    #Score update every second
-                    if pygame.time.get_ticks() - self.score_tick >= 1000:
-                        self.score += (int)(self.scrollSpeed)
-                        self.score_sprite.image = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF",
-                                                                   size=30).render(f"Score * {self.score}", True,
-                                                                                   (255, 255, 255))
-                        self.score_tick = pygame.time.get_ticks()
-
-                    self.pickaxeGS.update()
-                    self.playerGS.update()
-                    self.obstacles.update(events, self.scrollSpeed)
-                    self.ores.update(events, self.scrollSpeed)
-                    self.pickaxe_Hitting_Animation.update(events)
-                    self.buffs.update(self.scrollSpeed)
-                    self.xp_barGS.update(events)
-                    self.big_buffs.update(self.scrollSpeed)
-                    self.bg.update()
-                    self.score_GS.update(events)
+                        self.pickaxeGS.update()
+                        self.playerGS.update()
+                        self.obstacles.update(events, self.scrollSpeed)
+                        self.ores.update(events, self.scrollSpeed)
+                        self.pickaxe_Hitting_Animation.update(events)
+                        self.buffs.update(self.scrollSpeed)
+                        self.xp_barGS.update(events)
+                        self.big_buffs.update(self.scrollSpeed)
+                        self.bg.update()
+                        self.score_GS.update(events)
 
                         if (self.ESC_KEY):
                             self.playing = False
@@ -344,8 +345,10 @@ class Game():
                         self.current_menu.sprites.update(self.MOUSE_EVENTS)
                         self.current_menu.sprites.draw(self.screen)
 
-                self.scrollSpeed += 0.005
-                self.updateBackgroundScrollSpeed()
+                if not (self.player.isDynamiteDuring or self.player.isDynamiteStarting or self.player.isWithBat):
+                    self.accel += 0.005
+                    self.scrollSpeed = int(self.accel)
+                    self.updateBackgroundScrollSpeed()
             else:
                 # Music
                 if not self.sound_player.current_key == "menu":
@@ -477,6 +480,7 @@ class Game():
         self.score_tick = pygame.time.get_ticks()
 
         #Background reset
+        self.accel = 10
         self.scrollSpeed = 10
         self.updateBackgroundScrollSpeed()
         self.update_frequencies()
