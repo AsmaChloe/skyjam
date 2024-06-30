@@ -1,5 +1,5 @@
 import random
-
+import os
 import pygame
 from sys import exit
 from random import choices
@@ -72,6 +72,14 @@ class Game():
         self.XP_sprite.rect.topleft = (20, 20)
         self.XPGS = pygame.sprite.GroupSingle(self.XP_sprite)
 
+
+        self.load_xp_bar_images()
+        # XP bar image
+        self.image = pygame.image.load("img/xp/xp_bar_0.png").convert_alpha()
+        self.custom_sprite = CustomSprite(self.image, "xp_bar")
+        self.sprite_group = pygame.sprite.GroupSingle(self.custom_sprite)
+        self.update_xp_bar()
+
         # Cursor
         pygame.mouse.set_visible(False)
         self.cursor = Cursor(pygame.mouse.get_pos())
@@ -123,7 +131,7 @@ class Game():
                     self.manageInvicibility()
 
                     self.XPGS.draw(self.screen)
-
+                    self.sprite_group.draw(self.screen)
 
                     # Pickaxe
                     if self.pickaxeClass is not None and len(self.pickaxe):
@@ -139,10 +147,13 @@ class Game():
                                 # Add XP
                                 self.player.XP += collided_ore.ore_type.XP
                                 self.XP_sprite.image = pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(f"{self.player.XP} XP", True, (255, 255, 255))
+
+                                self.update_xp_bar()
+
                                 # Remove ore
                                 self.sound_player.ore_channel.play(collided_ore.broken_sound)
-                                collided_ore.kill()
-                                del collided_ore
+                                collided_ore.broken = True
+                                collided_ore.broken_sound.play()
                             if(collided_obstacle) :
                                 self.sound_player.pickaxe_channel.play(self.pickaxeClass.hitting_metal_sound)
 
@@ -299,6 +310,7 @@ class Game():
 
         self.player.XP = 0
         self.XP_sprite.image = pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(f"{self.player.XP} XP", True, (255, 255, 255))
+        self.update_xp_bar()
 
         #Obstacles reset
         self.obstacles.empty()
@@ -348,5 +360,34 @@ class Game():
             else:
                 new_buff.kill()
                 del new_buff
-            
-            
+
+    def load_xp_bar_images(self):
+        self.xp_bar_images = {}
+        xp_folder = "img/xp/"
+        for filename in os.listdir(xp_folder):
+            if filename.startswith("xp_bar_") and filename.endswith(".png"):
+                xp_value = int(filename[7:-4])
+                self.xp_bar_images[xp_value] = pygame.image.load(os.path.join(xp_folder, filename)).convert_alpha()
+
+        self.xp_levels = sorted(self.xp_bar_images.keys())
+
+    def update_xp_bar(self):
+        xp_level = (self.player.XP // 5) * 5
+
+        if (xp_level >= 100):
+            self.reset_xp_bar()
+
+        available_levels = [level for level in self.xp_levels if level <= xp_level]
+
+        if available_levels:
+            appropriate_level = max(available_levels)
+        else:
+            appropriate_level = min(self.xp_levels)
+
+        self.custom_sprite.image = self.xp_bar_images[appropriate_level]
+        self.custom_sprite.rect.topleft = (self.WIDTH - self.custom_sprite.rect.width - 70, 23)
+
+    def reset_xp_bar(self):
+        initial_xp_image = pygame.image.load("img/xp/xp_bar_0.png").convert_alpha()
+        self.current_xp_image = initial_xp_image
+
