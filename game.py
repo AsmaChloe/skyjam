@@ -25,6 +25,7 @@ class Game():
     def __init__(self):
         pygame.init()
         self.scrollSpeed = 10
+        self.original_scrollSpeed = 10
         self.WIDTH, self.HEIGHT = 1920, 1080 #1280 , 720
         self.LEFT_BORDER, self.RIGHT_BORDER = 445, 1480
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
@@ -185,10 +186,8 @@ class Game():
                         if self.player.isWithBat:
                             self.player.touchBat(False)
                             self.sound_player.bat_channel.stop()
-                            self.scrollSpeed = 10
-                            self.bgSprite.setScrollSpeed(self.scrollSpeed)
-                            if self.newBg is not None:
-                                self.newBg.setScrollSpeed(self.scrollSpeed)
+                            self.scrollSpeed = self.original_scrollSpeed
+                            self.updateBackgroundScrollSpeed()
                             self.update_frequencies()
                             self.player.isInvincible = True
                             self.invicibilityBegin = pygame.time.get_ticks()
@@ -209,10 +208,8 @@ class Game():
                             self.sound_player.bat_channel.play(self.player.caughtBatSound)
                             self.buff_begin = pygame.time.get_ticks()
                             collidedBuff.kill()
-                            self.scrollSpeed = 5
-                            self.bgSprite.setScrollSpeed(self.scrollSpeed)
-                            if self.newBg is not None:
-                                self.newBg.setScrollSpeed(self.scrollSpeed)
+                            self.scrollSpeed = self.original_scrollSpeed / 2
+                            self.updateBackgroundScrollSpeed()
                             self.update_frequencies()
 
                         if isinstance(collidedBuff, Protection):
@@ -220,34 +217,28 @@ class Game():
                             self.player.caughtShieldSound.play()
                             collidedBuff.kill()
 
-                    # Pickaxe evolution
+                    # Pickaxe evolution starts
                     if self.player.isEvolvingPickaxe:
                         self.scrollSpeed = 0
-                        self.bgSprite.setScrollSpeed(self.scrollSpeed)
-                        if self.newBg is not None:
-                            self.newBg.setScrollSpeed(self.scrollSpeed)
+                        self.updateBackgroundScrollSpeed()
 
-                    # Buff timer
+                    # Buff timer ends
                     if pygame.time.get_ticks() - self.buff_begin >= 10000:
                         self.player.touchBat(False)
                         self.sound_player.bat_channel.stop()
-                        self.scrollSpeed = 10
-                        self.bgSprite.setScrollSpeed(self.scrollSpeed)
-                        if self.newBg is not None:
-                            self.newBg.setScrollSpeed(self.scrollSpeed)
+                        self.scrollSpeed = self.original_scrollSpeed
+                        self.updateBackgroundScrollSpeed()
                         self.update_frequencies()
 
-                    # Pickaxe evolution timer
+                    # Pickaxe evolution timer end
                     if self.player.isEvolvingPickaxe and pygame.time.get_ticks() - self.evolution_time_begin >= 1000:
-                        self.scrollSpeed = 10
-                        self.bgSprite.setScrollSpeed(self.scrollSpeed)
-                        if self.newBg is not None:
-                            self.newBg.setScrollSpeed(self.scrollSpeed)
+                        self.scrollSpeed = self.original_scrollSpeed
+                        self.updateBackgroundScrollSpeed()
                         self.update_frequencies()
 
                     #Score update every second
                     if pygame.time.get_ticks() - self.score_tick >= 1000:
-                        self.score += self.scrollSpeed
+                        self.score += (int)(self.scrollSpeed)
                         self.score_sprite.image = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF",
                                                                    size=30).render(f"Score * {self.score}", True,
                                                                                    (255, 255, 255))
@@ -278,6 +269,8 @@ class Game():
                     self.current_menu.sprites.update(self.MOUSE_EVENTS)
                     self.current_menu.sprites.draw(self.screen)
 
+                self.original_scrollSpeed = self.scrollSpeed
+                self.scrollSpeed += 0.01
             else:
                 # Music
                 if not self.sound_player.current_key == "menu":
@@ -447,6 +440,8 @@ class Game():
 
     def manage_background(self):
         if self.bgSprite.rect.top <= 0 and self.newBg is None:
+            print(self.original_scrollSpeed)
+            print(self.scrollSpeed)
             self.newBg = Background(self.scrollSpeed, (1920/2, self.bgSprite.rect.bottom))
             self.bg.add(self.newBg)
 
@@ -469,3 +464,8 @@ class Game():
 
     def display_collision_animation(self, position):
         self.pickaxe_Hitting_Animation.add(PickaxeHittingObstacleAnimation(self.sound_player, position, self.scrollSpeed))
+
+    def updateBackgroundScrollSpeed(self):
+        self.bgSprite.setScrollSpeed(self.scrollSpeed)
+        if self.newBg is not None:
+            self.newBg.setScrollSpeed(self.scrollSpeed)
