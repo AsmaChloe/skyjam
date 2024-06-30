@@ -25,6 +25,9 @@ class OreType(Enum):
         self.broken_img_collection = [pygame.image.load(f"img/ore/{ore_name}/{filename}{i}.png") for i in range(1, 4)]
 
     # 0.5
+    STONE_LEFT = ("stone", "left", "img/ore/stone/Tas_Pierres_L.png", 0.5, 0, "explosion neutre")
+    STONE_RIGHT = ("stone", "right", "img/ore/stone/Tas_Pierres_R.png", 0.5, 0, "explosion neutre")
+    # 0.4
     IRON_LEFT = ("iron", "left", "img/ore/iron/Minerai_Fer_L.png", 0.25, 2,"explosion fert")
     IRON_RIGHT = ("iron", "right", "img/ore/iron/Minerai_Fer_R.png", 0.25, 2, "explosion fert")
     # 0.3
@@ -77,10 +80,13 @@ def generate_ore(game, ore_type : OreType):
     :param ore_type:
     :return:
     """
+    offset = 100
+    if(ore_type.name == "stone"):
+        offset = 0
     if(ore_type.direction == "left"):
-        x_top_mid = game.LEFT_BORDER + ore_type.image.get_width() // 2 - 70
+        x_top_mid = game.LEFT_BORDER + ore_type.image.get_width() // 2 - offset
     elif(ore_type.direction == "right"):
-        x_top_mid = game.RIGHT_BORDER - ore_type.image.get_width() // 2 + 70
+        x_top_mid = game.RIGHT_BORDER - ore_type.image.get_width() // 2 + offset
     y_top_mid = game.HEIGHT
 
     return Ore(pygame.Vector2(x_top_mid, y_top_mid), game.scrollSpeed, ore_type)

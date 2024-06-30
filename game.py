@@ -355,7 +355,9 @@ class Game():
         if current_time - self.latest_buff > self.buff_frequency:
             self.latest_buff = current_time
             new_buff = Bat(self.sound_player, self.scrollSpeed).generate_buff(self)
-            if not pygame.sprite.spritecollide(new_buff, self.buffs, False, None):
+            if (not pygame.sprite.spritecollide(new_buff, self.buffs, False, None)
+                    and not pygame.sprite.spritecollide(new_buff, self.obstacles, False, None)
+                    and not pygame.sprite.spritecollide(new_buff, self.ores, False, None)):
                 self.buffs.add(new_buff)
             else:
                 new_buff.kill()
