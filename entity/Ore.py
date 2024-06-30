@@ -28,14 +28,14 @@ class OreType(Enum):
     STONE_LEFT = ("stone", "left", "img/ore/stone/Tas_Pierres_L.png", 0.5, 0, "explosion neutre")
     STONE_RIGHT = ("stone", "right", "img/ore/stone/Tas_Pierres_R.png", 0.5, 0, "explosion neutre")
     # 0.4
-    IRON_LEFT = ("iron", "left", "img/ore/iron/Minerai_Fer_L.png", 0.25, 2,"explosion fert")
-    IRON_RIGHT = ("iron", "right", "img/ore/iron/Minerai_Fer_R.png", 0.25, 2, "explosion fert")
+    IRON_LEFT = ("iron", "left", "img/ore/iron/Minerai_Fer_L.png", 0.25, 20,"explosion fert")
+    IRON_RIGHT = ("iron", "right", "img/ore/iron/Minerai_Fer_R.png", 0.25, 20, "explosion fert")
     # 0.3
-    GOLD_LEFT = ("gold", "left", "img/ore/gold/Minerai_Or_L.png", 0.15, 4, "explosion or")
-    GOLD_RIGHT = ("gold", "right", "img/ore/gold/Minerai_Or_R.png", 0.15, 4 , "explosion or")
+    GOLD_LEFT = ("gold", "left", "img/ore/gold/Minerai_Or_L.png", 0.15, 40, "explosion or")
+    GOLD_RIGHT = ("gold", "right", "img/ore/gold/Minerai_Or_R.png", 0.15, 40 , "explosion or")
     # 0.2
-    DIAMOND_LEFT = ("diamond", "left", "img/ore/diamond/Minerai_Diamant_L.png", 0.1, 6, "explosion diamant")
-    DIAMOND_RIGHT = ("diamond", "right", "img/ore/diamond/Minerai_Diamant_R.png", 0.1, 6, "explosion diamant")
+    DIAMOND_LEFT = ("diamond", "left", "img/ore/diamond/Minerai_Diamant_L.png", 0.1, 100, "explosion diamant")
+    DIAMOND_RIGHT = ("diamond", "right", "img/ore/diamond/Minerai_Diamant_R.png", 0.1, 100, "explosion diamant")
 
 
 class Ore(CustomSprite):

@@ -1,13 +1,41 @@
+from enum import Enum
+
 import pygame
 
+class PickaxeType(Enum):
+    """
+    Enum class for the different types of pickaxes.
+    Contains the name of the pickaxe, the image, and the probability of the pickaxe to appear.
+    """
+
+    def __new__(cls, *args, **kwds):
+        value = len(cls.__members__) + 1
+        obj = object.__new__(cls)
+        obj._value_ = value
+        return obj
+
+    def __init__(self, pickaxe_name, filename):
+        self.pickaxe_name = pickaxe_name
+        self.imageCollection = []
+        self.maskCollection = []
+        for i in range(1, 9):
+            self.imageCollection.append(pygame.image.load(f"graphics/pickaxe/{pickaxe_name}/{filename}{i}.png"))
+            self.maskCollection.append(pygame.mask.from_surface(self.imageCollection[-1]))
+
+
+    WOOD_PICKAXE = ("wood_pickaxe", "Animation_bois")
+    IRON_PICKAXE = ("iron_pickaxe", "Animation_fer")
+    GOLD_PICKAXE = ("gold_pickaxe", "Animation_or")
+    DIAMOND_PICKAXE = ("diamond_pickaxe", "Animation_diamant")
 
 class Pickaxe(pygame.sprite.Sprite):
-    def __init__(self, initPos, destination, speed):
+    def __init__(self, initPos, destination, speed, type):
+        self.type = type
         super().__init__()
         self.tickFrame = 0
         self.mvtDir = 1
-        self.imageCollection = []
-        self.maskCollection = []
+        self.imageCollection = self.type.imageCollection
+        self.maskCollection = self.type.maskCollection
         self.playerPosVector = initPos
         self.xMaxSpeed = speed
         self.xSpeed = 0
@@ -15,13 +43,6 @@ class Pickaxe(pygame.sprite.Sprite):
         
         self.directionVector = pygame.Vector2(destination - initPos).normalize()
 
-        
-        #self.turning = False
-        
-        for i in range(1, 9):
-            self.imageCollection.append(pygame.image.load(f"graphics/wood_pickaxe/Animation_bois{i}.png").convert_alpha())
-            self.maskCollection.append(pygame.mask.from_surface(self.imageCollection[-1]))
-            
         self.image = self.imageCollection[0]
         self.mask = self.maskCollection[0]
         self.rect = self.image.get_rect(midtop = initPos)

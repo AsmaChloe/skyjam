@@ -16,7 +16,7 @@ from entity.Entity import Entity
 from entity.background import Background
 from utils.CustomSprite import CustomSprite
 from utils.SoundPlayer import SoundPlayer
-from entity.pickaxe import Pickaxe
+from entity.pickaxe import Pickaxe, PickaxeType
 from entity.slowdown import Bat
 
 
@@ -36,7 +36,7 @@ class Game():
         self.pickaxe = None
         self.pickaxeGS = pygame.sprite.GroupSingle()
         self.pickaxe_Hitting_Animation = pygame.sprite.Group()
-        # self.pickaxeClass = None
+        self.pickaxe_type = PickaxeType.WOOD_PICKAXE
 
         # Music
         self.MUSIC_ON = True
@@ -278,7 +278,7 @@ class Game():
                 if event.type == pygame.MOUSEBUTTONUP:
                     if self.playing:
                         if not self.pickaxeGS.sprites():    #renvoie une liste des sprites. "not liste" fonctionne car une liste vide est implicitement un "False" en python
-                            self.pickaxe = Pickaxe(pygame.Vector2(self.player.rect.midbottom), pygame.Vector2(event.pos), 25)
+                            self.pickaxe = Pickaxe(pygame.Vector2(self.player.rect.midbottom), pygame.Vector2(event.pos), 25, self.pickaxe_type)
                             self.pickaxeGS.add(self.pickaxe)
                             self.player.throw()
                     else:
