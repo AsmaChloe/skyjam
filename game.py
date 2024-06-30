@@ -39,6 +39,7 @@ class Game():
         self.pickaxeGS = pygame.sprite.GroupSingle()
         self.pickaxe_Hitting_Animation = pygame.sprite.Group()
         self.pickaxe_type = PickaxeType.WOOD_PICKAXE
+        self.max_XP = self.pickaxe_type.next_pickaxe_cost if self.pickaxe_type.next_pickaxe_cost is not None else 0
 
         # Music
         self.MUSIC_ON = True
@@ -46,7 +47,6 @@ class Game():
         self.musics_filenames_dict = {'menu': 'music/menu_theme.mp3', 'game': 'music/game_theme.mp3', 'gameover': 'music/son_fin_placeholder.wav'}
         self.sound_player = SoundPlayer(self.musics_filenames_dict, "menu")
         self.sound_player.load_and_play("menu", {"loops": -1}, self.MUSIC_ON)
-
 
         self.clock = pygame.time.Clock()
         self.dt = 0
@@ -70,22 +70,12 @@ class Game():
         self.player = Entity(self,"player", pygame.Vector2(self.WIDTH / 2, 200))
         self.playerGS = pygame.sprite.GroupSingle(self.player)
 
-        #XP rectangle
-        text = f"{self.player.XP} XP"
-        self.XP_sprite = CustomSprite(
-            pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(text, True, (255, 255, 255)),
-            "XP"
-        )
-        self.XP_sprite.rect.topleft = (20, 20)
-        self.XPGS = pygame.sprite.GroupSingle(self.XP_sprite)
-
-
-        # self.load_xp_bar_images()
-        # # XP bar image
-        # self.image = pygame.image.load("img/xp/xp_bar_0.png").convert_alpha()
-        # self.custom_sprite = CustomSprite(self.image, "xp_bar")
-        # self.sprite_group = pygame.sprite.GroupSingle(self.custom_sprite)
-        # self.update_xp_bar()
+        # XP bar images
+        self.xp_bar_images = { i : pygame.image.load(f"img/xp/xp_bar_{i}.png").convert_alpha() for i in range(0,101,5)}
+        self.image = self.xp_bar_images[0]
+        self.xp_bar = CustomSprite(self.image, "xp_bar")
+        self.xp_barGS = pygame.sprite.GroupSingle(self.xp_bar)
+        self.update_xp_bar()
 
         # Cursor
         pygame.mouse.set_visible(False)
@@ -140,11 +130,9 @@ class Game():
                     self.ores.draw(self.screen)
                     self.pickaxe_Hitting_Animation.draw(self.screen)
                     self.buffs.draw(self.screen)
+                    self.xp_barGS.draw(self.screen)
 
                     self.manageInvicibility()
-
-                    self.XPGS.draw(self.screen)
-                    # self.sprite_group.draw(self.screen)
 
                     # Pickaxe
                     if len(self.pickaxeGS):
@@ -159,26 +147,21 @@ class Game():
                                 if(collided_ore) :
                                     # Add XP
                                     self.player.XP += collided_ore.ore_type.XP
-                                    self.XP_sprite.image = pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(f"{self.player.XP} XP", True, (255, 255, 255))
-
 
                                     # Remove ore
                                     self.sound_player.ore_channel.play(collided_ore.broken_sound)
                                     collided_ore.broken = True
                                     collided_ore.broken_sound.play()
 
-                                    if self.pickaxe_type != PickaxeType.DIAMOND_PICKAXE and self.player.XP >= self.pickaxe_type.next_pickaxe_cost :
+                                    if self.pickaxe_type != PickaxeType.DIAMOND_PICKAXE and self.player.XP >= self.pickaxe_type.next_pickaxe_cost:
                                         self.player.XP -= self.pickaxe_type.next_pickaxe_cost
-                                        self.pickaxe_type = self.pickaxe.evolve()
+                                        self.pickaxe_type, self.max_XP = self.pickaxe.evolve()
 
                                     self.update_xp_bar()
 
                                 if(collided_obstacle) :
-                                    print(f"Collided obstacle mask pos: {collided_obstacle.mask.get_bounding_rects()}")
                                     self.display_collision_animation(self.pickaxe.rect.midbottom)
                             self.pickaxe.switchDir()
-
-
 
                     # Collision player / obstacles
                     if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
@@ -240,7 +223,7 @@ class Game():
                     self.ores.update(events, self.scrollSpeed)
                     self.pickaxe_Hitting_Animation.update(events)
                     self.buffs.update(self.scrollSpeed)
-                    self.XPGS.update(events)
+                    self.xp_barGS.update(events)
 
 
                     if (self.ESC_KEY):
@@ -353,7 +336,6 @@ class Game():
         self.playerGS.add(self.player)
 
         self.player.XP = 0
-        self.XP_sprite.image = pygame.font.Font("fonts/lemon_milk/LEMONMILK-Light.otf", size=30).render(f"{self.player.XP} XP", True, (255, 255, 255))
         self.update_xp_bar()
 
         #Pickaxe reset
@@ -432,40 +414,17 @@ class Game():
             del self.bgSprite
             self.bgSprite = self.newBg
             self.newBg = None
-            
-    def load_xp_bar_images(self):
-        self.xp_bar_images = {}
-        xp_folder = "img/xp/"
-        for filename in os.listdir(xp_folder):
-            if filename.startswith("xp_bar_") and filename.endswith(".png"):
-                xp_value = int(filename[7:-4])
-                self.xp_bar_images[xp_value] = pygame.image.load(os.path.join(xp_folder, filename)).convert_alpha()
-
-        self.xp_levels = sorted(self.xp_bar_images.keys())
 
     def update_xp_bar(self):
-        xp_level = (self.player.XP // 5) * 5
+        if self.max_XP == 0:
+            xp_level = 100
+        else :
+            xp_level_percentage = (self.player.XP / self.max_XP) * 100
+            xp_level = int(xp_level_percentage // 5 * 5)
 
-        if (xp_level >= 100):
-            self.reset_xp_bar()
-
-        available_levels = [level for level in self.xp_levels if level <= xp_level]
-
-        if available_levels:
-            appropriate_level = max(available_levels)
-        else:
-            appropriate_level = min(self.xp_levels)
-
-        self.custom_sprite.image = self.xp_bar_images[appropriate_level]
-        self.custom_sprite.rect.topleft = (self.WIDTH - self.custom_sprite.rect.width - 70, 23)
-
-    def reset_xp_bar(self):
-        initial_xp_image = pygame.image.load("img/xp/xp_bar_0.png").convert_alpha()
-        self.current_xp_image = initial_xp_image
+        self.xp_bar.image = self.xp_bar_images[xp_level]
+        self.xp_bar.rect.topleft = (self.WIDTH - self.xp_bar.rect.width - 70, 23)
 
 
-    def display_collision_animation(self, collided_obstacle):
-        pos = pygame.sprite.collide_mask(self.pickaxeGS.sprite, collided_obstacle)
-        if pos is not None:
-            x_collision, y_collision = pos
-            self.pickaxe_Hitting_Animation.add(PickaxeHittingObstacleAnimation(self.sound_player, (x_collision, y_collision), self.scrollSpeed))
+    def display_collision_animation(self, position):
+        self.pickaxe_Hitting_Animation.add(PickaxeHittingObstacleAnimation(self.sound_player, position, self.scrollSpeed))

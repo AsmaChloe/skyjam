@@ -127,4 +127,4 @@ class Pickaxe(pygame.sprite.Sprite):
         self.mask = self.maskCollection[0]
         self.rect = self.image.get_rect(midtop=self.rect.midtop)
 
-        return self.type
+        return self.type, self.type.next_pickaxe_cost if self.type.next_pickaxe_cost is not None else 0
