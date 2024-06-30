@@ -4,7 +4,7 @@ import pygame
 from utils.CustomSprite import CustomSprite
 
 class Dynamite(Buff):
-    def __init__(self, scroll_speed, music_player):
+    def __init__(self, scroll_speed):
         
         super().__init__(scroll_speed)
 
