@@ -14,22 +14,23 @@ class PickaxeType(Enum):
         obj._value_ = value
         return obj
 
-    def __init__(self, pickaxe_name, filename):
+    def __init__(self, pickaxe_name, filename, next_pickaxe_cost, maxSpeed):
         self.pickaxe_name = pickaxe_name
         self.imageCollection = []
         self.maskCollection = []
         for i in range(1, 9):
             self.imageCollection.append(pygame.image.load(f"graphics/pickaxe/{pickaxe_name}/{filename}{i}.png"))
             self.maskCollection.append(pygame.mask.from_surface(self.imageCollection[-1]))
+        self.next_pickaxe_cost = next_pickaxe_cost
+        self.maxSpeed = maxSpeed
 
-
-    WOOD_PICKAXE = ("wood_pickaxe", "Animation_bois")
-    IRON_PICKAXE = ("iron_pickaxe", "Animation_fer")
-    GOLD_PICKAXE = ("gold_pickaxe", "Animation_or")
-    DIAMOND_PICKAXE = ("diamond_pickaxe", "Animation_diamant")
+    WOOD_PICKAXE = ("wood_pickaxe", "Animation_bois", 100, 25)
+    IRON_PICKAXE = ("iron_pickaxe", "Animation_fer", 200, 40)
+    GOLD_PICKAXE = ("gold_pickaxe", "Animation_or", 300, 55)
+    DIAMOND_PICKAXE = ("diamond_pickaxe", "Animation_diamant", None , 70)
 
 class Pickaxe(pygame.sprite.Sprite):
-    def __init__(self, initPos, destination, speed, type):
+    def __init__(self, initPos, destination, type):
         self.type = type
         super().__init__()
         self.tickFrame = 0
@@ -37,7 +38,7 @@ class Pickaxe(pygame.sprite.Sprite):
         self.imageCollection = self.type.imageCollection
         self.maskCollection = self.type.maskCollection
         self.playerPosVector = initPos
-        self.xMaxSpeed = speed
+        self.maxSpeed = type.maxSpeed
         self.xSpeed = 0
         self.topLimit = initPos.y
         
@@ -64,12 +65,12 @@ class Pickaxe(pygame.sprite.Sprite):
         
         if self.mvtDir == 1:
             
-            self.rect.centery += self.xMaxSpeed * self.directionVector.y
+            self.rect.centery += self.maxSpeed * self.directionVector.y
             if self.checkBound(self.directionVector.x):
-                self.rect.centerx += self.xMaxSpeed * self.directionVector.x
+                self.rect.centerx += self.maxSpeed * self.directionVector.x
         else:
-            self.rect.centerx += self.xMaxSpeed * self.returnVector.x
-            self.rect.centery += self.xMaxSpeed * self.returnVector.y
+            self.rect.centerx += self.maxSpeed * self.returnVector.x
+            self.rect.centery += self.maxSpeed * self.returnVector.y
   
         
         if self.rect.centery - 10 <= self.topLimit:
@@ -103,3 +104,17 @@ class Pickaxe(pygame.sprite.Sprite):
         if self.mask.overlap(object_mask, (object_rect.x - self.rect.x, object_rect.y - self.rect.y)):
             return True
         return False
+
+    def evolve(self):
+        """
+        Evolve the pickaxe to the next level
+        :return:
+        """
+        self.type = PickaxeType(self.type.value + 1)
+        self.imageCollection = self.type.imageCollection
+        self.maskCollection = self.type.maskCollection
+        self.image = self.imageCollection[0]
+        self.mask = self.maskCollection[0]
+        self.rect = self.image.get_rect(midtop=self.rect.midtop)
+
+        return self.type

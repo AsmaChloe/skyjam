@@ -20,6 +20,7 @@ class Entity(pygame.sprite.Sprite):
         self.caughtShieldSound = pygame.mixer.Sound("sound/Bouclier.wav")
         self.isInvincible = False
         self.isProtected = False
+        self.isEvolvingPickaxe = False
         
         self.imageCollection = []
         self.maskCollection = []
