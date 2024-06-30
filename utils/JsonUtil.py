@@ -18,3 +18,16 @@ class JsonUtil:
             print(f"Données sauvegardées dans {file_path}")
         except Exception as e:
             print(f"Erreur lors de la sauvegarde des données : {e}")
+
+    @staticmethod
+    def create_save_file():
+        folder = 'save'
+        file = os.path.join(folder, 'scoring.json')
+
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
+        if not os.path.exists(file):
+            data = {"best": 0}
+            with open(file, 'w') as json_file:
+                json.dump(data, json_file)

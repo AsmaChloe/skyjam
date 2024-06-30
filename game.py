@@ -1,6 +1,7 @@
 import random
 import os
 import pygame
+
 from sys import exit
 from random import choices
 
@@ -27,12 +28,16 @@ from utils.JsonUtil import JsonUtil
 class Game():
     def __init__(self):
         pygame.init()
+
+        pygame.display.set_caption("Pitfall Miner")
+        pygame.display.set_icon(pygame.image.load('./img/icon/logo.png'))
+
         self.scrollSpeed = 10
         self.accel = 10
         self.WIDTH, self.HEIGHT = 1920, 1080 #1280 , 720
         self.LEFT_BORDER, self.RIGHT_BORDER = 445, 1480
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
-        
+
         # Background
         self.bgSprite = Background(self.scrollSpeed, (1920/2, 0))
         self.bg = pygame.sprite.Group(self.bgSprite)
@@ -57,14 +62,19 @@ class Game():
         self.dt = 0
 
         # Score that depends on time spent in game
+        JsonUtil.create_save_file()
+
         current_dir = os.path.dirname(os.path.abspath(__file__))
         self.scoring_json_file_path = os.path.join(current_dir, 'save', 'scoring.json')
-
         self.scoring_json_file = JsonUtil.load_json(self.scoring_json_file_path)
 
         self.score_tick = 0
         self.score = 0
+
         self.best_score = self.scoring_json_file.get("best")
+
+        if self.best_score is None:
+            self.best_score = 0
 
         self.score_sprite = CustomSprite(
             pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF", size=30).render(f"Score * {self.score}", True, (255, 255, 255)),
@@ -120,12 +130,12 @@ class Game():
         self.ore_frequency = 2000 * (10/self.scrollSpeed)
         self.ores = pygame.sprite.Group()
         self.latest_ore = pygame.time.get_ticks()
-        
+
         #Buffs
         self.buff_frequency = 5000 * (10/self.scrollSpeed)
         self.buffs = pygame.sprite.Group()
         self.latest_buff = pygame.time.get_ticks()
-        
+
         #BigBuffs = Dynamite, canari
         self.big_buff_frequency = 5000 * (10/self.scrollSpeed)
         self.big_buffs = pygame.sprite.Group()
@@ -259,18 +269,20 @@ class Game():
                                 self.invicibilityBegin = pygame.time.get_ticks()
 
                             elif not self.player.isInvincible and not self.player.isDynamiteDuring:
+                                if self.score > self.best_score:
+                                    self.best_score = self.score
+                                    self.scoring_json_file["best"] = self.best_score
+                                    JsonUtil.save_json(self.scoring_json_file_path, self.scoring_json_file)
+                                self.gameover_menu.randomizePhrase()
+                                self.gameover_menu.update()
+                                self.main_menu.update()
+
                                 self.reset_game()
                                 self.gameOver = True
 
                                 self.sound_player.player_channel.play(self.player.hurt_sounds[random.randint(0, 2)])
                                 self.sound_player.stop_sounds_at_game_over()
 
-                                if self.score > self.best_score:
-                                    self.best_score = self.score
-                                    self.scoring_json_file["best"] = self.best_score
-                                    JsonUtil.save_json(self.scoring_json_file_path, self.scoring_json_file)
-                                self.gameover_menu.update()
-                                self.main_menu.update()
 
                         if (pygame.time.get_ticks() - self.dynamite_buff_timer >= 3500) and self.player.isDynamite and not self.player.isDynamiteStarting and not self.player.isDynamiteDuring and not self.player.isDynamiteEnding:
                             self.original_scrollSpeed = self.scrollSpeed
@@ -432,7 +444,7 @@ class Game():
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.ENTER_KEY, self.ESC_KEY = False, False, False, False
         self.MOUSE_EVENTS = []
-    
+
     def update_frequencies(self):
         if self.scrollSpeed == 0:
             speed = 0.00001
@@ -441,18 +453,18 @@ class Game():
         self.obstacle_frequency = 500 * (10/speed)
         # Ores
         self.ore_frequency = 2000 * (10/speed)
-        
+
         #Buffs
         self.buff_frequency = 5000 * (10/speed)
 
         #Big buffs
         self.big_buff_frequency = 5000 * (10/speed)
-        
+
     def manageInvicibility(self):
         if self.player.isInvincible and not self.player.isDynamiteDuring:
             if pygame.time.get_ticks() - self.invicibilityBegin >= 1000:
                 self.player.isInvincible = False
-    
+
     def reset_game(self):
 
         #screenreset
@@ -524,7 +536,7 @@ class Game():
             else:
                 new_ore.kill()
                 del new_ore
-        
+
         # Generate Buffs
         if current_time - self.latest_buff > self.buff_frequency:
             self.latest_buff = current_time

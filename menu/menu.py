@@ -69,7 +69,6 @@ class MenuSubOptions(Menu):
         Create the sprites for the menu
         :return:
         """
-        self.sprites = pygame.sprite.Group()
         # Title
         title_sprite = CustomSprite(
             self.title_font.render(self.main_text, True, (255, 255, 255)),
