@@ -40,6 +40,7 @@ class Game():
         self.pickaxe_Hitting_Animation = pygame.sprite.Group()
         self.pickaxe_type = PickaxeType.WOOD_PICKAXE
         self.max_XP = self.pickaxe_type.next_pickaxe_cost if self.pickaxe_type.next_pickaxe_cost is not None else 0
+        self.evolution_time_begin = 0
 
         # Music
         self.MUSIC_ON = True
@@ -157,6 +158,7 @@ class Game():
                                         self.player.isEvolvingPickaxe = True
                                         self.player.XP -= self.pickaxe_type.next_pickaxe_cost
                                         self.pickaxe_type, self.max_XP = self.pickaxe.evolve()
+                                        self.evolution_time_begin = pygame.time.get_ticks()
 
                                     self.update_xp_bar()
 
@@ -187,9 +189,8 @@ class Game():
 
                             self.sound_player.player_channel.play(self.player.hurt_sounds[random.randint(0, 2)])
                             self.sound_player.stop_sounds_at_game_over()
-                    
+
                     collidedBuff = pygame.sprite.spritecollideany(self.player, self.buffs)
-                    
                     if collidedBuff is not None:
                         if isinstance(collidedBuff, Bat):
                             self.player.touchBat(True)
@@ -201,16 +202,32 @@ class Game():
                             if self.newBg is not None:
                                 self.newBg.setScrollSpeed(self.scrollSpeed)
                             self.update_frequencies()
-                        
+
                         if isinstance(collidedBuff, Protection):
                             self.player.protect(True)
                             self.player.caughtShieldSound.play()
                             collidedBuff.kill()
+
+                    # Pickaxe evolution
+                    if self.player.isEvolvingPickaxe:
+                        self.scrollSpeed = 5
+                        self.bgSprite.setScrollSpeed(self.scrollSpeed)
+                        if self.newBg is not None:
+                            self.newBg.setScrollSpeed(self.scrollSpeed)
+                        self.update_frequencies()
                             
-                            
+                    # Buff timer
                     if pygame.time.get_ticks() - self.buff_begin >= 10000:
                         self.player.touchBat(False)
                         self.sound_player.bat_channel.stop()
+                        self.scrollSpeed = 10
+                        self.bgSprite.setScrollSpeed(self.scrollSpeed)
+                        if self.newBg is not None:
+                            self.newBg.setScrollSpeed(self.scrollSpeed)
+                        self.update_frequencies()
+
+                    # Pickaxe evolution timer
+                    if self.player.isEvolvingPickaxe and pygame.time.get_ticks() - self.evolution_time_begin >= 1000:
                         self.scrollSpeed = 10
                         self.bgSprite.setScrollSpeed(self.scrollSpeed)
                         if self.newBg is not None:

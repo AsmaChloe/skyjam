@@ -34,9 +34,9 @@ class PickaxeType(Enum):
         self.next_pickaxe_cost = next_pickaxe_cost
         self.maxSpeed = maxSpeed
 
-    WOOD_PICKAXE = ("wood_pickaxe", "Animation_bois", 100, 25)
-    IRON_PICKAXE = ("iron_pickaxe", "Animation_fer", 200, 40)
-    GOLD_PICKAXE = ("gold_pickaxe", "Animation_or", 300, 55)
+    WOOD_PICKAXE = ("wood_pickaxe", "Animation_bois", 10, 25)
+    IRON_PICKAXE = ("iron_pickaxe", "Animation_fer", 100, 40)
+    GOLD_PICKAXE = ("gold_pickaxe", "Animation_or", 100, 55)
     DIAMOND_PICKAXE = ("diamond_pickaxe", "Animation_diamant", None , 70)
 
 class Pickaxe(pygame.sprite.Sprite):
