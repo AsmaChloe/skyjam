@@ -9,7 +9,7 @@ class Menu():
     def __init__(self, game, state, previous_state=(None, None)):
         self.game = game
         self.position = game.WIDTH // 2, game.HEIGHT // 2
-        self.offset = 20
+        self.offset = 15
         # Previous state of the menu, a tuple with the name of the state and the menu object
         self.previous_state = previous_state
         self.state = state

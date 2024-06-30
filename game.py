@@ -85,7 +85,7 @@ class Game():
         self.starting_animationGS = pygame.sprite.GroupSingle(self.starting_animation)
 
         # Menus
-        self.main_menu = MainMenu(self)
+        self.main_menu = MainMenu(self, "Main", "img/logo_500.png", )
         self.options_menu = OptionsMenu(self, previous_state=("Main", self.main_menu))
         self.credit_menu = CreditMenu(self, previous_state=("Main", self.main_menu))
         self.gameover_menu = GameOver(self)

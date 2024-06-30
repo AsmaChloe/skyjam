@@ -1,29 +1,72 @@
 import os
 
+import pygame
+
 from animations.MenuAnimation import MenuAnimation
-from menu.menu import MenuSubOptions
+from menu.menu import MenuSubOptions, Menu
 from utils.JsonUtil import JsonUtil
 from utils.CustomSprite import CustomSprite
 
-class MainMenu(MenuSubOptions):
-    def __init__(self, game, state="Main"):
-        self.game = game
-        MenuSubOptions.__init__(self, game, state, "Apericube", ["Jouer", "Options", "Credits", "Quitter", ""])
+# class MainMenu(MenuSubOptions):
+#     def __init__(self, game, state="Main"):
+#         self.game = game
+#         MenuSubOptions.__init__(self, game, state, "Apericube", ["Jouer", "Options", "Credits", "Quitter", ""])
+#         self.animation = MenuAnimation((self.game.WIDTH * 1/5, self.game.HEIGHT * 3/4))
+#         self.sprites.add(self.animation)
+#
+#
+#     def create_sprites(self):
+#         super().create_sprites()
+#
+#         best_score_sprite = CustomSprite(
+#             self.menu_fonts.render(f"Meilleur score x {self.game.best_score} points", True, (255, 255, 255)),
+#             None
+#         )
+#         self.sprites.add(best_score_sprite)
+#
+#     def update(self):
+#         super().update()
+
+
+class MainMenu(Menu):
+    def __init__(self, game, state, logo_path, previous_state=(None, None)):
+        menu_texts = ["Jouer", "Options", "Credits", "Quitter", ""]
+        self.logo_path = logo_path
+        self.menu_texts = menu_texts
+        self.validate_button_sound = pygame.mixer.Sound("sound/Boutons_Menu.wav")
+        Menu.__init__(self, game, state, previous_state)
+
         self.animation = MenuAnimation((self.game.WIDTH * 1/5, self.game.HEIGHT * 3/4))
         self.sprites.add(self.animation)
 
-
     def create_sprites(self):
-        super().create_sprites()
+        """
+        Create the sprites for the menu
+        :return:
+        """
+        self.sprites = pygame.sprite.Group()
+        # Title
+        title_sprite = CustomSprite(
+            pygame.image.load(self.logo_path),
+            None
+        )
+        self.sprites.add(title_sprite)
+
+        # Sub options
+        for i, text in enumerate(self.menu_texts):
+            option_sprite = CustomSprite(
+                self.menu_fonts.render(f"{text}", True, (255, 255, 255)),
+                text,
+                callback=self.validate,
+                clickable=True
+            )
+            self.sprites.add(option_sprite)
 
         best_score_sprite = CustomSprite(
             self.menu_fonts.render(f"Meilleur score x {self.game.best_score} points", True, (255, 255, 255)),
             None
         )
         self.sprites.add(best_score_sprite)
-
-    def update(self):
-        super().update()
 
 
 
