@@ -7,16 +7,21 @@ import pygame
 
 
 class GameOver(MenuSubOptions):
-    def __init__(self, game, state = "GameOver", previous_state=(None, None)):
+    def __init__(self, game, state="GameOver", previous_state=(None, None)):
         self.game = game
-        MenuSubOptions.__init__(self, game, state, self.randomCatchPhrase(), ["Rejouer", "Menu principal", "",""], previous_state=previous_state)
-        
+        MenuSubOptions.__init__(self, game, state, "Game Over",
+                                ["Rejouer", "Menu principal", "", ""],
+                                previous_state=previous_state)
+
+    def create_sprites(self):
+        super().create_sprites()
+
         score_sprite = CustomSprite(
-            self.menu_fonts.render(f"Score x {self.game.score} points", True, (255, 255, 255)),
+            self.menu_fonts.render(f"Score : {self.game.score} points", True, (255, 255, 255)),
             None
         )
         best_score_sprite = CustomSprite(
-            self.menu_fonts.render(f"Meilleur score x {self.game.best_score} points", True, (255, 255, 255)),
+            self.menu_fonts.render(f"Meilleur score : {self.game.best_score} points", True, (255, 255, 255)),
             None
         )
         self.sprites.add(score_sprite)
@@ -36,7 +41,6 @@ class GameOver(MenuSubOptions):
             self.game.playing = False
         self.game.current_menu = self.game.main_menu
         self.game.current_menu.state = "Main"
-        self.randomizePhrase()
 
     def randomCatchPhrase(self):
         return random.choice(["J'en ai vu des gens tomber… Toi, tu le fais très mal.", "Alors ? t'en a pas marre de te manger des trucs ?", "J'ai vu un truc tomber, c'était ton skill.", "T'en est content de tes doigts ?", "Ça fait mal ?", "Ça fait longtemps que t'es dans le camp des perdants ?", "La loose a un nom: le tien.","On dirait que la chance n'était pas de ton côté aujourd'hui.",

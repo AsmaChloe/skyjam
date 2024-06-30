@@ -57,14 +57,19 @@ class Game():
         self.dt = 0
 
         # Score that depends on time spent in game
+        JsonUtil.create_save_file()
+
         current_dir = os.path.dirname(os.path.abspath(__file__))
         self.scoring_json_file_path = os.path.join(current_dir, 'save', 'scoring.json')
-
         self.scoring_json_file = JsonUtil.load_json(self.scoring_json_file_path)
 
         self.score_tick = 0
         self.score = 0
+
         self.best_score = self.scoring_json_file.get("best")
+
+        if self.best_score is None:
+            self.best_score = 0
 
         self.score_sprite = CustomSprite(
             pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF", size=30).render(f"Score * {self.score}", True, (255, 255, 255)),
