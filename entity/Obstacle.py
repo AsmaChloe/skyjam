@@ -25,6 +25,8 @@ class ObstacleType(Enum):
         self.direction = direction
         if obstacle_name == "whole_beam":
            self.image = pygame.transform.rotozoom(pygame.image.load(image_path), 0, 0.5)
+        elif obstacle_name != "left_spike":
+            self.image = pygame.transform.rotozoom(pygame.image.load(image_path), 0, 0.75)
         else:
             self.image = pygame.image.load(image_path)
         self.probability = probability
