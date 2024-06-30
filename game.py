@@ -129,7 +129,7 @@ class Game():
         while self.running:
             events = pygame.event.get()
 
-            self.screen.fill((0, 0, 0))
+            self.screen.fill((87, 103, 117))
             self.check_events(events)
 
             if self.playing:
@@ -207,7 +207,7 @@ class Game():
                                 self.sound_player.bat_channel.play(self.player.caughtBatSound)
                                 self.buff_begin = pygame.time.get_ticks()
                                 collidedBuff.kill()
-                                self.scrollSpeed = 5
+                                self.scrollSpeed = self.scrollSpeed * 0.5
                                 self.updateBackgroundScrollSpeed()
                                 self.update_frequencies()
 
@@ -242,7 +242,7 @@ class Game():
 
 
                     if (pygame.time.get_ticks() - self.dynamite_buff_timer >= 3500) and self.player.isDynamite and not self.player.isDynamiteStarting and not self.player.isDynamiteDuring and not self.player.isDynamiteEnding:
-                        self.scrollSpeed = 50
+                        self.scrollSpeed = self.scrollSpeed * 3
                         self.player.isProtected = False
                         self.player.isWithBat = False
                         self.player.isThrowing = False
@@ -326,7 +326,8 @@ class Game():
                     self.current_menu.sprites.draw(self.screen)
 
                 self.original_scrollSpeed = self.scrollSpeed
-                self.scrollSpeed += 0.01
+                self.scrollSpeed += 0.005
+                self.updateBackgroundScrollSpeed()
             else:
                 # Music
                 if not self.sound_player.current_key == "menu":
@@ -392,8 +393,6 @@ class Game():
                     self.display_collision_animation(self.pickaxe.rect.bottomright)
 
 
-
-
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.ENTER_KEY, self.ESC_KEY = False, False, False, False
         self.MOUSE_EVENTS = []
@@ -419,8 +418,9 @@ class Game():
                 self.player.isInvincible = False
     
     def reset_game(self):
+
         #screenreset
-        self.screen.fill((0, 0, 0))
+        self.screen.fill((87, 103, 117))
 
         #Pickaxe reset
         if self.pickaxe is not None:
@@ -457,6 +457,11 @@ class Game():
         self.score = 0
         self.score_sprite.image = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF", size=30).render(f"{self.score}", True, (255, 255, 255))
         self.score_tick = pygame.time.get_ticks()
+
+        #Background reset
+        self.scrollSpeed = 10
+        self.updateBackgroundScrollSpeed()
+        self.update_frequencies()
 
     def quit(self):
         pygame.quit()
@@ -526,7 +531,7 @@ class Game():
 
     def manage_background(self):
         if self.bgSprite.rect.top <= 0 and self.newBg is None:
-            self.newBg = Background(self.scrollSpeed, (1920/2, self.bgSprite.rect.bottom))
+            self.newBg = Background(self.bgSprite.scrollSpeed, (1920/2, self.bgSprite.rect.bottom))
             self.bg.add(self.newBg)
 
         if self.bgSprite.rect.bottom <= 0:
