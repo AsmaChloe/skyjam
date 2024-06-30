@@ -10,6 +10,7 @@ class OptionsMenu(Menu):
 
         self.title_sprite = None
         self.sub_title_sprite = None
+
         Menu.__init__(self, game, state, previous_state)
 
     def create_sprites(self):

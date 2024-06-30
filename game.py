@@ -1,4 +1,5 @@
 import random
+import os
 import pygame
 from sys import exit
 from random import choices
@@ -21,13 +22,12 @@ from entity.slowdown import Bat
 from entity.protection import Protection
 from entity.boom import Dynamite
 
+from utils.JsonUtil import JsonUtil
 
 class Game():
     def __init__(self):
         pygame.init()
         self.scrollSpeed = 10
-        self.original_scrollSpeed = 10
-        self.accel = 10
         self.WIDTH, self.HEIGHT = 1920, 1080 #1280 , 720
         self.LEFT_BORDER, self.RIGHT_BORDER = 445, 1480
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
@@ -56,8 +56,15 @@ class Game():
         self.dt = 0
 
         # Score that depends on time spent in game
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        self.scoring_json_file_path = os.path.join(current_dir, 'save', 'scoring.json')
+
+        self.scoring_json_file = JsonUtil.load_json(self.scoring_json_file_path)
+
         self.score_tick = 0
         self.score = 0
+        self.best_score = self.scoring_json_file.get("best")
+
         self.score_sprite = CustomSprite(
             pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF", size=30).render(f"Score * {self.score}", True, (255, 255, 255)),
             "score"
@@ -255,6 +262,13 @@ class Game():
 
                                 self.sound_player.player_channel.play(self.player.hurt_sounds[random.randint(0, 2)])
                                 self.sound_player.stop_sounds_at_game_over()
+
+                                if self.score > self.best_score:
+                                    self.best_score = self.score
+                                    self.scoring_json_file["best"] = self.best_score
+                                    JsonUtil.save_json(self.scoring_json_file_path, self.scoring_json_file)
+                                self.gameover_menu.update()
+                                self.main_menu.update()
 
 
                         if (pygame.time.get_ticks() - self.dynamite_buff_timer >= 3500) and self.player.isDynamite and not self.player.isDynamiteStarting and not self.player.isDynamiteDuring and not self.player.isDynamiteEnding:

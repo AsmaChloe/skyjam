@@ -1,13 +1,27 @@
+import os
 from menu.menu import MenuSubOptions
+from utils.JsonUtil import JsonUtil
+from utils.CustomSprite import CustomSprite
 import random
 import pygame
 
 
 class GameOver(MenuSubOptions):
     def __init__(self, game, state = "GameOver", previous_state=(None, None)):
+
+        MenuSubOptions.__init__(self, game, state, self.randomCatchPhrase(), ["Rejouer", "Menu principal", "",""], previous_state=previous_state)
         
-        MenuSubOptions.__init__(self, game, state, self.randomCatchPhrase(), ["Rejouer", "Menu principal"], previous_state=previous_state)
-        
+        score_sprite = CustomSprite(
+            self.menu_fonts.render(f"Score x {self.game.score} points", True, (255, 255, 255)),
+            None
+        )
+        best_score_sprite = CustomSprite(
+            self.menu_fonts.render(f"Meilleur score x {self.game.best_score} points", True, (255, 255, 255)),
+            None
+        )
+        self.sprites.add(score_sprite)
+        self.sprites.add(best_score_sprite)
+
     def validate(self, text):
         '''
         Validate the current option selected in the menu
@@ -23,7 +37,7 @@ class GameOver(MenuSubOptions):
         self.game.current_menu = self.game.main_menu
         self.game.current_menu.state = "Main"
         self.randomizePhrase()
-    
+
     def randomCatchPhrase(self):
         return random.choice(["J'en ai vu des gens tomber… Toi, tu le fais très mal.", "Alors ? t'en a pas marre de te manger des trucs ?", "J'ai vu un truc tomber, c'était ton skill.", "T'en est content de tes doigts ?", "Ça fait mal ?", "Ça fait longtemps que t'es dans le camp des perdants ?", "La loose a un nom: le tien.","On dirait que la chance n'était pas de ton côté aujourd'hui.",
     "Tu es vraiment doué pour trouver de nouvelles façons de perdre.",
@@ -98,7 +112,7 @@ class GameOver(MenuSubOptions):
     "Les oiseaux volent, toi, tu t'écrases.",
     "Tomber, c'est humain. Atterrir, c'est... un autre problème."
 ])
-    
+
     def randomizePhrase(self):
         self.main_text = self.randomCatchPhrase()
         self.create_sprites()

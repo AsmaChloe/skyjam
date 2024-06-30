@@ -1,8 +1,25 @@
+import os
 from menu.menu import MenuSubOptions
+from utils.JsonUtil import JsonUtil
+from utils.CustomSprite import CustomSprite
 
 class MainMenu(MenuSubOptions):
     def __init__(self, game, state="Main"):
-        MenuSubOptions.__init__(self, game, state, "Apericube", ["Jouer", "Options", "Crédits", "Quitter"])
+        self.game = game
+        MenuSubOptions.__init__(self, game, state, "Apericube", ["Jouer", "Options", "Credits", "Quitter", ""])
+
+    def create_sprites(self):
+        super().create_sprites()
+
+        best_score_sprite = CustomSprite(
+            self.menu_fonts.render(f"Meilleur score x {self.game.best_score} points", True, (255, 255, 255)),
+            None
+        )
+        self.sprites.add(best_score_sprite)
+
+    def update(self):
+        super().update()
+
 
     def validate(self, text):
         '''
