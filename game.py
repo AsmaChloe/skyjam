@@ -196,6 +196,7 @@ class Game():
                             self.player.isInvincible = True
                             self.invicibilityBegin = pygame.time.get_ticks()
                         elif not self.player.isInvincible:
+                            self.reset_game()
                             self.gameOver = True
 
                             self.sound_player.player_channel.play(self.player.hurt_sounds[random.randint(0, 2)])
@@ -223,7 +224,7 @@ class Game():
                         self.updateBackgroundScrollSpeed()
 
                     # Buff timer ends
-                    if pygame.time.get_ticks() - self.buff_begin >= 10000:
+                    if (pygame.time.get_ticks() - self.buff_begin) >= 10000 and self.player.isWithBat:
                         self.player.touchBat(False)
                         self.sound_player.bat_channel.stop()
                         self.scrollSpeed = self.original_scrollSpeed
@@ -367,6 +368,8 @@ class Game():
         self.pickaxe_type = PickaxeType.WOOD_PICKAXE
 
         #Player reset
+        self.player.isWithBat = False
+        self.player.isProtected = False
         self.player.kill()
         self.player = Entity(self,"player", self.pickaxe_type, pygame.Vector2(self.WIDTH / 2, 200))
         self.playerGS.add(self.player)

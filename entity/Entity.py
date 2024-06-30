@@ -73,7 +73,6 @@ class Entity(pygame.sprite.Sprite):
     def animate(self):
         if(self.isEvolvingPickaxe)  :
             self.image = self.currentPickaxeType.pickaxeEvolvingImageCollection[int(self.evolutionTickFrame)]
-            self.mask = self.currentPickaxeType.pickaxeEvolvingMaskCollection[int(self.evolutionTickFrame)]
             self.evolutionTickFrame = (self.evolutionTickFrame + 0.2) % 18
             if(int(self.evolutionTickFrame) == 17):
                 self.isEvolvingPickaxe = False
@@ -114,7 +113,7 @@ class Entity(pygame.sprite.Sprite):
                 else:
                     shield = self.imageCollectionProtected[int(self.protectionTickFrame)]
                 self.image.blit(shield, shield.get_rect(center = (290/2, 320/2)))
-        self.mask = pygame.mask.from_surface(self.image)
+            self.mask = pygame.mask.from_surface(self.image)
         
     def touchBat(self, isBatTouched):
         self.isWithBat = isBatTouched
@@ -171,11 +170,11 @@ class Entity(pygame.sprite.Sprite):
     def update(self):
         keys = pygame.key.get_pressed()
         
-        if keys[pygame.K_q] and self.checkBound(True):
+        if not self.isEvolvingPickaxe and keys[pygame.K_q] and self.checkBound(True):
             self.flipAnimation(True)
             self.rect.left -= self.xSpeed
                 
-        if keys[pygame.K_d] and self.checkBound(False):
+        if not self.isEvolvingPickaxe and keys[pygame.K_d] and self.checkBound(False):
             self.flipAnimation(False)
             self.rect.right += self.xSpeed
             
