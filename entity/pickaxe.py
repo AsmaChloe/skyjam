@@ -16,11 +16,20 @@ class PickaxeType(Enum):
 
     def __init__(self, pickaxe_name, filename, next_pickaxe_cost, maxSpeed):
         self.pickaxe_name = pickaxe_name
+
         self.imageCollection = []
         self.maskCollection = []
         for i in range(1, 9):
             self.imageCollection.append(pygame.image.load(f"graphics/pickaxe/{pickaxe_name}/{filename}{i}.png"))
             self.maskCollection.append(pygame.mask.from_surface(self.imageCollection[-1]))
+
+
+        self.pickaxeEvolvingImageCollection = []
+        self.pickaxeEvolvingMaskCollection = []
+        if pickaxe_name != "diamond_pickaxe":
+            for i in range(1, 19):
+                self.pickaxeEvolvingImageCollection.append(pygame.image.load(f"graphics/character/pickaxe_evolution/{pickaxe_name}/Animation_évolution_pioche{i}.png"))
+
         self.next_pickaxe_cost = next_pickaxe_cost
         self.maxSpeed = maxSpeed
 

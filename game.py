@@ -41,6 +41,7 @@ class Game():
         self.pickaxe_Hitting_Animation = pygame.sprite.Group()
         self.pickaxe_type = PickaxeType.WOOD_PICKAXE
         self.max_XP = self.pickaxe_type.next_pickaxe_cost if self.pickaxe_type.next_pickaxe_cost is not None else 0
+        self.evolution_time_begin = 0
 
         # Music
         self.MUSIC_ON = True
@@ -51,6 +52,17 @@ class Game():
 
         self.clock = pygame.time.Clock()
         self.dt = 0
+
+        # Score that depends on time spent in game
+        self.score_tick = 0
+        self.score = 0
+        self.score_sprite = CustomSprite(
+            pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF", size=30).render(f"Score * {self.score}", True, (255, 255, 255)),
+            "score"
+        )
+        self.score_GS = pygame.sprite.GroupSingle()
+        self.score_sprite.rect.topleft = (20, 20)
+        self.score_GS.add(self.score_sprite)
 
         self.running = True
         self.playing = False
@@ -68,7 +80,7 @@ class Game():
         self.MOUSE_EVENTS = []
 
         # Player
-        self.player = Entity(self,"player", pygame.Vector2(self.WIDTH / 2, 200))
+        self.player = Entity(self,"player", self.pickaxe_type, pygame.Vector2(self.WIDTH / 2, 200))
         self.playerGS = pygame.sprite.GroupSingle(self.player)
 
         # XP bar images
@@ -139,6 +151,8 @@ class Game():
                     self.buffs.draw(self.screen)
                     self.xp_barGS.draw(self.screen)
                     self.big_buffs.draw(self.screen)
+                    self.score_GS.draw(self.screen)
+
 
                     self.manageInvicibility()
 
@@ -162,8 +176,10 @@ class Game():
                                     collided_ore.broken_sound.play()
 
                                     if self.pickaxe_type != PickaxeType.DIAMOND_PICKAXE and self.player.XP >= self.pickaxe_type.next_pickaxe_cost:
+                                        self.player.isEvolvingPickaxe = True
                                         self.player.XP -= self.pickaxe_type.next_pickaxe_cost
                                         self.pickaxe_type, self.max_XP = self.pickaxe.evolve()
+                                        self.evolution_time_begin = pygame.time.get_ticks()
 
                                     self.update_xp_bar()
 
@@ -215,7 +231,9 @@ class Game():
                             self.player.protect(False)
                             self.player.isInvincible = True
                             self.invicibilityBegin = pygame.time.get_ticks()
+
                         elif not self.player.isInvincible and not self.player.isDynamiteDuring:
+                            self.reset_game()
                             self.gameOver = True
 
                             self.sound_player.player_channel.play(self.player.hurt_sounds[random.randint(0, 2)])
@@ -247,12 +265,38 @@ class Game():
                         self.updateBackgroundScrollSpeed()
                         self.update_frequencies()
                             
+
+                    # Pickaxe evolution
+                    if self.player.isEvolvingPickaxe:
+                        self.scrollSpeed = 0
+                        self.bgSprite.setScrollSpeed(self.scrollSpeed)
+                        if self.newBg is not None:
+                            self.newBg.setScrollSpeed(self.scrollSpeed)
+
+                    # Buff timer
+
                     if (pygame.time.get_ticks() - self.buff_begin) >= 10000 and self.player.isWithBat:
                         self.player.touchBat(False)
                         self.sound_player.bat_channel.stop()
                         self.scrollSpeed = 10
                         self.updateBackgroundScrollSpeed()
                         self.update_frequencies()
+
+                    # Pickaxe evolution timer
+                    if self.player.isEvolvingPickaxe and pygame.time.get_ticks() - self.evolution_time_begin >= 1000:
+                        self.scrollSpeed = 10
+                        self.bgSprite.setScrollSpeed(self.scrollSpeed)
+                        if self.newBg is not None:
+                            self.newBg.setScrollSpeed(self.scrollSpeed)
+                        self.update_frequencies()
+
+                    #Score update every second
+                    if pygame.time.get_ticks() - self.score_tick >= 1000:
+                        self.score += self.scrollSpeed
+                        self.score_sprite.image = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF",
+                                                                   size=30).render(f"Score * {self.score}", True,
+                                                                                   (255, 255, 255))
+                        self.score_tick = pygame.time.get_ticks()
 
                     self.pickaxeGS.update()
                     self.playerGS.update()
@@ -261,9 +305,10 @@ class Game():
                     self.pickaxe_Hitting_Animation.update(events)
                     self.buffs.update(self.scrollSpeed)
                     self.xp_barGS.update(events)
+
                     self.big_buffs.update(self.scrollSpeed)
                     self.bg.update()
-
+                    self.score_GS.update(events)
 
                     if (self.ESC_KEY):
                         self.playing = False
@@ -375,21 +420,22 @@ class Game():
         #screenreset
         self.screen.fill((0, 0, 0))
 
-        #Player reset
-
-        self.player.kill()
-        self.player = Entity(self,"player", pygame.Vector2(self.WIDTH / 2, 200))
-        self.playerGS.add(self.player)
-
-        self.player.XP = 0
-        self.update_xp_bar()
-
         #Pickaxe reset
         if self.pickaxe is not None:
             self.pickaxe.kill()
             self.pickaxe = None
         self.pickaxeGS.empty()
         self.pickaxe_type = PickaxeType.WOOD_PICKAXE
+
+        #Player reset
+        self.player.isWithBat = False
+        self.player.isProtected = False
+        self.player.kill()
+        self.player = Entity(self,"player", self.pickaxe_type, pygame.Vector2(self.WIDTH / 2, 200))
+        self.playerGS.add(self.player)
+
+        self.player.XP = 0
+        self.update_xp_bar()
 
         #Obstacles reset
         self.obstacles.empty()
@@ -404,6 +450,11 @@ class Game():
         self.latest_ore = pygame.time.get_ticks()
         #flag reset
         self.gameOver = False
+
+        #Score reset
+        self.score = 0
+        self.score_sprite.image = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF", size=30).render(f"{self.score}", True, (255, 255, 255))
+        self.score_tick = pygame.time.get_ticks()
 
     def quit(self):
         pygame.quit()
@@ -434,12 +485,12 @@ class Game():
         if current_time - self.latest_buff > self.buff_frequency:
             self.latest_buff = current_time
 
-            
+
             if random.choice(["Bat", "Protection"]) == "Bat":
                 new_buff = Bat(self.scrollSpeed, self.sound_player).generate_buff(self)
             else:
                 new_buff = Protection(self.scrollSpeed).generate_buff(self)
-                
+
             if (not pygame.sprite.spritecollide(new_buff, self.buffs, False, None)
                     and not pygame.sprite.spritecollide(new_buff, self.obstacles, False, None)
                     and not pygame.sprite.spritecollide(new_buff, self.ores, False, None)):
@@ -470,12 +521,12 @@ class Game():
                     new_big_buff.kill()
                     del new_big_buff
 
-                
+
     def manage_background(self):
         if self.bgSprite.rect.top <= 0 and self.newBg is None:
             self.newBg = Background(self.scrollSpeed, (1920/2, self.bgSprite.rect.bottom))
             self.bg.add(self.newBg)
-        
+
         if self.bgSprite.rect.bottom <= 0:
             self.bgSprite.kill()
             del self.bgSprite
