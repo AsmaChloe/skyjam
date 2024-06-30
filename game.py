@@ -222,11 +222,10 @@ class Game():
 
                     # Pickaxe evolution
                     if self.player.isEvolvingPickaxe:
-                        self.scrollSpeed = 5
+                        self.scrollSpeed = 0
                         self.bgSprite.setScrollSpeed(self.scrollSpeed)
                         if self.newBg is not None:
                             self.newBg.setScrollSpeed(self.scrollSpeed)
-                        self.update_frequencies()
 
                     # Buff timer
                     if pygame.time.get_ticks() - self.buff_begin >= 10000:
