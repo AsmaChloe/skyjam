@@ -259,12 +259,17 @@ class Game():
                                 self.invicibilityBegin = pygame.time.get_ticks()
 
                             elif not self.player.isInvincible and not self.player.isDynamiteDuring:
-                                self.reset_game()
-                                self.gameOver = True
+                                # self.reset_game()
+                                # self.gameOver = True
+                                self.scrollSpeed = 0
+                                self.updateBackgroundScrollSpeed()
+                                self.player.hasLost = True
 
+                                #Death sound
                                 self.sound_player.player_channel.play(self.player.hurt_sounds[random.randint(0, 2)])
                                 self.sound_player.stop_sounds_at_game_over()
 
+                                #Saving score
                                 if self.score > self.best_score:
                                     self.best_score = self.score
                                     self.scoring_json_file["best"] = self.best_score
