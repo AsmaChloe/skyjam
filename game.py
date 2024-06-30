@@ -30,6 +30,7 @@ class Game():
         self.WIDTH, self.HEIGHT = 1920, 1080 #1280 , 720
         self.LEFT_BORDER, self.RIGHT_BORDER = 445, 1480
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+        self.accel = 10
         
         # Background
         self.bgSprite = Background(self.scrollSpeed, (1920/2, 0))
@@ -207,7 +208,7 @@ class Game():
                                 self.buff_begin = pygame.time.get_ticks()
                                 collidedBuff.kill()
                                 self.original_scrollSpeed = self.scrollSpeed
-                                self.scrollSpeed = self.scrollSpeed * 0.5
+                                self.scrollSpeed = int(self.scrollSpeed * 0.5)
                                 self.updateBackgroundScrollSpeed()
                                 self.update_frequencies()
 
@@ -324,9 +325,11 @@ class Game():
 
                     self.current_menu.sprites.update(self.MOUSE_EVENTS)
                     self.current_menu.sprites.draw(self.screen)
-
-                self.scrollSpeed += 0.005
-                self.updateBackgroundScrollSpeed()
+                    
+                if not (self.player.isDynamiteDuring or self.player.isDynamiteStarting or self.player.isWithBat):
+                    self.accel += 0.005
+                    self.scrollSpeed = int(self.accel)
+                    self.updateBackgroundScrollSpeed()
             else:
                 # Music
                 if not self.sound_player.current_key == "menu":
@@ -459,6 +462,7 @@ class Game():
 
         #Background reset
         self.scrollSpeed = 10
+        self.accel = 10
         self.updateBackgroundScrollSpeed()
         self.update_frequencies()
 
