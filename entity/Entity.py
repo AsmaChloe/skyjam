@@ -127,7 +127,8 @@ class Entity(pygame.sprite.Sprite):
                     self.dynamiteTickFrame = 0
                     self.isDynamite = False
                     self.isDynamiteEnding = False
-        elif self.isDynamite
+        elif self.isDynamite:
+            pass
         else :
             self.image = pygame.Surface((290, 320), pygame.SRCALPHA, 32).convert_alpha()
             if(self.isEvolvingPickaxe)  :
