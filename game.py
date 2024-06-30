@@ -18,7 +18,7 @@ from utils.CustomSprite import CustomSprite
 from utils.SoundPlayer import SoundPlayer
 from entity.pickaxe import Pickaxe
 from entity.slowdown import Bat
-
+from utils.JsonUtil import JsonUtil
 
 class Game():
     def __init__(self):
@@ -47,8 +47,15 @@ class Game():
         self.dt = 0
 
         # Score that depends on time spent in game
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        self.scoring_json_file_path = os.path.join(current_dir, 'save', 'scoring.json')
+
+        self.scoring_json_file = JsonUtil.load_json(self.scoring_json_file_path)
+
         self.score_tick = 0
         self.score = 0
+        self.best_score = self.scoring_json_file.get("best")
+        
         self.score_sprite = CustomSprite(
             pygame.font.Font("fonts/8bit-wonder/8-BIT WONDER.TTF", size=30).render(f"Score * {self.score}", True, (255, 255, 255)),
             "score"
@@ -178,7 +185,14 @@ class Game():
                             self.gameOver = True
                             self.sound_player.player_channel.play(self.player.hurt_sounds[random.randint(0, 2)])
                             self.sound_player.stop_sounds_at_game_over()
-                    
+
+                            if self.score > self.best_score:
+                                self.best_score = self.score
+                                self.scoring_json_file["best"] = self.best_score
+                                JsonUtil.save_json(self.scoring_json_file_path, self.scoring_json_file)
+                            self.gameover_menu.update() 
+                            self.main_menu.update()    
+
                     collidedBuff = pygame.sprite.spritecollideany(self.player, self.buffs)
                     
                     if collidedBuff is not None:
@@ -398,7 +412,7 @@ class Game():
             appropriate_level = min(self.xp_levels)
 
         self.custom_sprite.image = self.xp_bar_images[appropriate_level]
-        self.custom_sprite.rect.topleft = (self.WIDTH - self.custom_sprite.rect.width - 70, 23)
+        self.custom_sprite.rect.topleft = (self.WIDTH - self.custom_sprite.rect.width - 70, 18)
 
     def reset_xp_bar(self):
         initial_xp_image = pygame.image.load("img/xp/xp_bar_0.png").convert_alpha()

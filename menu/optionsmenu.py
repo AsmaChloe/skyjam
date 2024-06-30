@@ -4,12 +4,14 @@ from utils.CustomSprite import CustomSprite
 
 class OptionsMenu(Menu):
     def __init__(self, game, state="Options", previous_state=(None, None)):
-
         self.main_text = "Options"
         self.sub_text = f"Musique * {'On' if game.MUSIC_ON else 'Off'}"
-
+        self.reset_text = "Reset Score"
+        
         self.title_sprite = None
         self.sub_title_sprite = None
+        self.reset_sprite = None
+        
         Menu.__init__(self, game, state, previous_state)
 
     def create_sprites(self):
@@ -48,3 +50,4 @@ class OptionsMenu(Menu):
             self.game.sound_player.stop()
         elif not self.game.sound_player.is_on() and self.game.MUSIC_ON:
             self.game.sound_player.load_and_play("menu", {"loops": -1}, self.game.MUSIC_ON)
+        

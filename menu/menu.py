@@ -52,6 +52,10 @@ class Menu():
         if self.previous_state[0] is not None:
             self.game.current_menu = self.previous_state[1]
 
+    def update(self):
+        self.sprites.empty()
+        self.create_sprites()
+        self.position_sprites()
 
 class MenuSubOptions(Menu):
     def __init__(self, game, state, main_text, menu_texts, previous_state=(None, None)):
