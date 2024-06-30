@@ -20,7 +20,7 @@ class ObstacleType(Enum):
         obj._value_ = value
         return obj
 
-    def __init__(self, obstacle_name, direction, image_path, probability):
+    def __init__(self, obstacle_name, direction, image_path, probability, breakable):
         self.obstacle_name = obstacle_name
         self.direction = direction
         if obstacle_name == "whole_beam":
@@ -30,12 +30,14 @@ class ObstacleType(Enum):
         else:
             self.image = pygame.image.load(image_path)
         self.probability = probability
+        self.breakable = breakable
 
-    WHOLE_BEAM = ("whole_beam", "center", "img/obstacles/300x/Poutre_Metal-export.png", 0.6)
-    LEFT_SMALL_BEAM = ("left_small_beam", "left", "img/obstacles/300x/Poutre_Metal_Incrustee_L.png", 0.1)
-    RIGHT_SMALL_BEAM = ("right_small_beam", "right", "img/obstacles/300x/Poutre_Metal_Incrustee_R-export.png", 0.1)
-    LEFT_SPIKE = ("left_spike", "left", "img/obstacles/300x/Pics_Pierres_L.png", 0.2)
+    WHOLE_BEAM = ("whole_beam", "center", "img/obstacles/300x/Poutre_Metal-export.png", 0.6, False)
+    LEFT_SMALL_BEAM = ("left_small_beam", "left", "img/obstacles/300x/Poutre_Metal_Incrustee_L.png", 0.1, False)
+    RIGHT_SMALL_BEAM = ("right_small_beam", "right", "img/obstacles/300x/Poutre_Metal_Incrustee_R-export.png", 0.1, False)
 
+    LEFT_SPIKE = ("left_spike", "left", "img/obstacles/300x/pierre_pics_L.png", 0.1, True)
+    RIGHT_SPIKE = ("right_spike", "right", "img/obstacles/300x/pierre_pics_R.png", 0.1, True)
 
 class Obstacle(CustomSprite):
     """
@@ -60,6 +62,9 @@ class Obstacle(CustomSprite):
 
         self.mask = pygame.mask.from_surface(self.image)
 
+        self.breakable = self.obs_type.breakable
+        self.broken = False
+
     @override
     def update(self, events, scrollSpeed):
         self.rect.midtop = self.mid_top_position
@@ -67,8 +72,9 @@ class Obstacle(CustomSprite):
         self.mid_top_position.y -= self.speed
 
         # if out of screen kill
-        if self.rect.bottom < 0:
+        if self.rect.bottom < 0 or self.broken:
             self.kill()
+
 def generate_obstacle(game, obstacle_type : ObstacleType):
     """
     Generates an obstacle based on the type
@@ -76,7 +82,7 @@ def generate_obstacle(game, obstacle_type : ObstacleType):
     :return:
     """
     offset = 100
-    if(obstacle_type.obstacle_name == "left_spike"):
+    if(obstacle_type.obstacle_name == "left_spike" or obstacle_type.obstacle_name == "right_spike"):
         offset = 75
 
     if (obstacle_type.direction == "left"):

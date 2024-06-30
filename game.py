@@ -186,6 +186,9 @@ class Game():
 
                                 if(collided_obstacle) :
                                     self.display_collision_animation(self.pickaxe.rect.midbottom)
+                                    if(collided_obstacle.breakable):
+                                        # self.sound_player.ore_channel.play(collided_obstacle.broken_sound)
+                                        collided_obstacle.broken = True
                             self.pickaxe.switchDir()
 
 
@@ -218,7 +221,6 @@ class Game():
 
                     # Collision player / obstacles
                     if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
-
                         # If the player has a bat
                         if self.player.isWithBat:
                             self.player.touchBat(False)
