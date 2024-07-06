@@ -50,7 +50,7 @@ class BackgroundType(Enum):
 class Background(pygame.sprite.Sprite):
     def __init__(self, scrollSpeed, initPos):
         super().__init__()
-        self.baseTexture = pygame.image.load("img/cailloux.png").convert()
+        self.baseTexture = pygame.image.load("graphics/cailloux.png").convert()
         self.middleTexture = pygame.image.load("graphics/background/Fond_gros.png").convert_alpha()
 
         self.image = pygame.Surface((2436, 2 * 1050))

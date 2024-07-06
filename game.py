@@ -21,15 +21,16 @@ from entity.pickaxe import Pickaxe, PickaxeType
 from entity.slowdown import Bat
 from entity.protection import Protection
 from entity.boom import Dynamite
+from game_utils.playerStateManager import PlayerStateManager
 
 from utils.JsonUtil import JsonUtil
 
-class Game():
+class Game:
     def __init__(self):
         pygame.init()
         self.scrollSpeed = 10
         self.accel = 10
-        self.WIDTH, self.HEIGHT = 1920, 1080 #1280 , 720
+        self.WIDTH, self.HEIGHT = 1920, 1080  #1280 , 720
         self.LEFT_BORDER, self.RIGHT_BORDER = 445, 1480
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         
@@ -90,7 +91,7 @@ class Game():
         self.starting_animationGS = pygame.sprite.GroupSingle(self.starting_animation)
 
         # Menus
-        self.main_menu = MainMenu(self, "Main", "img/logo_500.png", )
+        self.main_menu = MainMenu(self, "Main", "graphics/logo_500.png", )
         self.options_menu = OptionsMenu(self, previous_state=("Main", self.main_menu))
         self.credit_menu = CreditMenu(self, previous_state=("Main", self.main_menu))
         self.gameover_menu = GameOver(self)
@@ -101,11 +102,12 @@ class Game():
         self.MOUSE_EVENTS = []
 
         # Player
-        self.player = Entity(self,"player", self.pickaxe_type, pygame.Vector2(self.WIDTH / 2, 200))
+        self.playerStates = PlayerStateManager()
+        self.player = Entity(self,"player", self.pickaxe_type, pygame.Vector2(self.WIDTH / 2, 200), self.playerStates)
         self.playerGS = pygame.sprite.GroupSingle(self.player)
 
         # XP bar images
-        self.xp_bar_images = { i : pygame.image.load(f"img/xp/xp_bar_{i}.png").convert_alpha() for i in range(0,101,5)}
+        self.xp_bar_images = { i : pygame.image.load(f"graphics/xp/xp_bar_{i}.png").convert_alpha() for i in range(0,101,5)}
         self.image = self.xp_bar_images[0]
         self.xp_bar = CustomSprite(self.image, "xp_bar")
         self.xp_barGS = pygame.sprite.GroupSingle(self.xp_bar)
@@ -165,7 +167,7 @@ class Game():
 
                     if not self.starting_animation.alive():
                         self.first_game = False
-                else :
+                else:
                     if not self.gameOver:
 
                         # Music
@@ -200,7 +202,7 @@ class Game():
                             if collided_obstacle or collided_ore:
 
                                 if not self.pickaxe.noHit:
-                                    if(collided_ore) :
+                                    if collided_ore:
                                         # Add XP
                                         self.player.XP += collided_ore.ore_type.XP
 
@@ -224,21 +226,21 @@ class Game():
                                             collided_obstacle.kill()
                                 self.pickaxe.switchDir()
 
-
                         collidedBuff = pygame.sprite.spritecollideany(self.player, self.buffs, pygame.sprite.collide_mask)
                         collidedBigBuff = pygame.sprite.spritecollideany(self.player, self.big_buffs, pygame.sprite.collide_mask)
 
                         if collidedBigBuff is not None:
-                            if isinstance(collidedBigBuff, Dynamite) and not self.player.isDynamite:
+                            if isinstance(collidedBigBuff, Dynamite) and not self.playerStates.isDynamite:
                                 self.sound_player.player_channel.play(self.player.caughtDynamiteSound)
                                 collidedBigBuff.kill()
-                                self.player.isDynamite = True
-                                self.player.isInvincible = True
+                                self.playerStates.isDynamite = True
+                                self.playerStates.isInvincible = True
+                                self.player.dynamiteTickFrame = 0
                                 self.dynamite_buff_timer = pygame.time.get_ticks()
                         else:
-                            if collidedBuff is not None and not self.player.isDynamite:
+                            if collidedBuff is not None and not self.playerStates.isDynamite:
                                 if isinstance(collidedBuff, Bat):
-                                    self.player.touchBat(True)
+                                    self.playerStates.touchBat(True)
                                     self.sound_player.bat_channel.play(self.player.caughtBatSound)
                                     self.buff_begin = pygame.time.get_ticks()
                                     collidedBuff.kill()
@@ -248,7 +250,7 @@ class Game():
                                     self.update_frequencies()
 
                                 if isinstance(collidedBuff, Protection):
-                                    self.player.protect(True)
+                                    self.playerStates.protect(True)
                                     self.player.caughtShieldSound.play()
                                     collidedBuff.kill()
 
@@ -256,25 +258,25 @@ class Game():
                         if pygame.sprite.spritecollide(self.player, self.obstacles, False, pygame.sprite.collide_mask):
 
                             # If the player has a bat
-                            if self.player.isWithBat:
-                                self.player.touchBat(False)
+                            if self.playerStates.isWithBat:
+                                self.playerStates.touchBat(False)
                                 self.sound_player.bat_channel.stop()
                                 self.scrollSpeed = self.original_scrollSpeed
                                 self.updateBackgroundScrollSpeed()
                                 self.update_frequencies()
-                                self.player.isInvincible = True
+                                self.playerStates.isInvincible = True
                                 self.invicibilityBegin = pygame.time.get_ticks()
-                            elif self.player.isProtected and not self.player.isInvincible:
-                                self.player.protect(False)
-                                self.player.isInvincible = True
+                            elif self.playerStates.isProtected and not self.playerStates.isInvincible:
+                                self.playerStates.protect(False)
+                                self.playerStates.isInvincible = True
                                 self.invicibilityBegin = pygame.time.get_ticks()
 
-                            elif not self.player.isInvincible and not self.player.isDynamiteDuring:
+                            elif not self.playerStates.isInvincible and not self.playerStates.isDynamiteDuring:
                                 # self.reset_game()
                                 # self.gameOver = True
                                 self.scrollSpeed = 0
                                 self.updateBackgroundScrollSpeed()
-                                self.player.hasLost = True
+                                self.playerStates.hasLost = True
 
                                 #Death sound
                                 self.sound_player.player_channel.play(self.player.hurt_sounds[random.randint(0, 2)])
@@ -289,63 +291,63 @@ class Game():
                                 self.gameover_menu.update()
                                 self.main_menu.update()
 
-                        if (pygame.time.get_ticks() - self.dynamite_buff_timer >= 3500) and self.player.isDynamite and not self.player.isDynamiteStarting and not self.player.isDynamiteDuring and not self.player.isDynamiteEnding:
+                        if (pygame.time.get_ticks() - self.dynamite_buff_timer >= 3500) and self.playerStates.isDynamite and not self.playerStates.isDynamiteStarting and not self.playerStates.isDynamiteDuring and not self.playerStates.isDynamiteEnding:
                             self.original_scrollSpeed = self.scrollSpeed
                             self.scrollSpeed = self.scrollSpeed * 3
-                            self.player.isProtected = False
-                            self.player.isWithBat = False
-                            self.player.isThrowing = False
-                            self.player.dynamiteTickFrame = 0
-                            self.player.isDynamiteStarting = True
+                            self.playerStates.isProtected = False
+                            self.playerStates.isWithBat = False
+                            self.playerStates.isThrowing = False
+                            self.playerStates.dynamiteTickFrame = 0
+                            self.playerStates.isDynamiteStarting = True
                             if self.pickaxe is not None:
                                 self.pickaxe.kill()
                             self.updateBackgroundScrollSpeed()
                             self.update_frequencies()
 
-                        if self.player.isDynamiteDuring :
-                            self.player.isInvincible = True
+                        if self.playerStates.isDynamiteDuring :
+                            self.playerStates.isInvincible = True
                             self.invicibilityBegin = pygame.time.get_ticks()
 
 
-                        if (pygame.time.get_ticks() - self.dynamite_buff_timer >= 8500) and self.player.isDynamite:
+                        if (pygame.time.get_ticks() - self.dynamite_buff_timer >= 8500) and self.playerStates.isDynamite:
                             self.scrollSpeed = self.original_scrollSpeed
-                            self.player.isDynamiteDuring = False
-                            self.player.isDynamiteEnding = True
-                            self.player.dynamiteTickFrame = 0
-                            self.player.isDynamite = False
-                            self.player.isInvincible = True
+                            self.playerStates.isDynamiteDuring = False
+                            self.playerStates.isDynamiteEnding = True
+                            self.playerStates.dynamiteTickFrame = 0
+                            self.playerStates.isDynamite = False
+                            self.playerStates.isInvincible = True
                             self.invicibilityBegin = pygame.time.get_ticks()
                             self.updateBackgroundScrollSpeed()
                             self.update_frequencies()
 
                             if isinstance(collidedBuff, Protection):
-                                self.player.protect(True)
+                                self.playerStates.protect(True)
                                 self.player.caughtShieldSound.play()
                                 collidedBuff.kill()
 
                         # Pickaxe evolution starts
-                        if self.player.isEvolvingPickaxe:
+                        if self.playerStates.isEvolvingPickaxe:
                             self.scrollSpeed = 0
                             self.updateBackgroundScrollSpeed()
 
 
                         # Buff timer ends
-                        if (pygame.time.get_ticks() - self.buff_begin) >= 10000 and self.player.isWithBat:
-                            self.player.touchBat(False)
+                        if (pygame.time.get_ticks() - self.buff_begin) >= 10000 and self.playerStates.isWithBat:
+                            self.playerStates.touchBat(False)
                             self.sound_player.bat_channel.stop()
                             self.scrollSpeed = self.original_scrollSpeed
                             self.updateBackgroundScrollSpeed()
                             self.update_frequencies()
 
                         # Pickaxe evolution timer end
-                        if self.player.isEvolvingPickaxe and pygame.time.get_ticks() - self.evolution_time_begin >= 1000:
+                        if self.playerStates.isEvolvingPickaxe and pygame.time.get_ticks() - self.evolution_time_begin >= 1000:
                             self.scrollSpeed = self.original_scrollSpeed
                             self.updateBackgroundScrollSpeed()
                             self.update_frequencies()
 
                         #Score update every second
                         if pygame.time.get_ticks() - self.score_tick >= 1000:
-                            self.score += (int)(self.scrollSpeed)
+                            self.score += int(self.scrollSpeed)
                             self.score_sprite.image = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF",
                                                                        size=30).render(f"Score * {self.score}", True,
                                                                                        (255, 255, 255))
@@ -377,7 +379,7 @@ class Game():
                         self.current_menu.sprites.update(self.MOUSE_EVENTS)
                         self.current_menu.sprites.draw(self.screen)
 
-                if not (self.player.isDynamiteDuring or self.player.isDynamiteStarting or self.player.isWithBat):
+                if not (self.playerStates.isDynamiteDuring or self.playerStates.isDynamiteStarting or self.playerStates.isWithBat):
                     self.accel += 0.005
                     self.scrollSpeed = int(self.accel)
                     self.updateBackgroundScrollSpeed()
@@ -468,9 +470,9 @@ class Game():
         self.big_buff_frequency = 5000 * (10/speed)
         
     def manageInvicibility(self):
-        if self.player.isInvincible and not self.player.isDynamiteDuring:
+        if self.playerStates.isInvincible and not self.playerStates.isDynamiteDuring:
             if pygame.time.get_ticks() - self.invicibilityBegin >= 1000:
-                self.player.isInvincible = False
+                self.playerStates.isInvincible = False
     
     def reset_game(self):
 
@@ -485,10 +487,9 @@ class Game():
         self.pickaxe_type = PickaxeType.WOOD_PICKAXE
 
         #Player reset
-        self.player.isWithBat = False
-        self.player.isProtected = False
+        self.playerStates = PlayerStateManager()
         self.player.kill()
-        self.player = Entity(self,"player", self.pickaxe_type, pygame.Vector2(self.WIDTH / 2, 200))
+        self.player = Entity(self,"player", self.pickaxe_type, pygame.Vector2(self.WIDTH / 2, 200), self.playerStates)
         self.playerGS.add(self.player)
 
         self.player.XP = 0

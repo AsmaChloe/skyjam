@@ -31,17 +31,17 @@ class ObstacleType(Enum):
             self.image = pygame.image.load(image_path)
         self.probability = probability
         self.breakable = breakable
-        self.broken_img_collection = [pygame.image.load(f"img/ore/stone/explosion neutre{i}.png") for i in range(1, 4)]
+        self.broken_img_collection = [pygame.image.load(f"graphics/ore/stone/explosion neutre{i}.png") for i in range(1, 4)]
 
-    WHOLE_BEAM = ("whole_beam", "center", "img/obstacles/300x/Poutre_Metal-export.png", 0.8, False)
-    LEFT_SMALL_BEAM = ("left_small_beam", "left", "img/obstacles/300x/Poutre_Metal_Incrustee_L.png", 0.1, False)
-    RIGHT_SMALL_BEAM = ("right_small_beam", "right", "img/obstacles/300x/Poutre_Metal_Incrustee_R-export.png", 0.1, False)
+    WHOLE_BEAM = ("whole_beam", "center", "graphics/obstacles/300x/Poutre_Metal-export.png", 0.8, False)
+    LEFT_SMALL_BEAM = ("left_small_beam", "left", "graphics/obstacles/300x/Poutre_Metal_Incrustee_L.png", 0.1, False)
+    RIGHT_SMALL_BEAM = ("right_small_beam", "right", "graphics/obstacles/300x/Poutre_Metal_Incrustee_R-export.png", 0.1, False)
 
-    LEFT_SPIKE = ("left_spike", "left", "img/obstacles/300x/pierre_pics_L.png", 0.1, False)
-    RIGHT_SPIKE = ("right_spike", "right", "img/obstacles/300x/pierre_pics_R.png", 0.1, False)
+    LEFT_SPIKE = ("left_spike", "left", "graphics/obstacles/300x/pierre_pics_L.png", 0.1, False)
+    RIGHT_SPIKE = ("right_spike", "right", "graphics/obstacles/300x/pierre_pics_R.png", 0.1, False)
 
-    ROCK_1 = ("rock_1", "center", "img/obstacles/300x/Roche_cassable.png", 0.6, True)
-    ROCK_2 = ("rock_2", "center", "img/obstacles/300x/Roche_cassable_R.png", 0.6, True)
+    ROCK_1 = ("rock_1", "center", "graphics/obstacles/300x/Roche_cassable.png", 0.6, True)
+    ROCK_2 = ("rock_2", "center", "graphics/obstacles/300x/Roche_cassable_R.png", 0.6, True)
 
 
 class Obstacle(CustomSprite):

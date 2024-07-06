@@ -6,7 +6,7 @@ from utils.CustomSprite import CustomSprite
 class PickaxeHittingObstacleAnimation(CustomSprite) :
     def __init__(self, sound_player, position, scroll_speed):
         self.image_collection = [
-            pygame.image.load(f"img/obstacles/hitting_animation/Animation TING{i}.png").convert_alpha() for i in
+            pygame.image.load(f"graphics/obstacles/hitting_animation/Animation TING{i}.png").convert_alpha() for i in
             range(1, 5)]
         self.img_index = 0
         image = self.image_collection[self.img_index]
