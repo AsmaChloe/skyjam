@@ -12,7 +12,7 @@ class StartingAnimation(CustomSprite):
         super().__init__(image, name)
 
         self.rect.center = position
-        self.sound = pygame.mixer.Sound("sound/Intro_chute.wav")
+        self.sound = pygame.mixer.Sound("sound/Intro_Chute.wav")
         self.sound_played = False
 
     def update(self, events):

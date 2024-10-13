@@ -73,7 +73,7 @@ class Game:
             self.best_score = 0
 
         self.score_sprite = CustomSprite(
-            pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF", size=30).render(f"Score * {self.score}", True, (255, 255, 255)),
+            pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.ttf", size=30).render(f"Score * {self.score}", True, (255, 255, 255)),
             "score"
         )
         self.score_GS = pygame.sprite.GroupSingle()
@@ -348,7 +348,7 @@ class Game:
                         #Score update every second
                         if pygame.time.get_ticks() - self.score_tick >= 1000:
                             self.score += int(self.scrollSpeed)
-                            self.score_sprite.image = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF",
+                            self.score_sprite.image = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.ttf",
                                                                        size=30).render(f"Score * {self.score}", True,
                                                                                        (255, 255, 255))
                             self.score_tick = pygame.time.get_ticks()
@@ -511,7 +511,7 @@ class Game:
 
         #Score reset
         self.score = 0
-        self.score_sprite.image = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF", size=30).render(f"{self.score}", True, (255, 255, 255))
+        self.score_sprite.image = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.ttf", size=30).render(f"{self.score}", True, (255, 255, 255))
         self.score_tick = pygame.time.get_ticks()
 
         #Background reset

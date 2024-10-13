@@ -15,8 +15,8 @@ class Menu():
         self.state = state
 
         pygame.font.init()
-        self.title_font = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF", size=title_font_size)
-        self.menu_fonts = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.TTF", size=40)
+        self.title_font = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.ttf", size=title_font_size)
+        self.menu_fonts = pygame.font.Font("fonts/bitxmap_font_tfb/BitxMap Font tfb.ttf", size=40)
 
         self.sprites = pygame.sprite.Group()
 
